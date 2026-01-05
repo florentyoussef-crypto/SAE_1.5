@@ -173,50 +173,42 @@ def main():
                 str(taux) + "\n"
             )
 
-    # VELO : heure type nom velos bornes_libres total taux_occ_places
-    with open(fichier_velo, "a", encoding="utf-8") as f:
-        somme_total = 0.0
-        somme_libres = 0.0
+    # ==========================
+# VELO (TEST SÛR)
+# ==========================
+with open(fichier_velo, "a", encoding="utf-8") as f:
+    nb_stations = 0
 
-        for s in stations:
-            statut_station = get_val(s, "status", "value")
-            if statut_station is not None and statut_station != "working":
-                continue
+    for s in stations:
+        nom = get_val(s, "name", "value")
+        velos = get_val(s, "availableBikeNumber", "value")
+        bornes_libres = get_val(s, "freeSlotNumber", "value")
+        total = get_val(s, "totalSlotNumber", "value")
 
-            nom = get_val(s, "name", "value")
-            velos = get_val(s, "availableBikeNumber", "value")
-            bornes_libres = get_val(s, "freeSlotNumber", "value")
-            total = get_val(s, "totalSlotNumber", "value")
+        if nom is None or velos is None or bornes_libres is None or total is None:
+            continue
+        if total <= 0:
+            continue
 
-            if nom is None or velos is None or bornes_libres is None or total is None or total <= 0:
-                continue
+        velos = float(velos)
+        bornes_libres = float(bornes_libres)
+        total = float(total)
 
-            velos = float(velos)
-            bornes_libres = float(bornes_libres)
-            total = float(total)
+        taux_occ_places = (total - bornes_libres) / total
 
-            taux_occ_places = (total - bornes_libres) / total
-            if taux_occ_places < 0:
-                taux_occ_places = 0.0
-            if taux_occ_places > 1:
-                taux_occ_places = 1.0
+        f.write(
+            heure + " STATION " +
+            nom.replace(" ", "_") + " " +
+            str(velos) + " " +
+            str(bornes_libres) + " " +
+            str(total) + " " +
+            str(taux_occ_places) + "\n"
+        )
 
-            somme_total += total
-            somme_libres += bornes_libres
+        nb_stations += 1
 
-            f.write(
-                heure + " STATION " +
-                nom.replace(" ", "_") + " " +
-                str(velos) + " " +
-                str(bornes_libres) + " " +
-                str(total) + " " +
-                str(taux_occ_places) + "\n"
-            )
-
-        if somme_total > 0:
-            occ_ville = (somme_total - somme_libres) / somme_total
-            f.write(heure + " VILLE VILLE 0 0 0 " + str(occ_ville) + "\n")
-
+    # LIGNE DE TEST (TOUJOURS ÉCRITE)
+    f.write(heure + " RESUME NB_STATIONS " + str(nb_stations) + "\n")
     # RELAIS : heure nom_parking 0/1 + ligne RESUME
     assoc = associer_relais(parkings, stations)
 

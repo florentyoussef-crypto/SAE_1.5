@@ -1,0 +1,35 @@
+name: analyse-quotidienne
+
+on:
+  schedule:
+    - cron: "15 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperation du depot
+        uses: actions/checkout@v4
+
+      - name: Installation de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dependances
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas matplotlib
+
+      - name: Lancer l'analyse
+        run: |
+          python analyse_semaine.py
+
+      - name: Sauvegarder les graphes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add donnees/
+          git commit -m "graphes quotidiens" || echo "rien a commit"
+          git push

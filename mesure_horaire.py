@@ -32,6 +32,7 @@ def haversine_m(lat1, lon1, lat2, lon2):
     c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
     return R * c
 
+
 def get_val(obj, *keys):
     cur = obj
     for k in keys:
@@ -41,9 +42,11 @@ def get_val(obj, *keys):
             return None
     return cur
 
+
 def creer_dossier_donnees():
     if not os.path.isdir(DOSSIER_DONNEES):
         os.makedirs(DOSSIER_DONNEES, exist_ok=True)
+
 
 def extraire_lat_lon(entite):
     coords = get_val(entite, "location", "value", "coordinates")
@@ -51,55 +54,73 @@ def extraire_lat_lon(entite):
         lon = coords[0]
         lat = coords[1]
         return lat, lon
+
     coords2 = get_val(entite, "location", "coordinates")
     if coords2 and isinstance(coords2, list) and len(coords2) >= 2:
         lon = coords2[0]
         lat = coords2[1]
         return lat, lon
+
     return None, None
+
 
 def recuperer_voiture():
     r = requests.get(URL_VOITURE, timeout=20)
     return r.json()
 
+
 def recuperer_velo():
     r = requests.get(URL_VELO, timeout=20)
     return r.json()
 
+
 def taux_ville_voiture(parkings):
     somme_total = 0.0
     somme_libres = 0.0
+
     for p in parkings:
         if get_val(p, "status", "value") != "Open":
             continue
+
         libres = get_val(p, "availableSpotNumber", "value")
         total = get_val(p, "totalSpotNumber", "value")
+
         if libres is None or total is None or total <= 0:
             continue
+
         somme_total += float(total)
         somme_libres += float(libres)
+
     if somme_total <= 0:
         return None
+
     return (somme_total - somme_libres) / somme_total
+
 
 def associer_relais(parkings, stations):
     assoc = {}
+
     for p in parkings:
         pid = p.get("id", "")
         plat, plon = extraire_lat_lon(p)
         if plat is None:
             continue
+
         proches = []
         for s in stations:
             slat, slon = extraire_lat_lon(s)
             if slat is None:
                 continue
+
             d = haversine_m(plat, plon, slat, slon)
             if d <= RAYON_RELAIS:
                 proches.append((d, s))
+
         proches.sort(key=lambda x: x[0])
         assoc[pid] = proches
+
     return assoc
+
 
 def relais_ok_pour_parking(parking, stations_proches):
     if get_val(parking, "status", "value") != "Open":
@@ -118,17 +139,21 @@ def relais_ok_pour_parking(parking, stations_proches):
         statut_station = get_val(s, "status", "value")
         if statut_station is not None and statut_station != "working":
             continue
+
         velos = get_val(s, "availableBikeNumber", "value")
         bornes_libres = get_val(s, "freeSlotNumber", "value")
         if velos is None or bornes_libres is None:
             continue
+
         velos = float(velos)
         bornes_libres = float(bornes_libres)
+
         if velos >= SEUIL_VELOS_DISPO and bornes_libres >= SEUIL_BORNES_LIBRES:
             station_ok = True
             break
 
     return parking_ok and station_ok
+
 
 def main():
     creer_dossier_donnees()
@@ -144,7 +169,9 @@ def main():
     parkings = recuperer_voiture()
     stations = recuperer_velo()
 
-    # VOITURE : heure type nom libres total taux
+    # ==========================
+    # VOITURE
+    # ==========================
     with open(fichier_voiture, "a", encoding="utf-8") as f:
         tv = taux_ville_voiture(parkings)
         if tv is not None:
@@ -153,18 +180,23 @@ def main():
         for p in parkings:
             if get_val(p, "status", "value") != "Open":
                 continue
+
             nom = get_val(p, "name", "value")
             libres = get_val(p, "availableSpotNumber", "value")
             total = get_val(p, "totalSpotNumber", "value")
+
             if nom is None or libres is None or total is None or total <= 0:
                 continue
+
             libres = float(libres)
             total = float(total)
+
             taux = (total - libres) / total
             if taux < 0:
                 taux = 0.0
             if taux > 1:
                 taux = 1.0
+
             f.write(
                 heure + " PARKING " +
                 nom.replace(" ", "_") + " " +
@@ -174,42 +206,45 @@ def main():
             )
 
     # ==========================
-# VELO (TEST SÛR)
-# ==========================
-with open(fichier_velo, "a", encoding="utf-8") as f:
-    nb_stations = 0
+    # VELO (TEST SÛR)
+    # ==========================
+    with open(fichier_velo, "a", encoding="utf-8") as f:
+        nb_stations = 0
 
-    for s in stations:
-        nom = get_val(s, "name", "value")
-        velos = get_val(s, "availableBikeNumber", "value")
-        bornes_libres = get_val(s, "freeSlotNumber", "value")
-        total = get_val(s, "totalSlotNumber", "value")
+        for s in stations:
+            nom = get_val(s, "name", "value")
+            velos = get_val(s, "availableBikeNumber", "value")
+            bornes_libres = get_val(s, "freeSlotNumber", "value")
+            total = get_val(s, "totalSlotNumber", "value")
 
-        if nom is None or velos is None or bornes_libres is None or total is None:
-            continue
-        if total <= 0:
-            continue
+            if nom is None or velos is None or bornes_libres is None or total is None:
+                continue
+            if total <= 0:
+                continue
 
-        velos = float(velos)
-        bornes_libres = float(bornes_libres)
-        total = float(total)
+            velos = float(velos)
+            bornes_libres = float(bornes_libres)
+            total = float(total)
 
-        taux_occ_places = (total - bornes_libres) / total
+            taux_occ_places = (total - bornes_libres) / total
 
-        f.write(
-            heure + " STATION " +
-            nom.replace(" ", "_") + " " +
-            str(velos) + " " +
-            str(bornes_libres) + " " +
-            str(total) + " " +
-            str(taux_occ_places) + "\n"
-        )
+            f.write(
+                heure + " STATION " +
+                nom.replace(" ", "_") + " " +
+                str(velos) + " " +
+                str(bornes_libres) + " " +
+                str(total) + " " +
+                str(taux_occ_places) + "\n"
+            )
 
-        nb_stations += 1
+            nb_stations += 1
 
-    # LIGNE DE TEST (TOUJOURS ÉCRITE)
-    f.write(heure + " RESUME NB_STATIONS " + str(nb_stations) + "\n")
-    # RELAIS : heure nom_parking 0/1 + ligne RESUME
+        # LIGNE DE TEST (toujours écrite)
+        f.write(heure + " RESUME NB_STATIONS " + str(nb_stations) + "\n")
+
+    # ==========================
+    # RELAIS
+    # ==========================
     assoc = associer_relais(parkings, stations)
 
     with open(fichier_relais, "a", encoding="utf-8") as f:
@@ -238,6 +273,7 @@ with open(fichier_velo, "a", encoding="utf-8") as f:
 
         if nb_test > 0:
             f.write(heure + " RESUME " + str(nb_ok / nb_test) + "\n")
+
 
 if __name__ == "__main__":
     main()

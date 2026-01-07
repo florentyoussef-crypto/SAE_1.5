@@ -1,10 +1,15 @@
-name: collecte-30min
+name: analyse-quotidienne
 
 on:
+  # Analyse automatique une fois par jour
+  # Ici à 02:15 UTC (≈ 03:15 heure française en hiver)
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "15 2 * * *"
+
+  # Lancement manuel possible depuis GitHub
   workflow_dispatch:
 
+# Autorisation pour pouvoir commit les graphes
 permissions:
   contents: write
 
@@ -13,27 +18,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Récupération du dépôt
       - name: Recuperation du depot
         uses: actions/checkout@v4
 
+      # 2) Installation de Python
       - name: Installation de Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 3) Installation des dépendances nécessaires à l'analyse
       - name: Installer les dependances
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas matplotlib
+          pip install pandas matplotlib
 
-      - name: Lancer la collecte (30 min)
+      # 4) Lancer l'analyse hebdomadaire / quotidienne
+      - name: Lancer l analyse
         run: |
-          python mesure_horaire.py
+          python analyse_semaine.py
 
-      - name: Sauvegarder les donnees
+      # 5) Sauvegarder les graphes générés
+      - name: Sauvegarder les graphes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add donnees/
-          git commit -m "collecte automatique 30 min" || echo "rien a commit"
+          git commit -m "mise a jour des graphes quotidiens" || echo "rien a commit"
           git push

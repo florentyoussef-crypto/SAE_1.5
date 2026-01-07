@@ -256,33 +256,33 @@ def main():
 
             f.write(f"{date_str},{heure_str},{timestamp},PARKING,{nom},{int(float(libres))},{int(float(total))},{taux},{lat},{lon}\n")
 
-    # ========================================================
-    #                       ÉCRITURE VÉLO
-    # ========================================================
-    with open(fichier_velo, "a", encoding="utf-8") as f:
-        nb_stations = 0
+# ========================================================
+#                       ÉCRITURE VÉLO
+# ========================================================
+with open(fichier_velo, "a", encoding="utf-8") as f:
+    for s in stations:
+        nom = get_val(s, "address", "value", "streetAddress")
+        velos = get_val(s, "availableBikeNumber", "value")
+        bornes = get_val(s, "freeSlotNumber", "value")
+        total = get_val(s, "totalSlotNumber", "value")
 
-        for s in stations:
-            nom = get_val(s, "address", "value", "streetAddress")
+        if nom is None or velos is None or bornes is None or total is None:
+            continue
+        if total <= 0:
+            continue
 
-            velos = get_val(s, "availableBikeNumber", "value")
-            bornes = get_val(s, "freeSlotNumber", "value")
-            total = get_val(s, "totalSlotNumber", "value")
+        taux_places = (float(total) - float(bornes)) / float(total)
 
-            if nom is None or velos is None or bornes is None or total is None or total <= 0:
-                continue
+        lat, lon = extraire_lat_lon(s)
+        if lat is None or lon is None:
+            lat, lon = "", ""
 
-            taux_places = (float(total) - float(bornes)) / float(total)
+        # IMPORTANT : on met le nom entre guillemets pour éviter les problèmes de virgules
+        nom_csv = str(nom).replace('"', "'")
 
-            lat, lon = extraire_lat_lon(s)
-            if lat is None or lon is None:
-                lat, lon = "", ""
-
-            f.write(f"{date_str},{heure_str},{timestamp},STATION,{nom},{int(float(velos))},{int(float(bornes))},{int(float(total))},{taux_places},{lat},{lon}\n")
-            nb_stations += 1
-
-        # Ligne de contrôle : si elle vaut 0, c'est que rien n'a été écrit
-        f.write(f"{date_str},{heure_str},{timestamp},TEST_NB_STATIONS,{nb_stations},0,0,0,0,\n")
+        f.write(
+            f'{date_str},{heure_str},{timestamp},STATION,"{nom_csv}",{int(float(velos))},{int(float(bornes))},{int(float(total))},{taux_places},{lat},{lon}\n'
+        )
 
     # ========================================================
     #                       ÉCRITURE RELAIS

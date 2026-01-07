@@ -1,13 +1,17 @@
-name: analyse-quotidienne
+name: collecte-30min
 
 on:
   schedule:
-    - cron: "15 2 * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - name: Recuperation du depot
         uses: actions/checkout@v4
@@ -20,16 +24,16 @@ jobs:
       - name: Installer les dependances
         run: |
           python -m pip install --upgrade pip
-          pip install pandas matplotlib
+          pip install requests pandas matplotlib
 
-      - name: Lancer l'analyse
+      - name: Lancer la collecte (30 min)
         run: |
-          python analyse_semaine.py
+          python mesure_horaire.py
 
-      - name: Sauvegarder les graphes
+      - name: Sauvegarder les donnees
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add donnees/
-          git commit -m "graphes quotidiens" || echo "rien a commit"
+          git commit -m "collecte automatique 30 min" || echo "rien a commit"
           git push

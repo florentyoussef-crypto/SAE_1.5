@@ -317,11 +317,7 @@ with open(fichier_velo, "a", encoding="utf-8") as f:
         if total_test > 0:
             f.write(f"{date_str},{heure_str},{timestamp},RESUME,{ok_test / total_test}\n")
 
-    # ========================================================
-    #                    TRACE D'EXÉCUTION
-    # ========================================================
-    with open(os.path.join(DOSSIER_DONNEES, "test_execution.txt"), "a", encoding="utf-8") as f:
-        f.write(timestamp + " -> script execute OK\n")
+  
 
 
 if __name__ == "__main__":

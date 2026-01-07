@@ -47,6 +47,8 @@ DOSSIER_DONNEES = "donnees"
 # ============================================================
 
 def distance_haversine_m(lat1, lon1, lat2, lon2):
+    # Calcul d'une distance GPS (en mètres) entre deux points.
+    # C'est une formule standard appelée "Haversine".
     R = 6371000.0
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
@@ -58,6 +60,8 @@ def distance_haversine_m(lat1, lon1, lat2, lon2):
 
 
 def get_val(obj, *cles):
+    # Accès "sécurisé" à un JSON imbriqué :
+    # si une clé manque, on renvoie None au lieu de faire planter le programme.
     cur = obj
     for c in cles:
         if isinstance(cur, dict) and c in cur:
@@ -68,17 +72,24 @@ def get_val(obj, *cles):
 
 
 def creer_dossier_si_absent(chemin_dossier):
+    # Création du dossier s'il n'existe pas.
+    # (GitHub ne garde pas les dossiers vides, donc on le force à exister)
     if not os.path.isdir(chemin_dossier):
         os.makedirs(chemin_dossier, exist_ok=True)
 
 
 def ecrire_entete_si_fichier_vide(chemin_fichier, entete):
+    # On veut un vrai CSV lisible facilement dans Excel / pandas.
+    # Donc on écrit l'entête seulement si :
+    # - fichier absent
+    # - ou fichier vide
     if (not os.path.exists(chemin_fichier)) or os.path.getsize(chemin_fichier) == 0:
         with open(chemin_fichier, "w", encoding="utf-8") as f:
             f.write(entete + "\n")
 
 
 def extraire_lat_lon(entite):
+    # Dans l'API, les coordonnées sont en GeoJSON : [longitude, latitude]
     coords = get_val(entite, "location", "value", "coordinates")
     if coords and isinstance(coords, list) and len(coords) >= 2:
         return coords[1], coords[0]
@@ -90,10 +101,12 @@ def extraire_lat_lon(entite):
 # ============================================================
 
 def recuperer_donnees_voiture():
+    # Requête HTTP sur l'API des parkings voiture
     return requests.get(URL_VOITURE, timeout=20).json()
 
 
 def recuperer_donnees_velo():
+    # Requête HTTP sur l'API des stations vélo
     return requests.get(URL_VELO, timeout=20).json()
 
 
@@ -102,6 +115,8 @@ def recuperer_donnees_velo():
 # ============================================================
 
 def calcul_taux_occupation_ville_voiture(parkings):
+    # On calcule un taux global pour tous les parkings ouverts :
+    # taux = (total - libres) / total
     somme_total = 0.0
     somme_libres = 0.0
 
@@ -129,6 +144,7 @@ def calcul_taux_occupation_ville_voiture(parkings):
 # ============================================================
 
 def associer_stations_proches(parkings, stations):
+    # Pour chaque parking, on liste les stations vélo à moins de RAYON_RELAIS.
     associations = {}
 
     for p in parkings:
@@ -156,6 +172,9 @@ def associer_stations_proches(parkings, stations):
 
 
 def relais_est_ok(parking, stations_proches):
+    # Relais OK si :
+    # - parking a assez de places libres
+    # - et au moins une station proche a assez de vélos + assez de bornes libres
     libres = get_val(parking, "availableSpotNumber", "value")
     if libres is None:
         return None
@@ -210,7 +229,100 @@ def main():
     parkings = recuperer_donnees_voiture()
     stations = recuperer_donnees_velo()
 
-    # (le reste ne change pas)
+    # ========================================================
+    #                       ÉCRITURE VOITURE
+    # ========================================================
+    with open(fichier_voiture, "a", encoding="utf-8") as f:
+        taux_ville = calcul_taux_occupation_ville_voiture(parkings)
+        if taux_ville is not None:
+            f.write(f"{date_str},{heure_str},{timestamp},VILLE,VILLE,0,0,{taux_ville},,\n")
+
+        for p in parkings:
+            if get_val(p, "status", "value") != "Open":
+                continue
+
+            nom = get_val(p, "name", "value")
+            libres = get_val(p, "availableSpotNumber", "value")
+            total = get_val(p, "totalSpotNumber", "value")
+
+            if nom is None or libres is None or total is None or total <= 0:
+                continue
+
+            taux = (float(total) - float(libres)) / float(total)
+
+            lat, lon = extraire_lat_lon(p)
+            if lat is None or lon is None:
+                lat, lon = "", ""
+
+            f.write(f"{date_str},{heure_str},{timestamp},PARKING,{nom},{int(float(libres))},{int(float(total))},{taux},{lat},{lon}\n")
+
+    # ========================================================
+    #                       ÉCRITURE VÉLO
+    # ========================================================
+    with open(fichier_velo, "a", encoding="utf-8") as f:
+        nb_stations = 0
+
+        for s in stations:
+            nom = get_val(s, "address", "value", "streetAddress")
+
+            velos = get_val(s, "availableBikeNumber", "value")
+            bornes = get_val(s, "freeSlotNumber", "value")
+            total = get_val(s, "totalSlotNumber", "value")
+
+            if nom is None or velos is None or bornes is None or total is None or total <= 0:
+                continue
+
+            taux_places = (float(total) - float(bornes)) / float(total)
+
+            lat, lon = extraire_lat_lon(s)
+            if lat is None or lon is None:
+                lat, lon = "", ""
+
+            f.write(f"{date_str},{heure_str},{timestamp},STATION,{nom},{int(float(velos))},{int(float(bornes))},{int(float(total))},{taux_places},{lat},{lon}\n")
+            nb_stations += 1
+
+        # Ligne de contrôle : si elle vaut 0, c'est que rien n'a été écrit
+        f.write(f"{date_str},{heure_str},{timestamp},TEST_NB_STATIONS,{nb_stations},0,0,0,0,\n")
+
+    # ========================================================
+    #                       ÉCRITURE RELAIS
+    # ========================================================
+    associations = associer_stations_proches(parkings, stations)
+
+    total_test = 0
+    ok_test = 0
+
+    with open(fichier_relais, "a", encoding="utf-8") as f:
+        for p in parkings:
+            if get_val(p, "status", "value") != "Open":
+                continue
+
+            pid = p.get("id", "")
+            nom_p = get_val(p, "name", "value")
+            if nom_p is None:
+                continue
+
+            stations_proches = associations.get(pid, [])
+            res = relais_est_ok(p, stations_proches)
+
+            if res is None:
+                continue
+
+            total_test += 1
+            if res:
+                ok_test += 1
+
+            f.write(f"{date_str},{heure_str},{timestamp},{nom_p},{1 if res else 0}\n")
+
+        if total_test > 0:
+            f.write(f"{date_str},{heure_str},{timestamp},RESUME,{ok_test / total_test}\n")
+
+    # ========================================================
+    #                    TRACE D'EXÉCUTION
+    # ========================================================
+    with open(os.path.join(DOSSIER_DONNEES, "test_execution.txt"), "a", encoding="utf-8") as f:
+        f.write(timestamp + " -> script execute OK\n")
+
 
 if __name__ == "__main__":
     main()

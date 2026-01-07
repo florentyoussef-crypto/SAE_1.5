@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
 import math
+import json
 
 # ============================================================
 #                     PARAMÈTRES DU PROJET
@@ -74,6 +75,19 @@ def extraire_lat_lon(entite):
     if coords and isinstance(coords, list) and len(coords) >= 2:
         return coords[1], coords[0]
     return None, None
+
+
+def ajouter_snapshot_jsonl(chemin_fichier, timestamp, donnees):
+    # On enregistre un "instantané" complet dans un fichier .jsonl
+    # Format : 1 ligne = 1 objet JSON
+    # Avantage : on peut append sans casser le fichier
+    ligne = {
+        "timestamp": timestamp,
+        "donnees": donnees
+    }
+
+    with open(chemin_fichier, "a", encoding="utf-8") as f:
+        f.write(json.dumps(ligne, ensure_ascii=False) + "\n")
 
 
 # ============================================================
@@ -210,6 +224,15 @@ def main():
     stations = recuperer_donnees_velo()
 
     # ========================================================
+    # 7) SAUVEGARDE BRUTE EN 2 FICHIERS UNIQUES (JSONL)
+    # ========================================================
+    fichier_brut_voiture = os.path.join(DOSSIER_DONNEES, "brut_voiture.jsonl")
+    fichier_brut_velo = os.path.join(DOSSIER_DONNEES, "brut_velo.jsonl")
+
+    ajouter_snapshot_jsonl(fichier_brut_voiture, timestamp, parkings)
+    ajouter_snapshot_jsonl(fichier_brut_velo, timestamp, stations)
+
+    # ========================================================
     #                       ÉCRITURE VOITURE
     # ========================================================
     with open(fichier_voiture, "a", encoding="utf-8") as f:
@@ -262,9 +285,7 @@ def main():
             if lat is None or lon is None:
                 lat, lon = "", ""
 
-            # IMPORTANT : on met le nom entre guillemets (au cas où il y a des virgules)
             nom_csv = str(nom).replace('"', "'")
-
             f.write(
                 f'{date_str},{heure_str},{timestamp},STATION,"{nom_csv}",{int(float(velos))},{int(float(bornes))},{int(float(total))},{taux_places},{lat},{lon}\n'
             )
@@ -284,7 +305,6 @@ def main():
 
             pid = p.get("id", "")
             nom_p = get_val(p, "name", "value")
-
             if nom_p is None:
                 continue
 

@@ -10,8 +10,8 @@ import json
 # ============================================================
 
 # Date de début EFFECTIVE de la collecte
-# => le 07/01/2026 correspond à jour_1
-DATE_DEBUT = datetime(2026, 1, 7, tzinfo=ZoneInfo("Europe/Paris"))
+# => le 09/01/2026 correspond à jour_1
+DATE_DEBUT = datetime(2026, 1, 9, tzinfo=ZoneInfo("Europe/Paris"))
 
 # Rayon (en mètres) pour associer parking voiture -> station vélo
 RAYON_RELAIS = 300
@@ -23,7 +23,7 @@ SEUIL_BORNES_LIBRES = 5
 
 # APIs Open Data Montpellier
 URL_VOITURE = "https://portail-api-data.montpellier3m.fr/offstreetparking?limit=1000"
-URL_VELO = "https://portail-api-data.montpellier3m.fr/bikestation"
+URL_VELO = "https://portail-api-data.montpellier3m.fr/bikestation?limit=1000"
 
 # Dossier de stockage des fichiers
 DOSSIER_DONNEES = "donnees"
@@ -201,9 +201,9 @@ def main():
     jour = (now.date() - DATE_DEBUT.date()).days + 1
 
     # 4) Fichiers du jour
-    fichier_voiture = os.path.join(DOSSIER_DONNEES, f"jour_{jour}_voiture.csv")
-    fichier_velo = os.path.join(DOSSIER_DONNEES, f"jour_{jour}_velo.csv")
-    fichier_relais = os.path.join(DOSSIER_DONNEES, f"jour_{jour}_relais.csv")
+    fichier_voiture = os.path.join(DOSSIER_DONNEES, f"jour_{jour}_voitures.csv")
+    fichier_velo = os.path.join(DOSSIER_DONNEES, f"jour_{jour}_velos.csv")
+    fichier_relais = os.path.join(DOSSIER_DONNEES, f"jour_{jour}_relais1.csv")
 
     # 5) Entêtes (pour que GitHub/pandas lise bien)
     ecrire_entete_si_fichier_vide(

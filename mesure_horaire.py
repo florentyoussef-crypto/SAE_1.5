@@ -226,8 +226,8 @@ def main():
     # ========================================================
     # 7) SAUVEGARDE BRUTE EN 2 FICHIERS UNIQUES (JSONL)
     # ========================================================
-    fichier_brut_voiture = os.path.join(DOSSIER_DONNEES, "brut_voiture.jsonl")
-    fichier_brut_velo = os.path.join(DOSSIER_DONNEES, "brut_velo.jsonl")
+    fichier_brut_voiture = os.path.join(DOSSIER_DONNEES, "brut_voitures.jsonl")
+    fichier_brut_velo = os.path.join(DOSSIER_DONNEES, "brut_velos.jsonl")
 
     ajouter_snapshot_jsonl(fichier_brut_voiture, timestamp, parkings)
     ajouter_snapshot_jsonl(fichier_brut_velo, timestamp, stations)

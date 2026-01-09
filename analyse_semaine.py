@@ -1,229 +1,475 @@
 import os
+import re
+import math
 import pandas as pd
 import matplotlib.pyplot as plt
+import folium
+from folium.plugins import MarkerCluster
+
 
 DOSSIER_DONNEES = "donnees"
 
+SUFFIXE_VOITURES = "_voitures.csv"
+SUFFIXE_VELOS = "_velos.csv"
+
+DOSSIER_IMAGES = os.path.join(DOSSIER_DONNEES, "images")
+
 
 # ============================================================
-# 1) Récupérer la liste des fichiers d'un type (voiture/vélo/relais)
-#    -> On garde uniquement les fichiers journaliers "jour_X_suffixe"
-#    -> On peut limiter aux 7 derniers jours pour faire une vraie "semaine"
+# OUTILS
 # ============================================================
-def fichiers_journaliers(suffixe, limiter_a_semaine=True):
+
+def creer_dossier_si_absent(chemin):
+    if not os.path.isdir(chemin):
+        os.makedirs(chemin, exist_ok=True)
+
+
+def slugifier(texte):
+    if texte is None:
+        return "inconnu"
+    t = str(texte).strip().lower()
+    t = t.replace("’", "'")
+    t = re.sub(r"[^\w\s-]", "", t)
+    t = re.sub(r"[\s-]+", "_", t)
+    if len(t) == 0:
+        return "inconnu"
+    return t
+
+
+def fichiers_journaliers(suffixe):
     fichiers = []
-
-    # 1) On récupère tous les fichiers qui ressemblent à : jour_X_suffixe
-    for nom_fichier in sorted(os.listdir(DOSSIER_DONNEES)):
-        if nom_fichier.startswith("jour_") and nom_fichier.endswith(suffixe):
-            fichiers.append(os.path.join(DOSSIER_DONNEES, nom_fichier))
-
-    # 2) Si on ne limite pas à une semaine, on renvoie tout
-    if not limiter_a_semaine:
+    if not os.path.isdir(DOSSIER_DONNEES):
         return fichiers
-
-    # 3) Si on limite à une semaine, on garde seulement les 7 derniers "jour_X"
-    #    Exemple : si on a jour_1 ... jour_20
-    #    on garde jour_14 à jour_20
-    numeros = []
-    for chemin in fichiers:
-        nom = os.path.basename(chemin)
-        # nom = "jour_12_voiture.csv" -> on veut récupérer 12
-        morceaux = nom.split("_")
-        if len(morceaux) >= 2:
-            try:
-                num = int(morceaux[1])
-                numeros.append(num)
-            except:
-                pass
-
-    if len(numeros) == 0:
-        return fichiers
-
-    max_jour = max(numeros)
-    min_jour = max_jour - 6  # 7 jours : max-6, ..., max
-
-    fichiers_semaine = []
-    for chemin in fichiers:
-        nom = os.path.basename(chemin)
-        morceaux = nom.split("_")
-        if len(morceaux) >= 2:
-            try:
-                num = int(morceaux[1])
-                if num >= min_jour and num <= max_jour:
-                    fichiers_semaine.append(chemin)
-            except:
-                pass
-
-    return fichiers_semaine
+    for nom in sorted(os.listdir(DOSSIER_DONNEES)):
+        if nom.startswith("jour_") and nom.endswith(suffixe):
+            fichiers.append(os.path.join(DOSSIER_DONNEES, nom))
+    return fichiers
 
 
-# ============================================================
-# 2) Analyse VOITURE sur la semaine
-# ============================================================
-def analyser_voiture():
-    fichiers = fichiers_journaliers("_voiture.csv", limiter_a_semaine=True)
-
+def dernier_fichier_jour(suffixe):
+    fichiers = fichiers_journaliers(suffixe)
     if len(fichiers) == 0:
-        print("Aucun fichier voiture trouvé dans donnees/")
-        return
+        return None
+    return fichiers[-1]
+
+
+def charger_tous_csv(suffixe):
+    fichiers = fichiers_journaliers(suffixe)
+    if len(fichiers) == 0:
+        return None
 
     dfs = []
     for chemin in fichiers:
+        try:
+            df = pd.read_csv(chemin)
+            df["fichier_source"] = os.path.basename(chemin)
+            dfs.append(df)
+        except Exception:
+            pass
+
+    if len(dfs) == 0:
+        return None
+
+    df_final = pd.concat(dfs, ignore_index=True)
+
+    if "timestamp" in df_final.columns:
+        df_final["timestamp_dt"] = pd.to_datetime(df_final["timestamp"], errors="coerce")
+
+    return df_final
+
+
+def charger_dernier_csv(suffixe):
+    chemin = dernier_fichier_jour(suffixe)
+    if chemin is None:
+        return None
+    try:
         df = pd.read_csv(chemin)
-        df["fichier"] = os.path.basename(chemin)
-        dfs.append(df)
-
-    df = pd.concat(dfs, ignore_index=True)
-
-    # Conversion des colonnes utiles
-    df["taux_occupation"] = pd.to_numeric(df["taux_occupation"], errors="coerce")
-
-    # Conversion timestamp
-    if "timestamp" in df.columns:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
-
-    # ------------------------------------------------------------
-    # A) Courbe VILLE (taux global voiture)
-    # ------------------------------------------------------------
-    df_ville = df[df["type"] == "VILLE"].copy()
-    df_ville = df_ville.dropna(subset=["taux_occupation"])
-
-    if "timestamp" in df_ville.columns:
-        df_ville = df_ville.dropna(subset=["timestamp"])
-        df_ville = df_ville.sort_values("timestamp")
-
-    if len(df_ville) > 0:
-        plt.figure()
-        plt.plot(df_ville["taux_occupation"].values)
-        plt.title("Taux d'occupation voiture - VILLE (7 derniers jours)")
-        plt.xlabel("Mesure (1 toutes les 30 minutes)")
-        plt.ylabel("Taux d'occupation")
-        plt.ylim(0, 1)
-        plt.tight_layout()
-        plt.savefig(os.path.join(DOSSIER_DONNEES, "courbe_voiture_ville_semaine.png"))
-        plt.close()
-
-    # ------------------------------------------------------------
-    # B) Parkings saturés (>= 95%)
-    # ------------------------------------------------------------
-    df_p = df[df["type"] == "PARKING"].copy()
-    df_p = df_p.dropna(subset=["taux_occupation"])
-    df_p["sature"] = df_p["taux_occupation"] >= 0.95
-
-    sat = df_p[df_p["sature"]].groupby("nom").size().sort_values(ascending=False)
-
-    print("\nTop 10 parkings les plus souvent saturés (>=95%) sur 7 jours :")
-    print(sat.head(10))
-
-    moy = df_p.groupby("nom")["taux_occupation"].mean().sort_values(ascending=False)
-
-    print("\nTop 10 parkings les plus occupés (taux moyen sur 7 jours) :")
-    print(moy.head(10))
+        df["fichier_source"] = os.path.basename(chemin)
+        if "timestamp" in df.columns:
+            df["timestamp_dt"] = pd.to_datetime(df["timestamp"], errors="coerce")
+        return df
+    except Exception:
+        return None
 
 
-# ============================================================
-# 3) Analyse VÉLO sur la semaine
-# ============================================================
-def analyser_velo():
-    fichiers = fichiers_journaliers("_velo.csv", limiter_a_semaine=True)
+def centre_moyen(df_list):
+    # centre carte = moyenne des lat/lon valides
+    lats = []
+    lons = []
+    for df in df_list:
+        if df is None:
+            continue
+        if "lat" in df.columns and "lon" in df.columns:
+            la = pd.to_numeric(df["lat"], errors="coerce").dropna().values.tolist()
+            lo = pd.to_numeric(df["lon"], errors="coerce").dropna().values.tolist()
+            lats += la
+            lons += lo
 
-    if len(fichiers) == 0:
-        print("Aucun fichier vélo trouvé dans donnees/")
-        return
+    if len(lats) == 0 or len(lons) == 0:
+        return 43.6108, 3.8767  # centre Montpellier approx
 
-    dfs = []
-    for chemin in fichiers:
-        df = pd.read_csv(chemin)
-        df["fichier"] = os.path.basename(chemin)
-        dfs.append(df)
-
-    df = pd.concat(dfs, ignore_index=True)
-
-    if "taux_occupation_places" in df.columns:
-        df["taux_occupation_places"] = pd.to_numeric(df["taux_occupation_places"], errors="coerce")
-
-    if "timestamp" in df.columns:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
-
-    # On garde uniquement les stations
-    df_s = df[df["type"] == "STATION"].copy()
-    df_s = df_s.dropna(subset=["taux_occupation_places"])
-
-    if len(df_s) == 0:
-        print("Données vélo insuffisantes pour tracer une courbe.")
-        return
-
-    # Courbe moyenne des stations par timestamp
-    if "timestamp" in df_s.columns:
-        df_s = df_s.dropna(subset=["timestamp"])
-
-        moy_par_temps = df_s.groupby("timestamp")["taux_occupation_places"].mean().reset_index()
-        moy_par_temps = moy_par_temps.sort_values("timestamp")
-
-        plt.figure()
-        plt.plot(moy_par_temps["taux_occupation_places"].values)
-        plt.title("Occupation vélos - moyenne des stations (7 derniers jours)")
-        plt.xlabel("Mesure (1 toutes les 30 minutes)")
-        plt.ylabel("Taux d'occupation des places")
-        plt.ylim(0, 1)
-        plt.tight_layout()
-        plt.savefig(os.path.join(DOSSIER_DONNEES, "courbe_velo_moyenne_stations_semaine.png"))
-        plt.close()
+    return sum(lats) / len(lats), sum(lons) / len(lons)
 
 
-# ============================================================
-# 4) Analyse RELAIS sur la semaine
-# ============================================================
-def analyser_relais():
-    fichiers = fichiers_journaliers("_relais.csv", limiter_a_semaine=True)
+def plot_serie(d, col_y, titre, chemin_png):
+    if len(d) == 0:
+        return False
 
-    if len(fichiers) == 0:
-        print("Aucun fichier relais trouvé dans donnees/")
-        return
+    d[col_y] = pd.to_numeric(d[col_y], errors="coerce")
+    d = d.dropna(subset=[col_y])
 
-    dfs = []
-    for chemin in fichiers:
-        df = pd.read_csv(chemin)
-        df["fichier"] = os.path.basename(chemin)
-        dfs.append(df)
+    if "timestamp_dt" in d.columns:
+        d = d.dropna(subset=["timestamp_dt"])
+        d = d.sort_values("timestamp_dt")
 
-    df = pd.concat(dfs, ignore_index=True)
+    if len(d) == 0:
+        return False
 
-    df["relais_ok"] = pd.to_numeric(df["relais_ok"], errors="coerce")
+    plt.figure()
+    plt.plot(d[col_y].values)
+    plt.title(titre)
+    plt.xlabel("Mesures (ordre chronologique)")
+    plt.ylabel(col_y)
+    plt.ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig(chemin_png)
+    plt.close()
+    return True
 
-    if "timestamp" in df.columns:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
 
-    df_resume = df[df["parking"] == "RESUME"].copy()
-    df_resume = df_resume.dropna(subset=["relais_ok"])
+def couleur_parking(taux):
+    try:
+        x = float(taux)
+    except Exception:
+        return "gray"
+    if x < 0.5:
+        return "green"
+    if x < 0.8:
+        return "orange"
+    return "red"
 
-    if "timestamp" in df_resume.columns:
-        df_resume = df_resume.dropna(subset=["timestamp"])
-        df_resume = df_resume.sort_values("timestamp")
 
-    if len(df_resume) > 0:
-        plt.figure()
-        plt.plot(df_resume["relais_ok"].values)
-        plt.title("Relais voiture/vélo - proportion OK (7 derniers jours)")
-        plt.xlabel("Mesure (1 toutes les 30 minutes)")
-        plt.ylabel("Proportion relais OK")
-        plt.ylim(0, 1)
-        plt.tight_layout()
-        plt.savefig(os.path.join(DOSSIER_DONNEES, "courbe_relais_semaine.png"))
-        plt.close()
-    else:
-        print("Pas de lignes RESUME dans les données relais.")
+def couleur_station(velos, bornes):
+    try:
+        v = float(velos)
+        b = float(bornes)
+    except Exception:
+        return "gray"
+    if v >= 5 and b >= 5:
+        return "green"
+    if v >= 2 and b >= 2:
+        return "orange"
+    return "red"
+
+
+def safe_int(x):
+    try:
+        return int(float(x))
+    except Exception:
+        return None
+
+
+def safe_float(x):
+    try:
+        return float(x)
+    except Exception:
+        return None
 
 
 # ============================================================
 # MAIN
 # ============================================================
+
 def main():
-    analyser_voiture()
-    analyser_velo()
-    analyser_relais()
-    print("\nGraphes enregistrés dans le dossier donnees/")
+    creer_dossier_si_absent(DOSSIER_IMAGES)
+
+    # Données globales + dernier jour
+    df_voitures_global = charger_tous_csv(SUFFIXE_VOITURES)
+    df_velos_global = charger_tous_csv(SUFFIXE_VELOS)
+
+    df_voitures_jour = charger_dernier_csv(SUFFIXE_VOITURES)
+    df_velos_jour = charger_dernier_csv(SUFFIXE_VELOS)
+
+    if df_voitures_global is None and df_velos_global is None:
+        print("Aucune donnée trouvée dans donnees/")
+        return
+
+    # centre carte
+    centre_lat, centre_lon = centre_moyen([df_voitures_jour, df_velos_jour])
+
+    carte = folium.Map(location=[centre_lat, centre_lon], zoom_start=13, tiles="OpenStreetMap")
+
+    # Groupes (pratique pour activer/désactiver)
+    groupe_voiture = folium.FeatureGroup(name="Parkings voitures")
+    groupe_velo = folium.FeatureGroup(name="Stations vélos")
+
+    cluster_voiture = MarkerCluster(name="Cluster parkings")
+    cluster_velo = MarkerCluster(name="Cluster stations")
+
+    # ========================================================
+    # PARKINGS (voitures)
+    # ========================================================
+    if df_voitures_jour is not None:
+        dpar = df_voitures_jour[df_voitures_jour.get("type") == "PARKING"].copy()
+        dpar["lat"] = pd.to_numeric(dpar["lat"], errors="coerce")
+        dpar["lon"] = pd.to_numeric(dpar["lon"], errors="coerce")
+
+        for _, row in dpar.iterrows():
+            nom = row.get("nom")
+            lat = row.get("lat")
+            lon = row.get("lon")
+            if pd.isna(lat) or pd.isna(lon):
+                continue
+
+            slug = slugifier(nom)
+
+            # ----- Données actuelles (dernier jour)
+            libres = safe_int(row.get("libres"))
+            total = safe_int(row.get("total"))
+            taux = safe_float(row.get("taux_occupation"))
+            date = row.get("date")
+            heure = row.get("heure")
+
+            # ----- Données globales du même parking
+            dglob = None
+            if df_voitures_global is not None:
+                dglob = df_voitures_global[
+                    (df_voitures_global.get("type") == "PARKING") & (df_voitures_global.get("nom") == nom)
+                ].copy()
+
+            # ----- Données jour du même parking
+            djour = df_voitures_jour[
+                (df_voitures_jour.get("type") == "PARKING") & (df_voitures_jour.get("nom") == nom)
+            ].copy()
+
+            # ----- Graphes (jour + global)
+            img_jour = os.path.join("images", f"parking_{slug}_jour.png")
+            img_global = os.path.join("images", f"parking_{slug}_global.png")
+
+            chemin_img_jour = os.path.join(DOSSIER_IMAGES, f"parking_{slug}_jour.png")
+            chemin_img_global = os.path.join(DOSSIER_IMAGES, f"parking_{slug}_global.png")
+
+            ok_jour = plot_serie(djour, "taux_occupation", f"Parking {nom} - jour", chemin_img_jour)
+            ok_global = False
+            if dglob is not None:
+                ok_global = plot_serie(dglob, "taux_occupation", f"Parking {nom} - global", chemin_img_global)
+
+            if not ok_jour:
+                img_jour = None
+            if not ok_global:
+                img_global = None
+
+            # ----- Stats globales simples (pour “toutes les infos”)
+            taux_moy = None
+            taux_max = None
+            taux_min = None
+
+            if dglob is not None and "taux_occupation" in dglob.columns:
+                serie = pd.to_numeric(dglob["taux_occupation"], errors="coerce").dropna()
+                if len(serie) > 0:
+                    taux_moy = float(serie.mean())
+                    taux_max = float(serie.max())
+                    taux_min = float(serie.min())
+
+            # ----- Popup avec SELECT Journalier / Global
+            # On met 2 <div> (jour/global) et on affiche/masque selon le choix
+            div_jour_id = f"pj_{slug}"
+            div_global_id = f"pg_{slug}"
+
+            popup = []
+            popup.append(f"<div style='font-family:Arial; width:320px;'>")
+            popup.append(f"<h4 style='margin:0 0 8px 0;'>🚗 Parking : {nom}</h4>")
+            popup.append(f"<b>Dernière mesure :</b> {date} {heure}<br>")
+            popup.append(f"<b>Libres / Total :</b> {libres} / {total}<br>")
+            popup.append(f"<b>Taux :</b> {taux}<br>")
+
+            if taux_moy is not None:
+                popup.append("<hr style='margin:8px 0;'>")
+                popup.append("<b>Stats globales :</b><br>")
+                popup.append(f"- moyenne : {taux_moy:.3f}<br>")
+                popup.append(f"- min : {taux_min:.3f}<br>")
+                popup.append(f"- max : {taux_max:.3f}<br>")
+
+            popup.append("<hr style='margin:8px 0;'>")
+            popup.append("<b>Affichage :</b> ")
+            popup.append(
+                f"<select onchange=\""
+                f"var v=this.value;"
+                f"document.getElementById('{div_jour_id}').style.display=(v=='jour'?'block':'none');"
+                f"document.getElementById('{div_global_id}').style.display=(v=='global'?'block':'none');"
+                f"\">"
+                f"<option value='jour'>Journalier</option>"
+                f"<option value='global'>Global</option>"
+                f"</select>"
+            )
+
+            # Bloc JOUR
+            popup.append(f"<div id='{div_jour_id}' style='display:block; margin-top:8px;'>")
+            popup.append("<b>Graphe journalier :</b><br>")
+            if img_jour is not None:
+                popup.append(f"<img src='{img_jour}' style='width:100%; border:1px solid #ddd; border-radius:8px;'>")
+            else:
+                popup.append("<i>Pas assez de données pour le jour.</i>")
+            popup.append("</div>")
+
+            # Bloc GLOBAL
+            popup.append(f"<div id='{div_global_id}' style='display:none; margin-top:8px;'>")
+            popup.append("<b>Graphe global :</b><br>")
+            if img_global is not None:
+                popup.append(f"<img src='{img_global}' style='width:100%; border:1px solid #ddd; border-radius:8px;'>")
+            else:
+                popup.append("<i>Pas assez de données globales.</i>")
+            popup.append("</div>")
+
+            popup.append("</div>")
+
+            # Icône voiture (FontAwesome)
+            color = couleur_parking(taux)
+            marker = folium.Marker(
+                location=[lat, lon],
+                icon=folium.Icon(color=color, icon="car", prefix="fa"),
+                tooltip=f"Parking {nom}",
+                popup=folium.Popup("".join(popup), max_width=380)
+            )
+            marker.add_to(cluster_voiture)
+
+    # ========================================================
+    # STATIONS (vélos)
+    # ========================================================
+    if df_velos_jour is not None:
+        dsta = df_velos_jour[df_velos_jour.get("type") == "STATION"].copy()
+        dsta["lat"] = pd.to_numeric(dsta["lat"], errors="coerce")
+        dsta["lon"] = pd.to_numeric(dsta["lon"], errors="coerce")
+
+        for _, row in dsta.iterrows():
+            nom = row.get("nom")
+            lat = row.get("lat")
+            lon = row.get("lon")
+            if pd.isna(lat) or pd.isna(lon):
+                continue
+
+            slug = slugifier(nom)
+
+            velos = safe_int(row.get("velos_dispo"))
+            bornes = safe_int(row.get("bornes_libres"))
+            total = safe_int(row.get("total"))
+            taux_places = safe_float(row.get("taux_occupation_places"))
+            date = row.get("date")
+            heure = row.get("heure")
+
+            dglob = None
+            if df_velos_global is not None:
+                dglob = df_velos_global[
+                    (df_velos_global.get("type") == "STATION") & (df_velos_global.get("nom") == nom)
+                ].copy()
+
+            djour = df_velos_jour[
+                (df_velos_jour.get("type") == "STATION") & (df_velos_jour.get("nom") == nom)
+            ].copy()
+
+            img_jour = os.path.join("images", f"station_{slug}_jour.png")
+            img_global = os.path.join("images", f"station_{slug}_global.png")
+
+            chemin_img_jour = os.path.join(DOSSIER_IMAGES, f"station_{slug}_jour.png")
+            chemin_img_global = os.path.join(DOSSIER_IMAGES, f"station_{slug}_global.png")
+
+            ok_jour = plot_serie(djour, "taux_occupation_places", f"Station {nom} - jour", chemin_img_jour)
+            ok_global = False
+            if dglob is not None:
+                ok_global = plot_serie(dglob, "taux_occupation_places", f"Station {nom} - global", chemin_img_global)
+
+            if not ok_jour:
+                img_jour = None
+            if not ok_global:
+                img_global = None
+
+            taux_moy = None
+            taux_max = None
+            taux_min = None
+
+            if dglob is not None and "taux_occupation_places" in dglob.columns:
+                serie = pd.to_numeric(dglob["taux_occupation_places"], errors="coerce").dropna()
+                if len(serie) > 0:
+                    taux_moy = float(serie.mean())
+                    taux_max = float(serie.max())
+                    taux_min = float(serie.min())
+
+            div_jour_id = f"vj_{slug}"
+            div_global_id = f"vg_{slug}"
+
+            popup = []
+            popup.append(f"<div style='font-family:Arial; width:320px;'>")
+            popup.append(f"<h4 style='margin:0 0 8px 0;'>🚲 Station vélo : {nom}</h4>")
+            popup.append(f"<b>Dernière mesure :</b> {date} {heure}<br>")
+            popup.append(f"<b>Vélos :</b> {velos} | <b>Bornes libres :</b> {bornes} | <b>Total :</b> {total}<br>")
+            popup.append(f"<b>Taux occupation des places :</b> {taux_places}<br>")
+
+            if taux_moy is not None:
+                popup.append("<hr style='margin:8px 0;'>")
+                popup.append("<b>Stats globales :</b><br>")
+                popup.append(f"- moyenne : {taux_moy:.3f}<br>")
+                popup.append(f"- min : {taux_min:.3f}<br>")
+                popup.append(f"- max : {taux_max:.3f}<br>")
+
+            popup.append("<hr style='margin:8px 0;'>")
+            popup.append("<b>Affichage :</b> ")
+            popup.append(
+                f"<select onchange=\""
+                f"var v=this.value;"
+                f"document.getElementById('{div_jour_id}').style.display=(v=='jour'?'block':'none');"
+                f"document.getElementById('{div_global_id}').style.display=(v=='global'?'block':'none');"
+                f"\">"
+                f"<option value='jour'>Journalier</option>"
+                f"<option value='global'>Global</option>"
+                f"</select>"
+            )
+
+            popup.append(f"<div id='{div_jour_id}' style='display:block; margin-top:8px;'>")
+            popup.append("<b>Graphe journalier :</b><br>")
+            if img_jour is not None:
+                popup.append(f"<img src='{img_jour}' style='width:100%; border:1px solid #ddd; border-radius:8px;'>")
+            else:
+                popup.append("<i>Pas assez de données pour le jour.</i>")
+            popup.append("</div>")
+
+            popup.append(f"<div id='{div_global_id}' style='display:none; margin-top:8px;'>")
+            popup.append("<b>Graphe global :</b><br>")
+            if img_global is not None:
+                popup.append(f"<img src='{img_global}' style='width:100%; border:1px solid #ddd; border-radius:8px;'>")
+            else:
+                popup.append("<i>Pas assez de données globales.</i>")
+            popup.append("</div>")
+
+            popup.append("</div>")
+
+            # Icône vélo en ORANGE (demande)
+            color = couleur_station(velos, bornes)
+            # tu veux “orange” pour les vélos => on force orange, et on garde la couleur (vert/orange/rouge) en contour via CircleMarker sinon.
+            # Ici on garde simple : orange pour toutes les stations (comme tu as demandé).
+            marker = folium.Marker(
+                location=[lat, lon],
+                icon=folium.Icon(color="orange", icon="bicycle", prefix="fa"),
+                tooltip=f"Station {nom}",
+                popup=folium.Popup("".join(popup), max_width=380)
+            )
+            marker.add_to(cluster_velo)
+
+    # Ajout clusters + groupes
+    cluster_voiture.add_to(groupe_voiture)
+    cluster_velo.add_to(groupe_velo)
+
+    groupe_voiture.add_to(carte)
+    groupe_velo.add_to(carte)
+
+    # bouton pour activer/désactiver les couches
+    folium.LayerControl(collapsed=False).add_to(carte)
+
+    # Sauvegarde
+    chemin_carte = os.path.join(DOSSIER_DONNEES, "carte.html")
+    carte.save(chemin_carte)
+
+    print("Carte unique générée :", chemin_carte)
+    print("Images générées dans :", DOSSIER_IMAGES)
 
 
 if __name__ == "__main__":

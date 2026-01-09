@@ -1,35 +1,47 @@
 name: analyse-quotidienne
 
 on:
+  # Analyse automatique une fois par jour
+  # 02:15 UTC ≈ 03:15 heure française (hiver)
   schedule:
     - cron: "15 2 * * *"
   workflow_dispatch:
 
+# Autorisation nécessaire pour commit/push dans le dépôt
 permissions:
   contents: write
 
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
+      # 1) Récupération du dépôt
       - name: Recuperation du depot
         uses: actions/checkout@v4
 
+      # 2) Installation de Python
       - name: Installation de Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 3) Installation des dépendances
+      # - pandas / matplotlib : analyse + graphes
+      # - folium : génération de la carte HTML
+      # - requests : si analyse_semaine.py ou d'autres scripts en ont besoin
       - name: Installer les dependances
         run: |
           python -m pip install --upgrade pip
-          pip install pandas matplotlib folium
+          pip install pandas matplotlib folium requests
 
+      # 4) Analyse + génération de la carte
       - name: Analyse + carte
         run: |
           python analyse_semaine.py
           python carte_unique.py
 
+      # 5) Sauvegarde des résultats (graphes + carte + images)
       - name: Sauvegarder les resultats
         run: |
           git config user.name "github-actions"

@@ -1,0 +1,3221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_aeed1f383034b93499c824a01eda4a0c {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_aeed1f383034b93499c824a01eda4a0c" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_aeed1f383034b93499c824a01eda4a0c = L.map(
+                "map_aeed1f383034b93499c824a01eda4a0c",
+                {
+                    center: [43.610318520668336, 3.8781071116336614],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_db0a3833aca8e2f8270d529d8f3e99ee = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_db0a3833aca8e2f8270d529d8f3e99ee.addTo(map_aeed1f383034b93499c824a01eda4a0c);
+        
+    
+            var marker_cluster_b3e022870d44f3d8531639284a670198 = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_fc6d803652d69a842a3da41d35d7d551 = L.marker(
+                [43.58383263, 3.8602246],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_6658e680f10de3b24d7d8f1f46394c34 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5909b932c6abacf09cabd752a386d492 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_0b049bcd84720d64dd9ebfc1c1704cce = $(`<div id="html_0b049bcd84720d64dd9ebfc1c1704cce" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Sabines</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 59<br>       <b>Capacité totale :</b> 285<br>       <b>Taux occupation :</b> 79.30%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Sabines_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Sabines_global.png" width="300"></div></div>`)[0];
+                popup_5909b932c6abacf09cabd752a386d492.setContent(html_0b049bcd84720d64dd9ebfc1c1704cce);
+            
+        
+
+        marker_fc6d803652d69a842a3da41d35d7d551.bindPopup(popup_5909b932c6abacf09cabd752a386d492)
+        ;
+
+        
+    
+    
+                marker_fc6d803652d69a842a3da41d35d7d551.setIcon(icon_6658e680f10de3b24d7d8f1f46394c34);
+            
+    
+            var marker_8faa89a52eff1245199cda9c4105244a = L.marker(
+                [43.6285421, 3.8977621],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_043149efe21f6e9a22d54b0f59ec28ae = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_32ebed164e6e437c1feab8b56a520819 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_997ab9917c3bed2d911cf5fee7b020f4 = $(`<div id="html_997ab9917c3bed2d911cf5fee7b020f4" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Charles de Gaulle</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 122<br>       <b>Capacité totale :</b> 260<br>       <b>Taux occupation :</b> 53.08%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Charles de Gaulle_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Charles de Gaulle_global.png" width="300"></div></div>`)[0];
+                popup_32ebed164e6e437c1feab8b56a520819.setContent(html_997ab9917c3bed2d911cf5fee7b020f4);
+            
+        
+
+        marker_8faa89a52eff1245199cda9c4105244a.bindPopup(popup_32ebed164e6e437c1feab8b56a520819)
+        ;
+
+        
+    
+    
+                marker_8faa89a52eff1245199cda9c4105244a.setIcon(icon_043149efe21f6e9a22d54b0f59ec28ae);
+            
+    
+            var marker_9d1bc7c3b41b5cb91e4c3c487e6d22f2 = L.marker(
+                [43.604824, 3.914158],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_60ecf080d4f3dcc23f735287827be3da = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_66196fcd84fec67303a4d5172465723d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_16f32f2fef82d4e2471bfa04ad262cea = $(`<div id="html_16f32f2fef82d4e2471bfa04ad262cea" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Gaumont OUEST</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 5<br>       <b>Capacité totale :</b> 250<br>       <b>Taux occupation :</b> 98.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Gaumont OUEST_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Gaumont OUEST_global.png" width="300"></div></div>`)[0];
+                popup_66196fcd84fec67303a4d5172465723d.setContent(html_16f32f2fef82d4e2471bfa04ad262cea);
+            
+        
+
+        marker_9d1bc7c3b41b5cb91e4c3c487e6d22f2.bindPopup(popup_66196fcd84fec67303a4d5172465723d)
+        ;
+
+        
+    
+    
+                marker_9d1bc7c3b41b5cb91e4c3c487e6d22f2.setIcon(icon_60ecf080d4f3dcc23f735287827be3da);
+            
+    
+            var marker_2f04db812dea5c1e2e41d63a1d95a63e = L.marker(
+                [43.604526, 3.91529],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_f1d88ae8433cf9755dfc04fed4e9f185 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_92be3acb4fbf4f1b6c6249621c0927ba = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_5e7276cae736b3571e8389a7b2455550 = $(`<div id="html_5e7276cae736b3571e8389a7b2455550" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Gaumont EST</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 74<br>       <b>Capacité totale :</b> 109<br>       <b>Taux occupation :</b> 32.11%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Gaumont EST_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Gaumont EST_global.png" width="300"></div></div>`)[0];
+                popup_92be3acb4fbf4f1b6c6249621c0927ba.setContent(html_5e7276cae736b3571e8389a7b2455550);
+            
+        
+
+        marker_2f04db812dea5c1e2e41d63a1d95a63e.bindPopup(popup_92be3acb4fbf4f1b6c6249621c0927ba)
+        ;
+
+        
+    
+    
+                marker_2f04db812dea5c1e2e41d63a1d95a63e.setIcon(icon_f1d88ae8433cf9755dfc04fed4e9f185);
+            
+    
+            var marker_290f19ae701c033d29fba347ae7d4060 = L.marker(
+                [43.63286, 3.898411],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_e1b44cca22d53a268f9f7bd30bc4f369 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0f6c41c1534460aae1e104fafc64a66b = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_e2a9863da2e1966f3d022f8ca70fea49 = $(`<div id="html_e2a9863da2e1966f3d022f8ca70fea49" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Vicarello</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 15<br>       <b>Capacité totale :</b> 64<br>       <b>Taux occupation :</b> 76.56%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Vicarello_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Vicarello_global.png" width="300"></div></div>`)[0];
+                popup_0f6c41c1534460aae1e104fafc64a66b.setContent(html_e2a9863da2e1966f3d022f8ca70fea49);
+            
+        
+
+        marker_290f19ae701c033d29fba347ae7d4060.bindPopup(popup_0f6c41c1534460aae1e104fafc64a66b)
+        ;
+
+        
+    
+    
+                marker_290f19ae701c033d29fba347ae7d4060.setIcon(icon_e1b44cca22d53a268f9f7bd30bc4f369);
+            
+    
+            var marker_a2ab2d490651fc12d1d8821091799084 = L.marker(
+                [43.63456232, 3.84859796],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_65d11cc30c95c3432d7d9f633d516b26 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_54b100aaf91e7e295a93013e0ddc791c = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_871193e087b6c9717e4fe43d1ead2ab4 = $(`<div id="html_871193e087b6c9717e4fe43d1ead2ab4" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Occitanie</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 223<br>       <b>Capacité totale :</b> 615<br>       <b>Taux occupation :</b> 63.74%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Occitanie_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Occitanie_global.png" width="300"></div></div>`)[0];
+                popup_54b100aaf91e7e295a93013e0ddc791c.setContent(html_871193e087b6c9717e4fe43d1ead2ab4);
+            
+        
+
+        marker_a2ab2d490651fc12d1d8821091799084.bindPopup(popup_54b100aaf91e7e295a93013e0ddc791c)
+        ;
+
+        
+    
+    
+                marker_a2ab2d490651fc12d1d8821091799084.setIcon(icon_65d11cc30c95c3432d7d9f633d516b26);
+            
+    
+            var marker_478edc720d7c29da71dc001b993a4905 = L.marker(
+                [43.63895359, 3.82772365],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_07f24e836ebbf4051dc6a037607632f7 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3aab5410176801d3f781dc57052a5fbc = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_9dc17b877c5a2ff2fb09b8a0750ffb29 = $(`<div id="html_9dc17b877c5a2ff2fb09b8a0750ffb29" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Euromedecine</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 36<br>       <b>Capacité totale :</b> 239<br>       <b>Taux occupation :</b> 84.94%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Euromedecine_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Euromedecine_global.png" width="300"></div></div>`)[0];
+                popup_3aab5410176801d3f781dc57052a5fbc.setContent(html_9dc17b877c5a2ff2fb09b8a0750ffb29);
+            
+        
+
+        marker_478edc720d7c29da71dc001b993a4905.bindPopup(popup_3aab5410176801d3f781dc57052a5fbc)
+        ;
+
+        
+    
+    
+                marker_478edc720d7c29da71dc001b993a4905.setIcon(icon_07f24e836ebbf4051dc6a037607632f7);
+            
+    
+            var marker_18a7e9a378b461a998b66c951caef08d = L.marker(
+                [43.57082225, 3.8379312],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_8e194a4e3b1e3032258d861efdf2ff03 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0463a9d1621db715c6c226c428880b11 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_feb135b9d12faa67106138509e944f27 = $(`<div id="html_feb135b9d12faa67106138509e944f27" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Saint Jean Le Sec</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 193<br>       <b>Capacité totale :</b> 285<br>       <b>Taux occupation :</b> 32.28%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Saint Jean Le Sec_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Saint Jean Le Sec_global.png" width="300"></div></div>`)[0];
+                popup_0463a9d1621db715c6c226c428880b11.setContent(html_feb135b9d12faa67106138509e944f27);
+            
+        
+
+        marker_18a7e9a378b461a998b66c951caef08d.bindPopup(popup_0463a9d1621db715c6c226c428880b11)
+        ;
+
+        
+    
+    
+                marker_18a7e9a378b461a998b66c951caef08d.setIcon(icon_8e194a4e3b1e3032258d861efdf2ff03);
+            
+    
+            var marker_16fdeeb133fe8c0e264f032b4fd4badf = L.marker(
+                [43.63419194, 3.92229536],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_006ca4bdb900d90b716aefa078da801b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_eec5d60cf2edbd355a0409d76810e48c = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_4f9415c28da03039c63060194fc9a577 = $(`<div id="html_4f9415c28da03039c63060194fc9a577" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Sablassou</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 185<br>       <b>Capacité totale :</b> 379<br>       <b>Taux occupation :</b> 51.19%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Sablassou_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Sablassou_global.png" width="300"></div></div>`)[0];
+                popup_eec5d60cf2edbd355a0409d76810e48c.setContent(html_4f9415c28da03039c63060194fc9a577);
+            
+        
+
+        marker_16fdeeb133fe8c0e264f032b4fd4badf.bindPopup(popup_eec5d60cf2edbd355a0409d76810e48c)
+        ;
+
+        
+    
+    
+                marker_16fdeeb133fe8c0e264f032b4fd4badf.setIcon(icon_006ca4bdb900d90b716aefa078da801b);
+            
+    
+            var marker_71145b6cd1eaec20bfea95a7ae3b4dcf = L.marker(
+                [43.607697, 3.88515],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_cd864370cc57b2a42c0c466e70195bc8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_95a04eb53804d838a096e06d82cabd35 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_20ed1b57d9f86521ebdf94d2d06b43fe = $(`<div id="html_20ed1b57d9f86521ebdf94d2d06b43fe" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Polygone</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 1013<br>       <b>Capacité totale :</b> 1911<br>       <b>Taux occupation :</b> 46.99%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Polygone_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Polygone_global.png" width="300"></div></div>`)[0];
+                popup_95a04eb53804d838a096e06d82cabd35.setContent(html_20ed1b57d9f86521ebdf94d2d06b43fe);
+            
+        
+
+        marker_71145b6cd1eaec20bfea95a7ae3b4dcf.bindPopup(popup_95a04eb53804d838a096e06d82cabd35)
+        ;
+
+        
+    
+    
+                marker_71145b6cd1eaec20bfea95a7ae3b4dcf.setIcon(icon_cd864370cc57b2a42c0c466e70195bc8);
+            
+    
+            var marker_17a10709aa841c085a2be3545ada8641 = L.marker(
+                [43.61623716, 3.81966554],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_da47f09d43497587091d67954e464364 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_631ca7a41112f042c01310b12afdd6e9 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_11e3c5e16487f8e3d5c41cb1d555784a = $(`<div id="html_11e3c5e16487f8e3d5c41cb1d555784a" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Mosson</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 97<br>       <b>Capacité totale :</b> 328<br>       <b>Taux occupation :</b> 70.43%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Mosson_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Mosson_global.png" width="300"></div></div>`)[0];
+                popup_631ca7a41112f042c01310b12afdd6e9.setContent(html_11e3c5e16487f8e3d5c41cb1d555784a);
+            
+        
+
+        marker_17a10709aa841c085a2be3545ada8641.bindPopup(popup_631ca7a41112f042c01310b12afdd6e9)
+        ;
+
+        
+    
+    
+                marker_17a10709aa841c085a2be3545ada8641.setIcon(icon_da47f09d43497587091d67954e464364);
+            
+    
+            var marker_d330e9b5a491e92c6f435f4e30a2223b = L.marker(
+                [43.604024, 3.87891],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_d0472cd79c768e22baf7fb26162a9f5b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0673abcd2ac2f022e688749b7bd60ebe = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_cb7cd8201954d0e92bb21a0b92b5ea2e = $(`<div id="html_cb7cd8201954d0e92bb21a0b92b5ea2e" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Gare</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 303<br>       <b>Capacité totale :</b> 656<br>       <b>Taux occupation :</b> 53.81%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Gare_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Gare_global.png" width="300"></div></div>`)[0];
+                popup_0673abcd2ac2f022e688749b7bd60ebe.setContent(html_cb7cd8201954d0e92bb21a0b92b5ea2e);
+            
+        
+
+        marker_d330e9b5a491e92c6f435f4e30a2223b.bindPopup(popup_0673abcd2ac2f022e688749b7bd60ebe)
+        ;
+
+        
+    
+    
+                marker_d330e9b5a491e92c6f435f4e30a2223b.setIcon(icon_d0472cd79c768e22baf7fb26162a9f5b);
+            
+    
+            var marker_30219ed4e9267629e34043e1a7da8140 = L.marker(
+                [43.60495377, 3.9178495],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_9ce3d8696d6174bd32089cfbdefdd423 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_6f3835c72a6b3952d83991c6a1cdd887 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_8e05cd2ab2b0b2fc7738f5684e5fcbd6 = $(`<div id="html_8e05cd2ab2b0b2fc7738f5684e5fcbd6" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Circe</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 802<br>       <b>Capacité totale :</b> 1200<br>       <b>Taux occupation :</b> 33.17%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Circe_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Circe_global.png" width="300"></div></div>`)[0];
+                popup_6f3835c72a6b3952d83991c6a1cdd887.setContent(html_8e05cd2ab2b0b2fc7738f5684e5fcbd6);
+            
+        
+
+        marker_30219ed4e9267629e34043e1a7da8140.bindPopup(popup_6f3835c72a6b3952d83991c6a1cdd887)
+        ;
+
+        
+    
+    
+                marker_30219ed4e9267629e34043e1a7da8140.setIcon(icon_9ce3d8696d6174bd32089cfbdefdd423);
+            
+    
+            var marker_f3c0d89913693567d0ff3dd2f4e08b38 = L.marker(
+                [43.61224494, 3.87019117],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_cf75c62582d4898ca3935f77b8422de3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b4880c3f8f8f175baa0e7768f26d59d2 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_10e9021ae114031cc35f80c4e9d32b51 = $(`<div id="html_10e9021ae114031cc35f80c4e9d32b51" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Pitot</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 403<br>       <b>Capacité totale :</b> 590<br>       <b>Taux occupation :</b> 31.69%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Pitot_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Pitot_global.png" width="300"></div></div>`)[0];
+                popup_b4880c3f8f8f175baa0e7768f26d59d2.setContent(html_10e9021ae114031cc35f80c4e9d32b51);
+            
+        
+
+        marker_f3c0d89913693567d0ff3dd2f4e08b38.bindPopup(popup_b4880c3f8f8f175baa0e7768f26d59d2)
+        ;
+
+        
+    
+    
+                marker_f3c0d89913693567d0ff3dd2f4e08b38.setIcon(icon_cf75c62582d4898ca3935f77b8422de3);
+            
+    
+            var marker_11972b480b6df8395c9bcfa8e31731aa = L.marker(
+                [43.60923384, 3.88184418],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_c25f48b33b634e7417aa95fadfca31aa = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_574047b44cddae9327f6e7c9bd46300d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_10f2ca693694551f9d6eef44832dca74 = $(`<div id="html_10f2ca693694551f9d6eef44832dca74" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Triangle</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 274<br>       <b>Capacité totale :</b> 434<br>       <b>Taux occupation :</b> 36.87%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Triangle_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Triangle_global.png" width="300"></div></div>`)[0];
+                popup_574047b44cddae9327f6e7c9bd46300d.setContent(html_10f2ca693694551f9d6eef44832dca74);
+            
+        
+
+        marker_11972b480b6df8395c9bcfa8e31731aa.bindPopup(popup_574047b44cddae9327f6e7c9bd46300d)
+        ;
+
+        
+    
+    
+                marker_11972b480b6df8395c9bcfa8e31731aa.setIcon(icon_c25f48b33b634e7417aa95fadfca31aa);
+            
+    
+            var marker_16013225da1f86a56df382ef2f1291ec = L.marker(
+                [43.60695138, 3.87137436],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_58dbc86cfa1fa2888aa5ba85b2bc1138 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_90d616616506bc9eea9c12863de604fe = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_b7ce8afcd539a21b31cffe8da6745357 = $(`<div id="html_b7ce8afcd539a21b31cffe8da6745357" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Gambetta</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 128<br>       <b>Capacité totale :</b> 452<br>       <b>Taux occupation :</b> 71.68%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Gambetta_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Gambetta_global.png" width="300"></div></div>`)[0];
+                popup_90d616616506bc9eea9c12863de604fe.setContent(html_b7ce8afcd539a21b31cffe8da6745357);
+            
+        
+
+        marker_16013225da1f86a56df382ef2f1291ec.bindPopup(popup_90d616616506bc9eea9c12863de604fe)
+        ;
+
+        
+    
+    
+                marker_16013225da1f86a56df382ef2f1291ec.setIcon(icon_58dbc86cfa1fa2888aa5ba85b2bc1138);
+            
+    
+            var marker_903f25770fe43ebfbf360182161f1363 = L.marker(
+                [43.61074912, 3.87657084],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_fba9eea7a19a91a4fc3dfb5e89b251fe = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1c4fec6188557e768261937dcfdc007d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_5a5b507d292a6fb85b90771c40d76190 = $(`<div id="html_5a5b507d292a6fb85b90771c40d76190" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Foch</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 601<br>       <b>Capacité totale :</b> 620<br>       <b>Taux occupation :</b> 3.06%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Foch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Foch_global.png" width="300"></div></div>`)[0];
+                popup_1c4fec6188557e768261937dcfdc007d.setContent(html_5a5b507d292a6fb85b90771c40d76190);
+            
+        
+
+        marker_903f25770fe43ebfbf360182161f1363.bindPopup(popup_1c4fec6188557e768261937dcfdc007d)
+        ;
+
+        
+    
+    
+                marker_903f25770fe43ebfbf360182161f1363.setIcon(icon_fba9eea7a19a91a4fc3dfb5e89b251fe);
+            
+    
+            var marker_8e3e8542b69e3fca64d051fdc68365d2 = L.marker(
+                [43.60784971, 3.89253074],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_3b283a0e1d0dd48c5d6ef72eddd3b922 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d4a87effa7e0d3f4be3a298dec5e7e9e = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_deb606f503da983460fc6a01d5dda416 = $(`<div id="html_deb606f503da983460fc6a01d5dda416" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Europa</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 261<br>       <b>Capacité totale :</b> 591<br>       <b>Taux occupation :</b> 55.84%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Europa_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Europa_global.png" width="300"></div></div>`)[0];
+                popup_d4a87effa7e0d3f4be3a298dec5e7e9e.setContent(html_deb606f503da983460fc6a01d5dda416);
+            
+        
+
+        marker_8e3e8542b69e3fca64d051fdc68365d2.bindPopup(popup_d4a87effa7e0d3f4be3a298dec5e7e9e)
+        ;
+
+        
+    
+    
+                marker_8e3e8542b69e3fca64d051fdc68365d2.setIcon(icon_3b283a0e1d0dd48c5d6ef72eddd3b922);
+            
+    
+            var marker_5690573a325765201084475b7cb87da3 = L.marker(
+                [43.61388821, 3.88225773],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_79b75399b05227df96d54dc87e2a9e0f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_46f22e0e079528e9415206807586c565 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_829dac09ce07eaa09ef5b9a9d631738a = $(`<div id="html_829dac09ce07eaa09ef5b9a9d631738a" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Corum</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 192<br>       <b>Capacité totale :</b> 480<br>       <b>Taux occupation :</b> 60.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Corum_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Corum_global.png" width="300"></div></div>`)[0];
+                popup_46f22e0e079528e9415206807586c565.setContent(html_829dac09ce07eaa09ef5b9a9d631738a);
+            
+        
+
+        marker_5690573a325765201084475b7cb87da3.bindPopup(popup_46f22e0e079528e9415206807586c565)
+        ;
+
+        
+    
+    
+                marker_5690573a325765201084475b7cb87da3.setIcon(icon_79b75399b05227df96d54dc87e2a9e0f);
+            
+    
+            var marker_e07585df6f7bcb3fead681871cd55cad = L.marker(
+                [43.60856092, 3.87976196],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_da98c7992149ad7ba4f403e116431698 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5510fd846d809926483c437e0da9bb66 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_2089f8d78516e17a0d0edd0e926c7659 = $(`<div id="html_2089f8d78516e17a0d0edd0e926c7659" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Comedie</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 291<br>       <b>Capacité totale :</b> 664<br>       <b>Taux occupation :</b> 56.17%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Comedie_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Comedie_global.png" width="300"></div></div>`)[0];
+                popup_5510fd846d809926483c437e0da9bb66.setContent(html_2089f8d78516e17a0d0edd0e926c7659);
+            
+        
+
+        marker_e07585df6f7bcb3fead681871cd55cad.bindPopup(popup_5510fd846d809926483c437e0da9bb66)
+        ;
+
+        
+    
+    
+                marker_e07585df6f7bcb3fead681871cd55cad.setIcon(icon_da98c7992149ad7ba4f403e116431698);
+            
+    
+            var marker_34d30ef0513f0818b936b71bb9f3e64f = L.marker(
+                [43.60871606, 3.88881893],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_7029c5dc776b3cd6518a5dd9596c3734 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ac066e5c2ef4328174646ab5474b9b1d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_c5ec8dc589bb303310e580c756429de6 = $(`<div id="html_c5ec8dc589bb303310e580c756429de6" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Antigone</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 135<br>       <b>Capacité totale :</b> 239<br>       <b>Taux occupation :</b> 43.51%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Antigone_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Antigone_global.png" width="300"></div></div>`)[0];
+                popup_ac066e5c2ef4328174646ab5474b9b1d.setContent(html_c5ec8dc589bb303310e580c756429de6);
+            
+        
+
+        marker_34d30ef0513f0818b936b71bb9f3e64f.bindPopup(popup_ac066e5c2ef4328174646ab5474b9b1d)
+        ;
+
+        
+    
+    
+                marker_34d30ef0513f0818b936b71bb9f3e64f.setIcon(icon_7029c5dc776b3cd6518a5dd9596c3734);
+            
+    
+            var marker_f503c0e8630e91d2256da9acbf266d17 = L.marker(
+                [43.61100267, 3.8732007],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_ee8da90493a468863036a806bf42eac1 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_109396056b5721e92d81939b92f8be05 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_0cd237ef115e3a1341ba01ad2c8a7497 = $(`<div id="html_0cd237ef115e3a1341ba01ad2c8a7497" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Arc de Triomphe</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 181<br>       <b>Capacité totale :</b> 440<br>       <b>Taux occupation :</b> 58.86%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Arc de Triomphe_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Arc de Triomphe_global.png" width="300"></div></div>`)[0];
+                popup_109396056b5721e92d81939b92f8be05.setContent(html_0cd237ef115e3a1341ba01ad2c8a7497);
+            
+        
+
+        marker_f503c0e8630e91d2256da9acbf266d17.bindPopup(popup_109396056b5721e92d81939b92f8be05)
+        ;
+
+        
+    
+    
+                marker_f503c0e8630e91d2256da9acbf266d17.setIcon(icon_ee8da90493a468863036a806bf42eac1);
+            
+    
+            var marker_7be914c30cf75fce228844b2a3db1b91 = L.marker(
+                [43.59098509, 3.8907158],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_27839362780f2b24791c8fb26999de3a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7eebe7d1ffeb2aa93bda760a993c2bf2 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f3ddbf7586506f642fc652afa7319765 = $(`<div id="html_f3ddbf7586506f642fc652afa7319765" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Garcia Lorca</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 301<br>       <b>Capacité totale :</b> 400<br>       <b>Taux occupation :</b> 24.75%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Garcia Lorca_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Garcia Lorca_global.png" width="300"></div></div>`)[0];
+                popup_7eebe7d1ffeb2aa93bda760a993c2bf2.setContent(html_f3ddbf7586506f642fc652afa7319765);
+            
+        
+
+        marker_7be914c30cf75fce228844b2a3db1b91.bindPopup(popup_7eebe7d1ffeb2aa93bda760a993c2bf2)
+        ;
+
+        
+    
+    
+                marker_7be914c30cf75fce228844b2a3db1b91.setIcon(icon_27839362780f2b24791c8fb26999de3a);
+            
+    
+            var marker_f761346dc6909359bf30acda8bb8d829 = L.marker(
+                [43.60495377, 3.9178495],
+                {
+}
+            ).addTo(marker_cluster_b3e022870d44f3d8531639284a670198);
+        
+    
+            var icon_51649d1b2d7788a978df30d1e3a524e2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "car",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1c44d72ab84116a9f15908385305a715 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_a35d15faa6a04f3cb9ebd31a7e02a4ec = $(`<div id="html_a35d15faa6a04f3cb9ebd31a7e02a4ec" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚗 Gaumont-Circe</h4>       <hr style="margin:6px 0;">       <b>Places libres :</b> 199<br>       <b>Capacité totale :</b> 500<br>       <b>Taux occupation :</b> 60.20%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/parking_Gaumont-Circe_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/parking_Gaumont-Circe_global.png" width="300"></div></div>`)[0];
+                popup_1c44d72ab84116a9f15908385305a715.setContent(html_a35d15faa6a04f3cb9ebd31a7e02a4ec);
+            
+        
+
+        marker_f761346dc6909359bf30acda8bb8d829.bindPopup(popup_1c44d72ab84116a9f15908385305a715)
+        ;
+
+        
+    
+    
+                marker_f761346dc6909359bf30acda8bb8d829.setIcon(icon_51649d1b2d7788a978df30d1e3a524e2);
+            
+    
+            marker_cluster_b3e022870d44f3d8531639284a670198.addTo(map_aeed1f383034b93499c824a01eda4a0c);
+        
+    
+            var marker_cluster_94f89c4eb0026afd81197efe627a939b = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_a1e866f559f21a394853aa7e8d83ea57 = L.marker(
+                [43.619701, 3.883831],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_ce238ff1ffe93c7259961689388611e5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b2fe82d75d2e3f599119acbd5e7dbda5 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_c6a89ab5d1bdf6f3d78f67e3b16206b2 = $(`<div id="html_c6a89ab5d1bdf6f3d78f67e3b16206b2" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Jeu de Mail des Abbés</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Jeu de Mail des Abbés_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Jeu de Mail des Abbés_global.png" width="300"></div></div>`)[0];
+                popup_b2fe82d75d2e3f599119acbd5e7dbda5.setContent(html_c6a89ab5d1bdf6f3d78f67e3b16206b2);
+            
+        
+
+        marker_a1e866f559f21a394853aa7e8d83ea57.bindPopup(popup_b2fe82d75d2e3f599119acbd5e7dbda5)
+        ;
+
+        
+    
+    
+                marker_a1e866f559f21a394853aa7e8d83ea57.setIcon(icon_ce238ff1ffe93c7259961689388611e5);
+            
+    
+            var marker_a9bf0a9269a431bca320df4eb8687bda = L.marker(
+                [43.59562, 3.9235],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_80dff6c1ebc09412e4b3695df87a8b65 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_dab3850758120cae88a9b42587ef5347 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_acef685e9dd67eae0731ad03bf21190c = $(`<div id="html_acef685e9dd67eae0731ad03bf21190c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Sud De France</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 1<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Sud De France_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Sud De France_global.png" width="300"></div></div>`)[0];
+                popup_dab3850758120cae88a9b42587ef5347.setContent(html_acef685e9dd67eae0731ad03bf21190c);
+            
+        
+
+        marker_a9bf0a9269a431bca320df4eb8687bda.bindPopup(popup_dab3850758120cae88a9b42587ef5347)
+        ;
+
+        
+    
+    
+                marker_a9bf0a9269a431bca320df4eb8687bda.setIcon(icon_80dff6c1ebc09412e4b3695df87a8b65);
+            
+    
+            var marker_2c1f194b1c598c6e5c10f67053f610d8 = L.marker(
+                [43.619871, 3.873812],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_01f44f4aa2ab19ec36296276dc170e20 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_64f01ec4e3d3f27b9cced57bc1af9958 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f15ad77780a4859af0e82618aea0dca8 = $(`<div id="html_f15ad77780a4859af0e82618aea0dca8" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Marie Caizergues</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Marie Caizergues_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Marie Caizergues_global.png" width="300"></div></div>`)[0];
+                popup_64f01ec4e3d3f27b9cced57bc1af9958.setContent(html_f15ad77780a4859af0e82618aea0dca8);
+            
+        
+
+        marker_2c1f194b1c598c6e5c10f67053f610d8.bindPopup(popup_64f01ec4e3d3f27b9cced57bc1af9958)
+        ;
+
+        
+    
+    
+                marker_2c1f194b1c598c6e5c10f67053f610d8.setIcon(icon_01f44f4aa2ab19ec36296276dc170e20);
+            
+    
+            var marker_9f4beb5582ffc1df0c43bd812cda54f1 = L.marker(
+                [43.639119, 3.828199],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_42b1fe4cf3838d37a2cc25a1fd683a1d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0aa6b0f87f4a604c477618c599b7b0b8 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_e42f3abbae64ceff66d1c14eb21d0778 = $(`<div id="html_e42f3abbae64ceff66d1c14eb21d0778" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Euromédecine</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 0<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 0.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Euromédecine_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Euromédecine_global.png" width="300"></div></div>`)[0];
+                popup_0aa6b0f87f4a604c477618c599b7b0b8.setContent(html_e42f3abbae64ceff66d1c14eb21d0778);
+            
+        
+
+        marker_9f4beb5582ffc1df0c43bd812cda54f1.bindPopup(popup_0aa6b0f87f4a604c477618c599b7b0b8)
+        ;
+
+        
+    
+    
+                marker_9f4beb5582ffc1df0c43bd812cda54f1.setIcon(icon_42b1fe4cf3838d37a2cc25a1fd683a1d);
+            
+    
+            var marker_4adb4aef99fd2cbd19fcdad8144b6ddd = L.marker(
+                [43.626163, 3.882492],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_6fbd7f9336d5b989cd567d62107b4b51 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_87d973a9a1d1a5599aa05f22721bb29d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_04c14026e1d3bc3d38263994ecc50960 = $(`<div id="html_04c14026e1d3bc3d38263994ecc50960" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Aiguelongue</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 1<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 87.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Aiguelongue_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Aiguelongue_global.png" width="300"></div></div>`)[0];
+                popup_87d973a9a1d1a5599aa05f22721bb29d.setContent(html_04c14026e1d3bc3d38263994ecc50960);
+            
+        
+
+        marker_4adb4aef99fd2cbd19fcdad8144b6ddd.bindPopup(popup_87d973a9a1d1a5599aa05f22721bb29d)
+        ;
+
+        
+    
+    
+                marker_4adb4aef99fd2cbd19fcdad8144b6ddd.setIcon(icon_6fbd7f9336d5b989cd567d62107b4b51);
+            
+    
+            var marker_ed7593b37c1a7e1e27faa591362d9f8a = L.marker(
+                [43.590757, 3.890616],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_f1520f0e99e242732eeeecc5a0fd33bd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d91f554f8b955ad4c1c6f7e915e79770 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_64be6f7ee8952605f391a349a4bc7211 = $(`<div id="html_64be6f7ee8952605f391a349a4bc7211" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Garcia Lorca</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 5<br>       <b>Bornes libres :</b> 3<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 62.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Garcia Lorca_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Garcia Lorca_global.png" width="300"></div></div>`)[0];
+                popup_d91f554f8b955ad4c1c6f7e915e79770.setContent(html_64be6f7ee8952605f391a349a4bc7211);
+            
+        
+
+        marker_ed7593b37c1a7e1e27faa591362d9f8a.bindPopup(popup_d91f554f8b955ad4c1c6f7e915e79770)
+        ;
+
+        
+    
+    
+                marker_ed7593b37c1a7e1e27faa591362d9f8a.setIcon(icon_f1520f0e99e242732eeeecc5a0fd33bd);
+            
+    
+            var marker_d26905eeea2821e79a5e875944c6250b = L.marker(
+                [43.631318, 3.861299],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_b3b85cab83ad967c13bffac1e82f828b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_80b37046e4b80be1b4263442699fd02f = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_ae3f89a9d0fb19d14129fc9c2f8697af = $(`<div id="html_ae3f89a9d0fb19d14129fc9c2f8697af" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 FacdesSciences</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 11<br>       <b>Bornes libres :</b> 13<br>       <b>Total bornes :</b> 24<br>       <b>Taux occupation places :</b> 45.83%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_FacdesSciences_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_FacdesSciences_global.png" width="300"></div></div>`)[0];
+                popup_80b37046e4b80be1b4263442699fd02f.setContent(html_ae3f89a9d0fb19d14129fc9c2f8697af);
+            
+        
+
+        marker_d26905eeea2821e79a5e875944c6250b.bindPopup(popup_80b37046e4b80be1b4263442699fd02f)
+        ;
+
+        
+    
+    
+                marker_d26905eeea2821e79a5e875944c6250b.setIcon(icon_b3b85cab83ad967c13bffac1e82f828b);
+            
+    
+            var marker_f94d72da54e313bfa36b713352acb5ec = L.marker(
+                [43.635689, 3.849597],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_0f6b20270d0ef9d1b0fcf162c88c59c6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b754266e23ec2891994b39eef0c86a49 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_66c6c5dd7e0614f88d5252faad21065c = $(`<div id="html_66c6c5dd7e0614f88d5252faad21065c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Occitanie</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 10<br>       <b>Bornes libres :</b> 22<br>       <b>Total bornes :</b> 32<br>       <b>Taux occupation places :</b> 31.25%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Occitanie_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Occitanie_global.png" width="300"></div></div>`)[0];
+                popup_b754266e23ec2891994b39eef0c86a49.setContent(html_66c6c5dd7e0614f88d5252faad21065c);
+            
+        
+
+        marker_f94d72da54e313bfa36b713352acb5ec.bindPopup(popup_b754266e23ec2891994b39eef0c86a49)
+        ;
+
+        
+    
+    
+                marker_f94d72da54e313bfa36b713352acb5ec.setIcon(icon_0f6b20270d0ef9d1b0fcf162c88c59c6);
+            
+    
+            var marker_19929ebfe43b24bc833ad6357379ae90 = L.marker(
+                [43.633679, 3.832861],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_6f2f6848fa0eaa55d003f2b314ec37f0 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_71c4529100fec4b5675c2e19d6a8860e = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_d2466d4a3e5eb984b835a35d8bd20daa = $(`<div id="html_d2466d4a3e5eb984b835a35d8bd20daa" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Malbosc</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 1<br>       <b>Bornes libres :</b> 7<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 12.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Malbosc_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Malbosc_global.png" width="300"></div></div>`)[0];
+                popup_71c4529100fec4b5675c2e19d6a8860e.setContent(html_d2466d4a3e5eb984b835a35d8bd20daa);
+            
+        
+
+        marker_19929ebfe43b24bc833ad6357379ae90.bindPopup(popup_71c4529100fec4b5675c2e19d6a8860e)
+        ;
+
+        
+    
+    
+                marker_19929ebfe43b24bc833ad6357379ae90.setIcon(icon_6f2f6848fa0eaa55d003f2b314ec37f0);
+            
+    
+            var marker_ea9d740fef2eb9f9507792d85f0990fd = L.marker(
+                [43.63543, 3.871179],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_e61872dbdcbbe8f961459bb234acb1e3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_70bb005631f3da11c6bca858dc124f40 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_6c276b0b62e5f77b56dd126c7bd490a2 = $(`<div id="html_6c276b0b62e5f77b56dd126c7bd490a2" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Vert Bois</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 5<br>       <b>Bornes libres :</b> 11<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 31.25%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Vert Bois_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Vert Bois_global.png" width="300"></div></div>`)[0];
+                popup_70bb005631f3da11c6bca858dc124f40.setContent(html_6c276b0b62e5f77b56dd126c7bd490a2);
+            
+        
+
+        marker_ea9d740fef2eb9f9507792d85f0990fd.bindPopup(popup_70bb005631f3da11c6bca858dc124f40)
+        ;
+
+        
+    
+    
+                marker_ea9d740fef2eb9f9507792d85f0990fd.setIcon(icon_e61872dbdcbbe8f961459bb234acb1e3);
+            
+    
+            var marker_aeee0ff47e47dbaa2651e1c10055c9c3 = L.marker(
+                [43.630437, 3.869539],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_fbd3dd0c9de619c2057204a95d96070b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ef31e1c296219a3fbbda00c8f942617a = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_d57cdb0e49a5903106efece42842f179 = $(`<div id="html_d57cdb0e49a5903106efece42842f179" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Fac de Lettres</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Fac de Lettres_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Fac de Lettres_global.png" width="300"></div></div>`)[0];
+                popup_ef31e1c296219a3fbbda00c8f942617a.setContent(html_d57cdb0e49a5903106efece42842f179);
+            
+        
+
+        marker_aeee0ff47e47dbaa2651e1c10055c9c3.bindPopup(popup_ef31e1c296219a3fbbda00c8f942617a)
+        ;
+
+        
+    
+    
+                marker_aeee0ff47e47dbaa2651e1c10055c9c3.setIcon(icon_fbd3dd0c9de619c2057204a95d96070b);
+            
+    
+            var marker_62c02fab98b812e9bcab3e26442f5c98 = L.marker(
+                [43.584211, 3.860031],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_faca73dbb9a64af6cbef16b36e1fbd35 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_40a382c200b222b4d5520a125ee7d775 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_a2cd7b13fa905011fe5c77f960b98cb8 = $(`<div id="html_a2cd7b13fa905011fe5c77f960b98cb8" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Sabines</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 1<br>       <b>Bornes libres :</b> 7<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 12.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Sabines_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Sabines_global.png" width="300"></div></div>`)[0];
+                popup_40a382c200b222b4d5520a125ee7d775.setContent(html_a2cd7b13fa905011fe5c77f960b98cb8);
+            
+        
+
+        marker_62c02fab98b812e9bcab3e26442f5c98.bindPopup(popup_40a382c200b222b4d5520a125ee7d775)
+        ;
+
+        
+    
+    
+                marker_62c02fab98b812e9bcab3e26442f5c98.setIcon(icon_faca73dbb9a64af6cbef16b36e1fbd35);
+            
+    
+            var marker_74359ddec0f7207da39cdffbc45c27b1 = L.marker(
+                [43.603889, 3.879362],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_dbc21552699383652854f7e4ada7889e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5ff75089c4f6cb02defafeb6baead513 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_65e4b40b2269f3c50e5abe1f9d09adda = $(`<div id="html_65e4b40b2269f3c50e5abe1f9d09adda" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Parvis Jules Ferry - Gare Saint-Roch</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Parvis Jules Ferry - Gare Saint-Roch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Parvis Jules Ferry - Gare Saint-Roch_global.png" width="300"></div></div>`)[0];
+                popup_5ff75089c4f6cb02defafeb6baead513.setContent(html_65e4b40b2269f3c50e5abe1f9d09adda);
+            
+        
+
+        marker_74359ddec0f7207da39cdffbc45c27b1.bindPopup(popup_5ff75089c4f6cb02defafeb6baead513)
+        ;
+
+        
+    
+    
+                marker_74359ddec0f7207da39cdffbc45c27b1.setIcon(icon_dbc21552699383652854f7e4ada7889e);
+            
+    
+            var marker_a36928c1e09bb3f6c6b3412ae9821705 = L.marker(
+                [43.60585, 3.911576],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_988439a582aee37948cf21bc8a2bfdc3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_17fcb3bee511aa4fd98f332c804638a2 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_2cb34d2a929e17b7135a809070841564 = $(`<div id="html_2cb34d2a929e17b7135a809070841564" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Jardin de la Lironde</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Jardin de la Lironde_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Jardin de la Lironde_global.png" width="300"></div></div>`)[0];
+                popup_17fcb3bee511aa4fd98f332c804638a2.setContent(html_2cb34d2a929e17b7135a809070841564);
+            
+        
+
+        marker_a36928c1e09bb3f6c6b3412ae9821705.bindPopup(popup_17fcb3bee511aa4fd98f332c804638a2)
+        ;
+
+        
+    
+    
+                marker_a36928c1e09bb3f6c6b3412ae9821705.setIcon(icon_988439a582aee37948cf21bc8a2bfdc3);
+            
+    
+            var marker_c7416bdaa98080fa100da46983d7afc6 = L.marker(
+                [43.621983, 3.855603],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_a98d6d3e9d3af37ac019e3ec212bd1d3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a0863c71eeffaf73838a338f8fb8bf59 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_54fc3335d78db1c62860e5fc1d51083c = $(`<div id="html_54fc3335d78db1c62860e5fc1d51083c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Père Soulas</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 5<br>       <b>Bornes libres :</b> 3<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 62.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Père Soulas_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Père Soulas_global.png" width="300"></div></div>`)[0];
+                popup_a0863c71eeffaf73838a338f8fb8bf59.setContent(html_54fc3335d78db1c62860e5fc1d51083c);
+            
+        
+
+        marker_c7416bdaa98080fa100da46983d7afc6.bindPopup(popup_a0863c71eeffaf73838a338f8fb8bf59)
+        ;
+
+        
+    
+    
+                marker_c7416bdaa98080fa100da46983d7afc6.setIcon(icon_a98d6d3e9d3af37ac019e3ec212bd1d3);
+            
+    
+            var marker_e97b495634d37bc8a846bde65ce6e132 = L.marker(
+                [43.616812, 3.855075],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_b28fb7d04f4f8bf0548cde507a0e057a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_fd97eff40a8b09fa252a4d86b2dcec89 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_d5b583a018f84ea58311318b2bfb1416 = $(`<div id="html_d5b583a018f84ea58311318b2bfb1416" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Place Viala</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 2<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 75.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Place Viala_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Place Viala_global.png" width="300"></div></div>`)[0];
+                popup_fd97eff40a8b09fa252a4d86b2dcec89.setContent(html_d5b583a018f84ea58311318b2bfb1416);
+            
+        
+
+        marker_e97b495634d37bc8a846bde65ce6e132.bindPopup(popup_fd97eff40a8b09fa252a4d86b2dcec89)
+        ;
+
+        
+    
+    
+                marker_e97b495634d37bc8a846bde65ce6e132.setIcon(icon_b28fb7d04f4f8bf0548cde507a0e057a);
+            
+    
+            var marker_37e735515884b4ac13e6cddf6f3d2954 = L.marker(
+                [43.621682, 3.83477],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_4746297541cbeca22f03091beea3e773 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9600b609719723e82ea5fcdc200805fc = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_d5ce0ed1ddee596d60de484468ce69f8 = $(`<div id="html_d5ce0ed1ddee596d60de484468ce69f8" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Hôtel du Département</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 1<br>       <b>Bornes libres :</b> 7<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 12.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Hôtel du Département_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Hôtel du Département_global.png" width="300"></div></div>`)[0];
+                popup_9600b609719723e82ea5fcdc200805fc.setContent(html_d5ce0ed1ddee596d60de484468ce69f8);
+            
+        
+
+        marker_37e735515884b4ac13e6cddf6f3d2954.bindPopup(popup_9600b609719723e82ea5fcdc200805fc)
+        ;
+
+        
+    
+    
+                marker_37e735515884b4ac13e6cddf6f3d2954.setIcon(icon_4746297541cbeca22f03091beea3e773);
+            
+    
+            var marker_41f4742ee975457d2361b09c811e3036 = L.marker(
+                [43.615155, 3.839466],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_39aba6b7137572761ed566f11a0d9b59 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e632738b23f383f336933bec2bfbc0a5 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f190f485c253cfdd9505ebb52c93c699 = $(`<div id="html_f190f485c253cfdd9505ebb52c93c699" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Tonnelles</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Tonnelles_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Tonnelles_global.png" width="300"></div></div>`)[0];
+                popup_e632738b23f383f336933bec2bfbc0a5.setContent(html_f190f485c253cfdd9505ebb52c93c699);
+            
+        
+
+        marker_41f4742ee975457d2361b09c811e3036.bindPopup(popup_e632738b23f383f336933bec2bfbc0a5)
+        ;
+
+        
+    
+    
+                marker_41f4742ee975457d2361b09c811e3036.setIcon(icon_39aba6b7137572761ed566f11a0d9b59);
+            
+    
+            var marker_ff1a10356277fe4e46fc97eda11f6974 = L.marker(
+                [43.606036, 3.882393],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_3ed8b484eef899e208c80f27ae822ce2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2c2335d8a64bae11c9299ef6c121b22d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f9bdc734b18cf86510f6219148c58ec2 = $(`<div id="html_f9bdc734b18cf86510f6219148c58ec2" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Pont de Lattes - Gare Saint-Roch</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 5<br>       <b>Bornes libres :</b> 7<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 41.67%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Pont de Lattes - Gare Saint-Roch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Pont de Lattes - Gare Saint-Roch_global.png" width="300"></div></div>`)[0];
+                popup_2c2335d8a64bae11c9299ef6c121b22d.setContent(html_f9bdc734b18cf86510f6219148c58ec2);
+            
+        
+
+        marker_ff1a10356277fe4e46fc97eda11f6974.bindPopup(popup_2c2335d8a64bae11c9299ef6c121b22d)
+        ;
+
+        
+    
+    
+                marker_ff1a10356277fe4e46fc97eda11f6974.setIcon(icon_3ed8b484eef899e208c80f27ae822ce2);
+            
+    
+            var marker_4de9036dbb6b5bbb8c47094f21a591c0 = L.marker(
+                [43.604319, 3.880916],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_6356f885efcca1327229e5e13c227800 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_00512644a4748b65707615ba5ce3f237 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f691267e518cc956a65c727426606e61 = $(`<div id="html_f691267e518cc956a65c727426606e61" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Deux Ponts - Gare Saint-Roch</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 0<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 0.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Deux Ponts - Gare Saint-Roch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Deux Ponts - Gare Saint-Roch_global.png" width="300"></div></div>`)[0];
+                popup_00512644a4748b65707615ba5ce3f237.setContent(html_f691267e518cc956a65c727426606e61);
+            
+        
+
+        marker_4de9036dbb6b5bbb8c47094f21a591c0.bindPopup(popup_00512644a4748b65707615ba5ce3f237)
+        ;
+
+        
+    
+    
+                marker_4de9036dbb6b5bbb8c47094f21a591c0.setIcon(icon_6356f885efcca1327229e5e13c227800);
+            
+    
+            var marker_70610a4c72383ba7b259d82460e4b7b5 = L.marker(
+                [43.588239, 3.853421],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_3d5a7b20afd24f4599def67ae3e853ba = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_afe6f015f7216d3935edb5b67e69b2d8 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_89c316aeccc85c9f9923557bd948387c = $(`<div id="html_89c316aeccc85c9f9923557bd948387c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Providence - Ovalie</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 1<br>       <b>Bornes libres :</b> 7<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 12.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Providence - Ovalie_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Providence - Ovalie_global.png" width="300"></div></div>`)[0];
+                popup_afe6f015f7216d3935edb5b67e69b2d8.setContent(html_89c316aeccc85c9f9923557bd948387c);
+            
+        
+
+        marker_70610a4c72383ba7b259d82460e4b7b5.bindPopup(popup_afe6f015f7216d3935edb5b67e69b2d8)
+        ;
+
+        
+    
+    
+                marker_70610a4c72383ba7b259d82460e4b7b5.setIcon(icon_3d5a7b20afd24f4599def67ae3e853ba);
+            
+    
+            var marker_7385cd33cd0d28ecd5601ba9017cd4ca = L.marker(
+                [43.558351, 3.963412],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_b1b056e541d5eb5cd5186b1927e886e1 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_47929cac2feff2ccb827039b316b62b4 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_78bd07dfde6eb35a8405e3bd8cb4fb9d = $(`<div id="html_78bd07dfde6eb35a8405e3bd8cb4fb9d" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Pérols Etang de l Or</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 41<br>       <b>Bornes libres :</b> 27<br>       <b>Total bornes :</b> 68<br>       <b>Taux occupation places :</b> 60.29%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Pérols Etang de l Or_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Pérols Etang de l Or_global.png" width="300"></div></div>`)[0];
+                popup_47929cac2feff2ccb827039b316b62b4.setContent(html_78bd07dfde6eb35a8405e3bd8cb4fb9d);
+            
+        
+
+        marker_7385cd33cd0d28ecd5601ba9017cd4ca.bindPopup(popup_47929cac2feff2ccb827039b316b62b4)
+        ;
+
+        
+    
+    
+                marker_7385cd33cd0d28ecd5601ba9017cd4ca.setIcon(icon_b1b056e541d5eb5cd5186b1927e886e1);
+            
+    
+            var marker_9e7dd85077b0349572246034a3ec565d = L.marker(
+                [43.614005, 3.873218],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_48d85c4afb83f9f6c2c25863701b0c3e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2b03a12a0bc435e647f1404acd5bdf3c = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_5ed716482a79389a1939f51b25983e73 = $(`<div id="html_5ed716482a79389a1939f51b25983e73" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Albert 1er - Cathédrale</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 9<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 25.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Albert 1er - Cathédrale_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Albert 1er - Cathédrale_global.png" width="300"></div></div>`)[0];
+                popup_2b03a12a0bc435e647f1404acd5bdf3c.setContent(html_5ed716482a79389a1939f51b25983e73);
+            
+        
+
+        marker_9e7dd85077b0349572246034a3ec565d.bindPopup(popup_2b03a12a0bc435e647f1404acd5bdf3c)
+        ;
+
+        
+    
+    
+                marker_9e7dd85077b0349572246034a3ec565d.setIcon(icon_48d85c4afb83f9f6c2c25863701b0c3e);
+            
+    
+            var marker_b1278afc625d829a7b358a1bbeab1ac0 = L.marker(
+                [43.608996, 3.872752],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_8d806c212e9d2b379180f750f631fa59 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b4536ac294b7e8a992ccb12a4141703d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_972ac3b4b98832fbd9f1df82e3bfce5b = $(`<div id="html_972ac3b4b98832fbd9f1df82e3bfce5b" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Saint-Guilhem - Courreau</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Saint-Guilhem - Courreau_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Saint-Guilhem - Courreau_global.png" width="300"></div></div>`)[0];
+                popup_b4536ac294b7e8a992ccb12a4141703d.setContent(html_972ac3b4b98832fbd9f1df82e3bfce5b);
+            
+        
+
+        marker_b1278afc625d829a7b358a1bbeab1ac0.bindPopup(popup_b4536ac294b7e8a992ccb12a4141703d)
+        ;
+
+        
+    
+    
+                marker_b1278afc625d829a7b358a1bbeab1ac0.setIcon(icon_8d806c212e9d2b379180f750f631fa59);
+            
+    
+            var marker_c6a457a8cf12e4a49d11d1afdf46262b = L.marker(
+                [43.59048, 3.884611],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_0ea8ba22c64ba9e4922a8b216aeaf526 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_124b14e694baae237b342c36c99eb181 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_1d49291a1d58586f2388ad9227ef713c = $(`<div id="html_1d49291a1d58586f2388ad9227ef713c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Prés d Arènes</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Prés d Arènes_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Prés d Arènes_global.png" width="300"></div></div>`)[0];
+                popup_124b14e694baae237b342c36c99eb181.setContent(html_1d49291a1d58586f2388ad9227ef713c);
+            
+        
+
+        marker_c6a457a8cf12e4a49d11d1afdf46262b.bindPopup(popup_124b14e694baae237b342c36c99eb181)
+        ;
+
+        
+    
+    
+                marker_c6a457a8cf12e4a49d11d1afdf46262b.setIcon(icon_0ea8ba22c64ba9e4922a8b216aeaf526);
+            
+    
+            var marker_b50aaa9cd5a544aa3dd3634e0b418233 = L.marker(
+                [43.61467, 3.832624],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_85a2e44320a7d142dd812de913a954f7 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9fa88b55346ab11868a62af2c1ed525f = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_fcabec29ca745650ef1e08cbcb71413a = $(`<div id="html_fcabec29ca745650ef1e08cbcb71413a" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Celleneuve</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 2<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 25.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Celleneuve_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Celleneuve_global.png" width="300"></div></div>`)[0];
+                popup_9fa88b55346ab11868a62af2c1ed525f.setContent(html_fcabec29ca745650ef1e08cbcb71413a);
+            
+        
+
+        marker_b50aaa9cd5a544aa3dd3634e0b418233.bindPopup(popup_9fa88b55346ab11868a62af2c1ed525f)
+        ;
+
+        
+    
+    
+                marker_b50aaa9cd5a544aa3dd3634e0b418233.setIcon(icon_85a2e44320a7d142dd812de913a954f7);
+            
+    
+            var marker_5bfee216e93ca263d12621221175a80b = L.marker(
+                [43.603767, 3.888659],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_8ac65eae1308e92df3c14e6927667660 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_bb0cec3091bf02d4a0fd384ee2979f56 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_cee46836ae43e461f821623efe32f9bc = $(`<div id="html_cee46836ae43e461f821623efe32f9bc" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Voltaire</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Voltaire_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Voltaire_global.png" width="300"></div></div>`)[0];
+                popup_bb0cec3091bf02d4a0fd384ee2979f56.setContent(html_cee46836ae43e461f821623efe32f9bc);
+            
+        
+
+        marker_5bfee216e93ca263d12621221175a80b.bindPopup(popup_bb0cec3091bf02d4a0fd384ee2979f56)
+        ;
+
+        
+    
+    
+                marker_5bfee216e93ca263d12621221175a80b.setIcon(icon_8ac65eae1308e92df3c14e6927667660);
+            
+    
+            var marker_ffb80a428469c8b2f49d37f271a45347 = L.marker(
+                [43.607942, 3.890634],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_06ace7a7d08b24ca92994ffe2314608a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3ece672482e1ad2cccd6906c79901212 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_0c2e2bb80cd3707907bdc28db8b9db05 = $(`<div id="html_0c2e2bb80cd3707907bdc28db8b9db05" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Antigone centre</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 7<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 58.33%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Antigone centre_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Antigone centre_global.png" width="300"></div></div>`)[0];
+                popup_3ece672482e1ad2cccd6906c79901212.setContent(html_0c2e2bb80cd3707907bdc28db8b9db05);
+            
+        
+
+        marker_ffb80a428469c8b2f49d37f271a45347.bindPopup(popup_3ece672482e1ad2cccd6906c79901212)
+        ;
+
+        
+    
+    
+                marker_ffb80a428469c8b2f49d37f271a45347.setIcon(icon_06ace7a7d08b24ca92994ffe2314608a);
+            
+    
+            var marker_4cf933a45ecd6ffb09e059cbdf253823 = L.marker(
+                [43.603424, 3.899263],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_938589b44a840a9ba30202be19a63e02 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ab25f39f34473c6899b5e2758a01c9d7 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_387c622139a38c508f11854ce0c34730 = $(`<div id="html_387c622139a38c508f11854ce0c34730" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Richter</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 7<br>       <b>Bornes libres :</b> 9<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 43.75%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Richter_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Richter_global.png" width="300"></div></div>`)[0];
+                popup_ab25f39f34473c6899b5e2758a01c9d7.setContent(html_387c622139a38c508f11854ce0c34730);
+            
+        
+
+        marker_4cf933a45ecd6ffb09e059cbdf253823.bindPopup(popup_ab25f39f34473c6899b5e2758a01c9d7)
+        ;
+
+        
+    
+    
+                marker_4cf933a45ecd6ffb09e059cbdf253823.setIcon(icon_938589b44a840a9ba30202be19a63e02);
+            
+    
+            var marker_3f6259112922931fc463169ac770eb38 = L.marker(
+                [43.608717, 3.880787],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_69e731316c59ce52bcc7d76682abe322 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8b3e1578fd3a0f3b2eb30c940c63b9bd = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_9b27d5f0c7f4a964f9b0a4ee4fc95216 = $(`<div id="html_9b27d5f0c7f4a964f9b0a4ee4fc95216" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Comedie Baudin</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 0<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 0.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Comedie Baudin_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Comedie Baudin_global.png" width="300"></div></div>`)[0];
+                popup_8b3e1578fd3a0f3b2eb30c940c63b9bd.setContent(html_9b27d5f0c7f4a964f9b0a4ee4fc95216);
+            
+        
+
+        marker_3f6259112922931fc463169ac770eb38.bindPopup(popup_8b3e1578fd3a0f3b2eb30c940c63b9bd)
+        ;
+
+        
+    
+    
+                marker_3f6259112922931fc463169ac770eb38.setIcon(icon_69e731316c59ce52bcc7d76682abe322);
+            
+    
+            var marker_2444c6c30bcf84d83c3a37dfe792dac3 = L.marker(
+                [43.605366, 3.881346],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_7bc06745dc078c1048981539f37726c9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_65c6c641cadf6d82a98a3574d5251fda = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_aa7fa3500fff439cc028aaffb2b39bc9 = $(`<div id="html_aa7fa3500fff439cc028aaffb2b39bc9" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Rue Jules Ferry - Gare Saint-Roch</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 33.33%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Rue Jules Ferry - Gare Saint-Roch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Rue Jules Ferry - Gare Saint-Roch_global.png" width="300"></div></div>`)[0];
+                popup_65c6c641cadf6d82a98a3574d5251fda.setContent(html_aa7fa3500fff439cc028aaffb2b39bc9);
+            
+        
+
+        marker_2444c6c30bcf84d83c3a37dfe792dac3.bindPopup(popup_65c6c641cadf6d82a98a3574d5251fda)
+        ;
+
+        
+    
+    
+                marker_2444c6c30bcf84d83c3a37dfe792dac3.setIcon(icon_7bc06745dc078c1048981539f37726c9);
+            
+    
+            var marker_2d3302ba5c510d5c2c2eb52146001a7b = L.marker(
+                [43.608148, 3.878778],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_294b2b77e263c5ff694b881e901761ff = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b9380bff7faaf17d6d2a2a6c7193582c = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_7a54071414ca6071c9dbb5a66cd7746e = $(`<div id="html_7a54071414ca6071c9dbb5a66cd7746e" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Comédie</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 16<br>       <b>Total bornes :</b> 20<br>       <b>Taux occupation places :</b> 20.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Comédie_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Comédie_global.png" width="300"></div></div>`)[0];
+                popup_b9380bff7faaf17d6d2a2a6c7193582c.setContent(html_7a54071414ca6071c9dbb5a66cd7746e);
+            
+        
+
+        marker_2d3302ba5c510d5c2c2eb52146001a7b.bindPopup(popup_b9380bff7faaf17d6d2a2a6c7193582c)
+        ;
+
+        
+    
+    
+                marker_2d3302ba5c510d5c2c2eb52146001a7b.setIcon(icon_294b2b77e263c5ff694b881e901761ff);
+            
+    
+            var marker_de49568d500934f2b94bcb768bfe536e = L.marker(
+                [43.599088, 3.894866],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_f1d5f3f4c21ec5d91df2bc752c38bf5a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9ac3012d2acdbcd355f8489e52085c91 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_2c84b480352ef31a27815ecf7aa7f390 = $(`<div id="html_2c84b480352ef31a27815ecf7aa7f390" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Hôtel de Ville</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 10<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 62.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Hôtel de Ville_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Hôtel de Ville_global.png" width="300"></div></div>`)[0];
+                popup_9ac3012d2acdbcd355f8489e52085c91.setContent(html_2c84b480352ef31a27815ecf7aa7f390);
+            
+        
+
+        marker_de49568d500934f2b94bcb768bfe536e.bindPopup(popup_9ac3012d2acdbcd355f8489e52085c91)
+        ;
+
+        
+    
+    
+                marker_de49568d500934f2b94bcb768bfe536e.setIcon(icon_f1d5f3f4c21ec5d91df2bc752c38bf5a);
+            
+    
+            var marker_84d6ce7b34fb9d9883704885fb324938 = L.marker(
+                [43.613989, 3.8816],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_3c61e0f59b3dabf8e28c215346a1e656 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7f578c2da942ca173e40a2027d86e2de = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_c20fbca5f43cbd1015d040eeed20876b = $(`<div id="html_c20fbca5f43cbd1015d040eeed20876b" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Corum</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 9<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 25.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Corum_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Corum_global.png" width="300"></div></div>`)[0];
+                popup_7f578c2da942ca173e40a2027d86e2de.setContent(html_c20fbca5f43cbd1015d040eeed20876b);
+            
+        
+
+        marker_84d6ce7b34fb9d9883704885fb324938.bindPopup(popup_7f578c2da942ca173e40a2027d86e2de)
+        ;
+
+        
+    
+    
+                marker_84d6ce7b34fb9d9883704885fb324938.setIcon(icon_3c61e0f59b3dabf8e28c215346a1e656);
+            
+    
+            var marker_d8c5d6b7d00aa05b22308878b2690bb0 = L.marker(
+                [43.616768, 3.873375],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_5da4b2bedb9f6e07918e1d0388d6fcb5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b2d6c5261940a3537f8cdd18bd88ffc1 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_dbd7d839106752bd1fa3f88d611eb108 = $(`<div id="html_dbd7d839106752bd1fa3f88d611eb108" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Place Albert 1er - St Charles</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 11<br>       <b>Bornes libres :</b> 16<br>       <b>Total bornes :</b> 27<br>       <b>Taux occupation places :</b> 40.74%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Place Albert 1er - St Charles_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Place Albert 1er - St Charles_global.png" width="300"></div></div>`)[0];
+                popup_b2d6c5261940a3537f8cdd18bd88ffc1.setContent(html_dbd7d839106752bd1fa3f88d611eb108);
+            
+        
+
+        marker_d8c5d6b7d00aa05b22308878b2690bb0.bindPopup(popup_b2d6c5261940a3537f8cdd18bd88ffc1)
+        ;
+
+        
+    
+    
+                marker_d8c5d6b7d00aa05b22308878b2690bb0.setIcon(icon_5da4b2bedb9f6e07918e1d0388d6fcb5);
+            
+    
+            var marker_174d6a6b396664dcfaab3147ff731ff1 = L.marker(
+                [43.610989, 3.873345],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_1d8e921cc7f36c9130b680aec1d835e2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_66b4a19176bc63191be18202a6a9f864 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_efd046124c0b7e2b11c4817b45022f85 = $(`<div id="html_efd046124c0b7e2b11c4817b45022f85" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Foch</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 1<br>       <b>Bornes libres :</b> 3<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 62.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Foch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Foch_global.png" width="300"></div></div>`)[0];
+                popup_66b4a19176bc63191be18202a6a9f864.setContent(html_efd046124c0b7e2b11c4817b45022f85);
+            
+        
+
+        marker_174d6a6b396664dcfaab3147ff731ff1.bindPopup(popup_66b4a19176bc63191be18202a6a9f864)
+        ;
+
+        
+    
+    
+                marker_174d6a6b396664dcfaab3147ff731ff1.setIcon(icon_1d8e921cc7f36c9130b680aec1d835e2);
+            
+    
+            var marker_40d0366b3c427d82580b91f6c732171b = L.marker(
+                [43.609935, 3.877208],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_aa03e483062163239d1258f9ca895002 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0d1cccc7946182cfc2c744cd7b5b3ff3 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_4f95ac2811f7f9f79962d286269711da = $(`<div id="html_4f95ac2811f7f9f79962d286269711da" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Halles Castellane</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 0<br>       <b>Bornes libres :</b> 12<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 0.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Halles Castellane_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Halles Castellane_global.png" width="300"></div></div>`)[0];
+                popup_0d1cccc7946182cfc2c744cd7b5b3ff3.setContent(html_4f95ac2811f7f9f79962d286269711da);
+            
+        
+
+        marker_40d0366b3c427d82580b91f6c732171b.bindPopup(popup_0d1cccc7946182cfc2c744cd7b5b3ff3)
+        ;
+
+        
+    
+    
+                marker_40d0366b3c427d82580b91f6c732171b.setIcon(icon_aa03e483062163239d1258f9ca895002);
+            
+    
+            var marker_ee08593681546c515d0797c6ed3b62e9 = L.marker(
+                [43.606301, 3.87724],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_9ef660e8906d80e51e4e3bfd8b3c313a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_39f5fa0607fbf423d8f028fe33b19d30 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_3c24802cde2e322efe3f0ce53d5b9046 = $(`<div id="html_3c24802cde2e322efe3f0ce53d5b9046" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Observatoire</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 3<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Observatoire_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Observatoire_global.png" width="300"></div></div>`)[0];
+                popup_39f5fa0607fbf423d8f028fe33b19d30.setContent(html_3c24802cde2e322efe3f0ce53d5b9046);
+            
+        
+
+        marker_ee08593681546c515d0797c6ed3b62e9.bindPopup(popup_39f5fa0607fbf423d8f028fe33b19d30)
+        ;
+
+        
+    
+    
+                marker_ee08593681546c515d0797c6ed3b62e9.setIcon(icon_9ef660e8906d80e51e4e3bfd8b3c313a);
+            
+    
+            var marker_2fe2aacff17180fa55a8cad7563539d6 = L.marker(
+                [43.603038, 3.875796],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_9675244f036e973b0d0fc8dfc8f84abb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_515992451f0760d8746b2f1668c7452f = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_090b21eed85973f12a7478e3438a555c = $(`<div id="html_090b21eed85973f12a7478e3438a555c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Rondelet</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 5<br>       <b>Bornes libres :</b> 11<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 31.25%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Rondelet_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Rondelet_global.png" width="300"></div></div>`)[0];
+                popup_515992451f0760d8746b2f1668c7452f.setContent(html_090b21eed85973f12a7478e3438a555c);
+            
+        
+
+        marker_2fe2aacff17180fa55a8cad7563539d6.bindPopup(popup_515992451f0760d8746b2f1668c7452f)
+        ;
+
+        
+    
+    
+                marker_2fe2aacff17180fa55a8cad7563539d6.setIcon(icon_9675244f036e973b0d0fc8dfc8f84abb);
+            
+    
+            var marker_fcf22f5651b4d0f54b6da6a25aed8d7a = L.marker(
+                [43.608491, 3.868389],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_8c725c9443270c075ad0713fea200cdf = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_db9f39ae5d31167e78df195bf758e51d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_c706e49ee3ca7c9226407d4594fa0419 = $(`<div id="html_c706e49ee3ca7c9226407d4594fa0419" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Plan Cabanes</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Plan Cabanes_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Plan Cabanes_global.png" width="300"></div></div>`)[0];
+                popup_db9f39ae5d31167e78df195bf758e51d.setContent(html_c706e49ee3ca7c9226407d4594fa0419);
+            
+        
+
+        marker_fcf22f5651b4d0f54b6da6a25aed8d7a.bindPopup(popup_db9f39ae5d31167e78df195bf758e51d)
+        ;
+
+        
+    
+    
+                marker_fcf22f5651b4d0f54b6da6a25aed8d7a.setIcon(icon_8c725c9443270c075ad0713fea200cdf);
+            
+    
+            var marker_ad9e707debdf03eb75622c60645196b8 = L.marker(
+                [43.622629, 3.868375],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_b52b918fedd4c9985ece898f19ae50db = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_dc5ae80f8301b030cd6fda2c624a6162 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_e6737e575b85b44b41dbb3402c204db4 = $(`<div id="html_e6737e575b85b44b41dbb3402c204db4" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Boutonnet</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 7<br>       <b>Bornes libres :</b> 5<br>       <b>Total bornes :</b> 12<br>       <b>Taux occupation places :</b> 58.33%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Boutonnet_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Boutonnet_global.png" width="300"></div></div>`)[0];
+                popup_dc5ae80f8301b030cd6fda2c624a6162.setContent(html_e6737e575b85b44b41dbb3402c204db4);
+            
+        
+
+        marker_ad9e707debdf03eb75622c60645196b8.bindPopup(popup_dc5ae80f8301b030cd6fda2c624a6162)
+        ;
+
+        
+    
+    
+                marker_ad9e707debdf03eb75622c60645196b8.setIcon(icon_b52b918fedd4c9985ece898f19ae50db);
+            
+    
+            var marker_14a30439775d8b317b6b0a76517eebab = L.marker(
+                [43.622038, 3.86672],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_316099d018e46707b5086ca0f213f49e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9fa51b4ae6229c069c3eb14e2e005c89 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_c3c0e3b27a62898432999292232379be = $(`<div id="html_c3c0e3b27a62898432999292232379be" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Charles Flahault</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 2<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 25.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Charles Flahault_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Charles Flahault_global.png" width="300"></div></div>`)[0];
+                popup_9fa51b4ae6229c069c3eb14e2e005c89.setContent(html_c3c0e3b27a62898432999292232379be);
+            
+        
+
+        marker_14a30439775d8b317b6b0a76517eebab.bindPopup(popup_9fa51b4ae6229c069c3eb14e2e005c89)
+        ;
+
+        
+    
+    
+                marker_14a30439775d8b317b6b0a76517eebab.setIcon(icon_316099d018e46707b5086ca0f213f49e);
+            
+    
+            var marker_7b7cb318e728a6b64143278ad17f53ab = L.marker(
+                [43.616742, 3.87998],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_3e76ea89215ac051ed10b8eb21c23f48 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9fb35b768f7d668754428ce883f6cab0 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_3c4da2e71de72804046c902e76b4a0b4 = $(`<div id="html_3c4da2e71de72804046c902e76b4a0b4" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Emile Combes</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Emile Combes_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Emile Combes_global.png" width="300"></div></div>`)[0];
+                popup_9fb35b768f7d668754428ce883f6cab0.setContent(html_3c4da2e71de72804046c902e76b4a0b4);
+            
+        
+
+        marker_7b7cb318e728a6b64143278ad17f53ab.bindPopup(popup_9fb35b768f7d668754428ce883f6cab0)
+        ;
+
+        
+    
+    
+                marker_7b7cb318e728a6b64143278ad17f53ab.setIcon(icon_3e76ea89215ac051ed10b8eb21c23f48);
+            
+    
+            var marker_0d550f222cae9aa3381380b385be0d6e = L.marker(
+                [43.618692, 3.893844],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_7c23e5e44dec98dce9b5b44f4444601b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8e14afca332f916a917316e4ac01e7b9 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f564e1d947be1dc7148e17d4294b2dec = $(`<div id="html_f564e1d947be1dc7148e17d4294b2dec" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Les Aubes</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Les Aubes_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Les Aubes_global.png" width="300"></div></div>`)[0];
+                popup_8e14afca332f916a917316e4ac01e7b9.setContent(html_f564e1d947be1dc7148e17d4294b2dec);
+            
+        
+
+        marker_0d550f222cae9aa3381380b385be0d6e.bindPopup(popup_8e14afca332f916a917316e4ac01e7b9)
+        ;
+
+        
+    
+    
+                marker_0d550f222cae9aa3381380b385be0d6e.setIcon(icon_7c23e5e44dec98dce9b5b44f4444601b);
+            
+    
+            var marker_b8680007567ccc80a62fbd318213521f = L.marker(
+                [43.608218, 3.89314],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_bde949ddd5cbcf5928e9d759763ec43e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4e979c52c2648cf8b43ea84aca00e0c7 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_450d3a2998391851ae7e11059a897681 = $(`<div id="html_450d3a2998391851ae7e11059a897681" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Médiathèque Emile Zola</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 8<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Médiathèque Emile Zola_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Médiathèque Emile Zola_global.png" width="300"></div></div>`)[0];
+                popup_4e979c52c2648cf8b43ea84aca00e0c7.setContent(html_450d3a2998391851ae7e11059a897681);
+            
+        
+
+        marker_b8680007567ccc80a62fbd318213521f.bindPopup(popup_4e979c52c2648cf8b43ea84aca00e0c7)
+        ;
+
+        
+    
+    
+                marker_b8680007567ccc80a62fbd318213521f.setIcon(icon_bde949ddd5cbcf5928e9d759763ec43e);
+            
+    
+            var marker_8ea132babd723931c8bed7b674a059d9 = L.marker(
+                [43.607859, 3.886644],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_b3d4beeec12151dc1c2a6f3f425c1437 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5892f7b96fc588595309e5df845342d0 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_bf39ff0db86a9b6a81033d65a1d581ff = $(`<div id="html_bf39ff0db86a9b6a81033d65a1d581ff" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Nombre d Or</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 10<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Nombre d Or_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Nombre d Or_global.png" width="300"></div></div>`)[0];
+                popup_5892f7b96fc588595309e5df845342d0.setContent(html_bf39ff0db86a9b6a81033d65a1d581ff);
+            
+        
+
+        marker_8ea132babd723931c8bed7b674a059d9.bindPopup(popup_5892f7b96fc588595309e5df845342d0)
+        ;
+
+        
+    
+    
+                marker_8ea132babd723931c8bed7b674a059d9.setIcon(icon_b3d4beeec12151dc1c2a6f3f425c1437);
+            
+    
+            var marker_89c6b29e17182e1d2d22b79f87ea3a8b = L.marker(
+                [43.614642, 3.877648],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_bc9bd6985e650cbf7f0b3936690f940a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7356e3b0eda14fa541e6fbf376bfdd4d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_4eca52a5b1baaa08b764c33ae1da74ed = $(`<div id="html_4eca52a5b1baaa08b764c33ae1da74ed" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Louis Blanc</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 10<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Louis Blanc_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Louis Blanc_global.png" width="300"></div></div>`)[0];
+                popup_7356e3b0eda14fa541e6fbf376bfdd4d.setContent(html_4eca52a5b1baaa08b764c33ae1da74ed);
+            
+        
+
+        marker_89c6b29e17182e1d2d22b79f87ea3a8b.bindPopup(popup_7356e3b0eda14fa541e6fbf376bfdd4d)
+        ;
+
+        
+    
+    
+                marker_89c6b29e17182e1d2d22b79f87ea3a8b.setIcon(icon_bc9bd6985e650cbf7f0b3936690f940a);
+            
+    
+            var marker_496905ac94dc91eee3526704f1a103c2 = L.marker(
+                [43.607106, 3.870693],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_c4d64cfa0ad45e4b5033032eb9b4d0b1 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_29201c41d21036e038100c7f2ee24b30 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_f916d82c73b727da1e0d4eff640c4b22 = $(`<div id="html_f916d82c73b727da1e0d4eff640c4b22" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Gambetta</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Gambetta_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Gambetta_global.png" width="300"></div></div>`)[0];
+                popup_29201c41d21036e038100c7f2ee24b30.setContent(html_f916d82c73b727da1e0d4eff640c4b22);
+            
+        
+
+        marker_496905ac94dc91eee3526704f1a103c2.bindPopup(popup_29201c41d21036e038100c7f2ee24b30)
+        ;
+
+        
+    
+    
+                marker_496905ac94dc91eee3526704f1a103c2.setIcon(icon_c4d64cfa0ad45e4b5033032eb9b4d0b1);
+            
+    
+            var marker_270cc81325ef6abab7ac20a2a5251913 = L.marker(
+                [43.60032, 3.89851],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_7a325f8f2e448fea17fc95f798661161 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_60c6e972a97166b9b9a1f8d7b270b26d = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_26c65f4fd0ef80cafa2e970f3350dfc8 = $(`<div id="html_26c65f4fd0ef80cafa2e970f3350dfc8" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Port Marianne</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 10<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 62.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Port Marianne_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Port Marianne_global.png" width="300"></div></div>`)[0];
+                popup_60c6e972a97166b9b9a1f8d7b270b26d.setContent(html_26c65f4fd0ef80cafa2e970f3350dfc8);
+            
+        
+
+        marker_270cc81325ef6abab7ac20a2a5251913.bindPopup(popup_60c6e972a97166b9b9a1f8d7b270b26d)
+        ;
+
+        
+    
+    
+                marker_270cc81325ef6abab7ac20a2a5251913.setIcon(icon_7a325f8f2e448fea17fc95f798661161);
+            
+    
+            var marker_e70f6f2ec122c13b47d5394f78969d67 = L.marker(
+                [43.612659, 3.867734],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_d175b14ad77adaee470273d87df4df26 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_eb4bd0930bc371387aae03943d692376 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_bc15b8e762b5b22e8300d17c324a076d = $(`<div id="html_bc15b8e762b5b22e8300d17c324a076d" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Les Arceaux</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 2<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 25.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Les Arceaux_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Les Arceaux_global.png" width="300"></div></div>`)[0];
+                popup_eb4bd0930bc371387aae03943d692376.setContent(html_bc15b8e762b5b22e8300d17c324a076d);
+            
+        
+
+        marker_e70f6f2ec122c13b47d5394f78969d67.bindPopup(popup_eb4bd0930bc371387aae03943d692376)
+        ;
+
+        
+    
+    
+                marker_e70f6f2ec122c13b47d5394f78969d67.setIcon(icon_d175b14ad77adaee470273d87df4df26);
+            
+    
+            var marker_c2fd6ef9cf424d86bf8754b69481c1b8 = L.marker(
+                [43.601143, 3.884373],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_0138c6b0eca03cddb8ecf7f4d932c7ef = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_36ae1e51662f2e2dd0b61f07117e751f = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_05d3378cad220dc35bc939108a4b3553 = $(`<div id="html_05d3378cad220dc35bc939108a4b3553" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Cité Mion</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 5<br>       <b>Bornes libres :</b> 2<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 75.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Cité Mion_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Cité Mion_global.png" width="300"></div></div>`)[0];
+                popup_36ae1e51662f2e2dd0b61f07117e751f.setContent(html_05d3378cad220dc35bc939108a4b3553);
+            
+        
+
+        marker_c2fd6ef9cf424d86bf8754b69481c1b8.bindPopup(popup_36ae1e51662f2e2dd0b61f07117e751f)
+        ;
+
+        
+    
+    
+                marker_c2fd6ef9cf424d86bf8754b69481c1b8.setIcon(icon_0138c6b0eca03cddb8ecf7f4d932c7ef);
+            
+    
+            var marker_941700339c8690cf1505ece9469a85f4 = L.marker(
+                [43.599817, 3.875757],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_bdd375c08b956c27f1dc535b1e41bba1 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_854628bff3aa9d60f3ea7904bb0e6bd6 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_75c32a40bd4fe046c0f08aeb42e8ee92 = $(`<div id="html_75c32a40bd4fe046c0f08aeb42e8ee92" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Nouveau Saint-Roch</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 4<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 50.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Nouveau Saint-Roch_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Nouveau Saint-Roch_global.png" width="300"></div></div>`)[0];
+                popup_854628bff3aa9d60f3ea7904bb0e6bd6.setContent(html_75c32a40bd4fe046c0f08aeb42e8ee92);
+            
+        
+
+        marker_941700339c8690cf1505ece9469a85f4.bindPopup(popup_854628bff3aa9d60f3ea7904bb0e6bd6)
+        ;
+
+        
+    
+    
+                marker_941700339c8690cf1505ece9469a85f4.setIcon(icon_bdd375c08b956c27f1dc535b1e41bba1);
+            
+    
+            var marker_d7cc19338b671a5fe7a7b4109a895b51 = L.marker(
+                [43.603553, 3.867884],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_f14f93a2c31bbd09a0f972f768bc937a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_502c6c3a9876f27398af721ab8601358 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_204563038985eedf1ceaf3d3a92a6eb8 = $(`<div id="html_204563038985eedf1ceaf3d3a92a6eb8" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Renouvier</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 2<br>       <b>Bornes libres :</b> 6<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 25.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Renouvier_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Renouvier_global.png" width="300"></div></div>`)[0];
+                popup_502c6c3a9876f27398af721ab8601358.setContent(html_204563038985eedf1ceaf3d3a92a6eb8);
+            
+        
+
+        marker_d7cc19338b671a5fe7a7b4109a895b51.bindPopup(popup_502c6c3a9876f27398af721ab8601358)
+        ;
+
+        
+    
+    
+                marker_d7cc19338b671a5fe7a7b4109a895b51.setIcon(icon_f14f93a2c31bbd09a0f972f768bc937a);
+            
+    
+            var marker_11f1b3e4a0766be30bdb3e25d05a753c = L.marker(
+                [43.603727, 3.918979],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_831ce1a71c44a0b181e36b85b16bed41 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_46ecee064acc92ae38df04f224c2c595 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_e9e5cc42040ddc651b007d0f4506712c = $(`<div id="html_e9e5cc42040ddc651b007d0f4506712c" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Odysseum</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 0<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 0.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Odysseum_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Odysseum_global.png" width="300"></div></div>`)[0];
+                popup_46ecee064acc92ae38df04f224c2c595.setContent(html_e9e5cc42040ddc651b007d0f4506712c);
+            
+        
+
+        marker_11f1b3e4a0766be30bdb3e25d05a753c.bindPopup(popup_46ecee064acc92ae38df04f224c2c595)
+        ;
+
+        
+    
+    
+                marker_11f1b3e4a0766be30bdb3e25d05a753c.setIcon(icon_831ce1a71c44a0b181e36b85b16bed41);
+            
+    
+            var marker_66993c6044ae1110581e6ac68eb612b7 = L.marker(
+                [43.605021, 3.875065],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_53dadb8c570d7bd55e2627bd4ddaea48 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_82b9453a07844c07ff9acac26d4f88b6 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_e6675b0cf708b9153048b4e3bcc93964 = $(`<div id="html_e6675b0cf708b9153048b4e3bcc93964" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Saint-Denis</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 0<br>       <b>Bornes libres :</b> 8<br>       <b>Total bornes :</b> 8<br>       <b>Taux occupation places :</b> 0.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Saint-Denis_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Saint-Denis_global.png" width="300"></div></div>`)[0];
+                popup_82b9453a07844c07ff9acac26d4f88b6.setContent(html_e6675b0cf708b9153048b4e3bcc93964);
+            
+        
+
+        marker_66993c6044ae1110581e6ac68eb612b7.bindPopup(popup_82b9453a07844c07ff9acac26d4f88b6)
+        ;
+
+        
+    
+    
+                marker_66993c6044ae1110581e6ac68eb612b7.setIcon(icon_53dadb8c570d7bd55e2627bd4ddaea48);
+            
+    
+            var marker_cac138bae5ef02881cbe883e2ac8dff7 = L.marker(
+                [43.616698, 3.884981],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_1f24c569394a90523994fcfacb1e2585 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c1fc6edebe035d57883e8e7ac7997ce2 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_7f9b310e01a7fba6c50eacf71c7fed33 = $(`<div id="html_7f9b310e01a7fba6c50eacf71c7fed33" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Beaux-Arts</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 11<br>       <b>Bornes libres :</b> 4<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 75.00%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Beaux-Arts_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Beaux-Arts_global.png" width="300"></div></div>`)[0];
+                popup_c1fc6edebe035d57883e8e7ac7997ce2.setContent(html_7f9b310e01a7fba6c50eacf71c7fed33);
+            
+        
+
+        marker_cac138bae5ef02881cbe883e2ac8dff7.bindPopup(popup_c1fc6edebe035d57883e8e7ac7997ce2)
+        ;
+
+        
+    
+    
+                marker_cac138bae5ef02881cbe883e2ac8dff7.setIcon(icon_1f24c569394a90523994fcfacb1e2585);
+            
+    
+            var marker_11da362bf7161a38a9b266d22d339e9b = L.marker(
+                [43.609857, 3.883884],
+                {
+}
+            ).addTo(marker_cluster_94f89c4eb0026afd81197efe627a939b);
+        
+    
+            var icon_7ce1dd57e67178f58944918094abcb09 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "bicycle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_fd369cf23fed149771f2e4c9fdc3e579 = L.popup({
+  "maxWidth": 420,
+});
+
+        
+            
+                var html_b86ba43019eaa6638becaf48313248e9 = $(`<div id="html_b86ba43019eaa6638becaf48313248e9" style="width: 100.0%; height: 100.0%;">     <div style="width: 320px;">       <h4 style="margin:0;">🚲 Jean de Beins</h4>       <hr style="margin:6px 0;">       <b>Vélos dispo :</b> 6<br>       <b>Bornes libres :</b> 10<br>       <b>Total bornes :</b> 16<br>       <b>Taux occupation places :</b> 37.50%<br>     <hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="donnees/images/velo_Jean de Beins_journalier.png" width="300"><hr style="margin:6px 0;"><b>Courbe global</b><br><img src="donnees/images/velo_Jean de Beins_global.png" width="300"></div></div>`)[0];
+                popup_fd369cf23fed149771f2e4c9fdc3e579.setContent(html_b86ba43019eaa6638becaf48313248e9);
+            
+        
+
+        marker_11da362bf7161a38a9b266d22d339e9b.bindPopup(popup_fd369cf23fed149771f2e4c9fdc3e579)
+        ;
+
+        
+    
+    
+                marker_11da362bf7161a38a9b266d22d339e9b.setIcon(icon_7ce1dd57e67178f58944918094abcb09);
+            
+    
+            marker_cluster_94f89c4eb0026afd81197efe627a939b.addTo(map_aeed1f383034b93499c824a01eda4a0c);
+        
+    
+            var layer_control_440252ae08cf374aaee9fab609fd2705_layers = {
+                base_layers : {
+                    "openstreetmap" : tile_layer_db0a3833aca8e2f8270d529d8f3e99ee,
+                },
+                overlays :  {
+                    "\ud83d\ude97 Parkings voiture" : marker_cluster_b3e022870d44f3d8531639284a670198,
+                    "\ud83d\udeb2 Stations v\u00e9lo" : marker_cluster_94f89c4eb0026afd81197efe627a939b,
+                },
+            };
+            let layer_control_440252ae08cf374aaee9fab609fd2705 = L.control.layers(
+                layer_control_440252ae08cf374aaee9fab609fd2705_layers.base_layers,
+                layer_control_440252ae08cf374aaee9fab609fd2705_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_aeed1f383034b93499c824a01eda4a0c);
+
+        
+</script>
+</html>

@@ -1,6 +1,5 @@
 import os
 import json
-from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -13,10 +12,10 @@ FICHIER_JSONL_VELO = os.path.join(DOSSIER, "brut_velos.jsonl")
 
 DOSSIER_IMAGES = os.path.join(DOSSIER, "images")
 
-# IMPORTANT : on met la carte A LA RACINE DU REPO (GitHub Pages en / root)
+# IMPORTANT : carte AU ROOT pour GitHub Pages (folder = / root)
 FICHIER_CARTE = "carte.html"
 
-# IMPORTANT : chemin des images vu DEPUIS LA RACINE (carte.html est au root)
+# IMPORTANT : chemin des images VU DEPUIS la racine (carte.html est au root)
 CHEMIN_IMAGES_HTML = "donnees/images"
 
 
@@ -95,7 +94,6 @@ def snapshots_voiture_to_df(snapshots):
             if total <= 0:
                 continue
 
-            # lat/lon peuvent être None -> on garde quand même pour les graphes (mais pas la carte)
             taux = (total - libres) / total
 
             rows.append({
@@ -172,13 +170,8 @@ def snapshots_velo_to_df(snapshots):
 # ============================================================
 
 def nettoyer_nom_fichier(nom):
-    nom = nom.replace("/", "_")
-    nom = nom.replace("\\", "_")
-    nom = nom.replace(":", "_")
-    nom = nom.replace("?", "_")
-    nom = nom.replace("*", "_")
-    nom = nom.replace('"', "_")
-    nom = nom.replace("'", "_")
+    for ch in ["/", "\\", ":", "?", "*", '"', "'"]:
+        nom = nom.replace(ch, "_")
     return nom
 
 
@@ -254,12 +247,10 @@ def popup_parking(nom, libres, total, taux, img_j, img_g):
       <b>Capacité totale :</b> {int(total)}<br>
       <b>Taux occupation :</b> {taux:.2%}<br>
     """
-
     if img_j is not None:
         html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_j}" width="300">'
     if img_g is not None:
         html += f'<hr style="margin:6px 0;"><b>Courbe global</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_g}" width="300">'
-
     html += "</div>"
     return html
 
@@ -274,12 +265,10 @@ def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g):
       <b>Total bornes :</b> {int(total)}<br>
       <b>Taux occupation places :</b> {taux_places:.2%}<br>
     """
-
     if img_j is not None:
         html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_j}" width="300">'
     if img_g is not None:
         html += f'<hr style="margin:6px 0;"><b>Courbe global</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_g}" width="300">'
-
     html += "</div>"
     return html
 
@@ -302,7 +291,7 @@ def main():
         print("Aucune donnée snapshot trouvée (JSONL).")
         return
 
-    # Centre carte = moyenne des points connus
+    # Centre carte = moyenne des points (voiture + vélo)
     latitudes = []
     longitudes = []
 
@@ -323,7 +312,8 @@ def main():
     centre_lat = sum(latitudes) / len(latitudes)
     centre_lon = sum(longitudes) / len(longitudes)
 
-    carte = folium.Map(location=[centre_lat, centre_lon], zoom_start=13)
+    # IMPORTANT : tiles bien compatibles GitHub Pages
+    carte = folium.Map(location=[centre_lat, centre_lon], zoom_start=13, tiles="OpenStreetMap")
 
     cluster_voiture = MarkerCluster(name="🚗 Parkings voiture")
     cluster_velo = MarkerCluster(name="🚲 Stations vélo")
@@ -351,7 +341,7 @@ def main():
 
             folium.Marker(
                 location=[lat, lon],
-                popup=folium.Popup(pop, max_width=400),
+                popup=folium.Popup(pop, max_width=420),
                 icon=folium.Icon(color="blue", icon="car", prefix="fa")
             ).add_to(cluster_voiture)
 
@@ -377,20 +367,22 @@ def main():
 
             pop = popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g)
 
+            # NOTE: folium n’a pas "orange" en couleur standard -> on met green
             folium.Marker(
                 location=[lat, lon],
-                popup=folium.Popup(pop, max_width=400),
-                icon=folium.Icon(color="orange", icon="bicycle", prefix="fa")
+                popup=folium.Popup(pop, max_width=420),
+                icon=folium.Icon(color="green", icon="bicycle", prefix="fa")
             ).add_to(cluster_velo)
 
     cluster_voiture.add_to(carte)
     cluster_velo.add_to(carte)
-    folium.LayerControl().add_to(carte)
+
+    folium.LayerControl(collapsed=False).add_to(carte)
 
     carte.save(FICHIER_CARTE)
 
-    print("Carte unique générée :", FICHIER_CARTE)
-    print("Images générées dans :", DOSSIER_IMAGES)
+    print("✅ Carte générée :", FICHIER_CARTE)
+    print("✅ Images générées dans :", DOSSIER_IMAGES)
 
 
 if __name__ == "__main__":

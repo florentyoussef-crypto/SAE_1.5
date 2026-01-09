@@ -63,10 +63,9 @@ def exporter_un_type(suffixe_csv, nom_json):
 
 
 def main():
-    exporter_un_type("_voiture.csv", "export_voiture.json")
-    exporter_un_type("_velo.csv", "export_velo.json")
-    exporter_un_type("_relais.csv", "export_relais.json")
-
+    exporter_un_type("_voitures.csv", "export_voitures.json")
+    exporter_un_type("_velos.csv", "export_velos.json")
+    exporter_un_type("_relais1.csv", "export_relais1.json")
 
 if __name__ == "__main__":
     main()

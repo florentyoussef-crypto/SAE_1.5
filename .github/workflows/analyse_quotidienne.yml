@@ -7,7 +7,6 @@ on:
     - cron: "15 2 * * *"
   workflow_dispatch:
 
-# Autorisation nécessaire pour commit/push dans le dépôt
 permissions:
   contents: write
 
@@ -27,9 +26,6 @@ jobs:
           python-version: "3.11"
 
       # 3) Installation des dépendances
-      # - pandas / matplotlib : analyse + graphes
-      # - folium : génération de la carte HTML
-      # - requests : si analyse_semaine.py ou d'autres scripts en ont besoin
       - name: Installer les dependances
         run: |
           python -m pip install --upgrade pip
@@ -40,12 +36,19 @@ jobs:
         run: |
           python analyse_semaine.py
           python carte_unique.py
+          echo "=== CONTENU DU REPO (root) ==="
+          ls -la
+          echo "=== CONTENU DU DOSSIER donnees/ ==="
+          ls -la donnees || true
 
-      # 5) Sauvegarde des résultats (graphes + carte + images)
+      # 5) Sauvegarde des résultats (graphes + images + carte.html au root)
       - name: Sauvegarder les resultats
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add donnees/
+
+          # IMPORTANT : on ajoute aussi la carte au root
+          git add donnees/ carte.html
+
           git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte"
           git push

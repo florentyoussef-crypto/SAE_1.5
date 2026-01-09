@@ -1,41 +1,38 @@
-name: analyse-quotidienne
+import folium
+import pandas as pd
+import os
 
-on:
-  schedule:
-    - cron: "15 2 * * *"   # 03:15 heure FR (hiver)
-  workflow_dispatch:
+DOSSIER = "donnees"
 
-permissions:
-  contents: write
+df_v = pd.read_csv(os.path.join(DOSSIER, "export_voitures.json"))
+df_b = pd.read_csv(os.path.join(DOSSIER, "export_velos.json"))
 
-jobs:
-  run:
-    runs-on: ubuntu-latest
+m = folium.Map(location=[43.61, 3.88], zoom_start=13)
 
-    steps:
-      - name: Recuperation du depot
-        uses: actions/checkout@v4
+# Parkings 
+for _, r in df_v.iterrows():
+    if r["type"] == "PARKING" and pd.notna(r["lat"]):
+        folium.Marker(
+            [r["lat"], r["lon"]],
+            popup=f"""
+            <b>{r['nom']}</b><br>
+            Taux occupation : {round(r['taux_occupation'],2)}
+            """,
+            icon=folium.Icon(icon="car", prefix="fa", color="blue")
+        ).add_to(m)
 
-      - name: Installation de Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+# Stations 
+for _, r in df_b.iterrows():
+    if r["type"] == "STATION" and pd.notna(r["lat"]):
+        folium.Marker(
+            [r["lat"], r["lon"]],
+            popup=f"""
+            <b>{r['nom']}</b><br>
+            Vélos : {r['velos_dispo']}<br>
+            Bornes libres : {r['bornes_libres']}
+            """,
+            icon=folium.Icon(icon="bicycle", prefix="fa", color="orange")
+        ).add_to(m)
 
-      - name: Installer les dependances
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas matplotlib requests folium
-
-      - name: Analyse + export JSON + carte
-        run: |
-          python analyse_semaine.py
-          python export_json.py
-          python carte_unique.py
-
-      - name: Sauvegarder les resultats
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add donnees/
-          git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + graphes + carte + JSON"
-          git push
+m.save(os.path.join(DOSSIER, "carte.html"))
+print("Carte unique générée : donnees/carte.html")

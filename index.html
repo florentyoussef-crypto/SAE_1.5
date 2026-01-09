@@ -1,142 +1,116 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Montpellier Mobilité - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Montpellier Mobilité - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-    <div class="sidebar">
-        <div class="logo">
-            <h2>MTP<span>Data</span></h2>
-        </div>
-        <nav>
-            <a href="#" class="active">Vue d'ensemble</a>
-            <a href="#">Détail Parkings</a>
-            <a href="#">Rapport Vélos</a>
-        </nav>
-        <div class="user-profile">
-            <p>Bureau du Maire</p>
-        </div>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <h2>MTP<span>Data</span></h2>
     </div>
 
-    <main class="content">
-        <header>
-            <div>
-                <h1>Observatoire Mobilité</h1>
-                <p class="subtitle">Données en temps réel &bull; 09 Janvier 2026</p>
-            </div>
-            <div class="status-badge">
-                <span class="dot"></span> Système Actif
-            </div>
-        </header>
+    <nav>
+      <a href="index.html" class="active">Vue d'ensemble</a>
+      <a href="carte.html">Carte (plein écran)</a>
+    </nav>
 
-        <section class="cards-grid">
-            <div class="card kpi">
-                <div class="icon-box blue">🚗</div>
-                <div class="kpi-info">
-                    <h3>Saturation Centre</h3>
-                    <p class="number">92%</p>
-                    <span class="trend up">▲ +4% vs hier</span>
-                </div>
-            </div>
+    <div class="user-profile">
+      <p>Bureau du Maire</p>
+    </div>
+  </div>
 
-            <div class="card kpi">
-                <div class="icon-box green">🚲</div>
-                <div class="kpi-info">
-                    <h3>Vélos en circulation</h3>
-                    <p class="number">1,240</p>
-                    <span class="trend neutral">Stable</span>
-                </div>
-            </div>
+  <main class="content">
+    <header>
+      <div>
+        <h1>Observatoire Mobilité</h1>
+        <p class="subtitle">Données actualisées automatiquement (GitHub Actions)</p>
+      </div>
+      <div class="status-badge">
+        <span class="dot"></span> Système Actif
+      </div>
+    </header>
 
-            <div class="card kpi">
-                <div class="icon-box purple">⚠️</div>
-                <div class="kpi-info">
-                    <h3>Point Critique</h3>
-                    <p class="text-stat">Gare St-Roch</p>
-                    <span class="sub-text">Forte volatilité détectée</span>
-                </div>
-            </div>
-        </section>
+    <section class="cards-grid">
+      <div class="card kpi">
+        <div class="icon-box blue">🚗</div>
+        <div class="kpi-info">
+          <h3>Voiture</h3>
+          <p class="number">OK</p>
+          <span class="trend neutral">Snapshots + CSV</span>
+        </div>
+      </div>
 
-        <section class="main-grid">
-            <div class="card graph-container">
-                <div class="card-header">
-                    <h3>Flux de véhicules (24h)</h3>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="trafficChart"></canvas>
-                </div>
-            </div>
+      <div class="card kpi">
+        <div class="icon-box green">🚲</div>
+        <div class="kpi-info">
+          <h3>Vélos</h3>
+          <p class="number">OK</p>
+          <span class="trend neutral">Snapshots + CSV</span>
+        </div>
+      </div>
 
-            <div class="card info-container">
-                <div class="card-header">
-                    <h3>Alertes Stratégiques</h3>
-                </div>
-                <div class="alert-item">
-                    <span class="time">08:50</span>
-                    <p><strong>Saturation Comédie :</strong> Effet de report immédiat vers le parking Triangle (+15%).</p>
-                </div>
-                <div class="alert-item">
-                    <span class="time">Analyse</span>
-                    <p>La <strong>corrélation</strong> Voitures/Vélos est négative sur le secteur Antigone : le report modal fonctionne.</p>
-                </div>
-                <div class="heatmap-mini">
-                    <h4>Matrice d'impact</h4>
-                    <div class="matrix-viz">
-                        <div class="box red"></div><div class="box red"></div><div class="box green"></div>
-                        <div class="box orange"></div><div class="box green"></div><div class="box green"></div>
-                    </div>
-                    <p><small>Rouge = Corrélation forte</small></p>
-                </div>
-            </div>
-        </section>
-    </main>
+      <div class="card kpi">
+        <div class="icon-box purple">🗺️</div>
+        <div class="kpi-info">
+          <h3>Carte interactive</h3>
+          <p class="text-stat">Folium</p>
+          <span class="sub-text">Clique un point → infos + graphes</span>
+        </div>
+      </div>
+    </section>
 
-    <script>
-        // CONFIGURATION DU GRAPHIQUE (DESIGN MODERNE)
-        const ctx = document.getElementById('trafficChart').getContext('2d');
-        
-        // Création d'un dégradé pour la courbe
-        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(52, 152, 219, 0.5)'); // Bleu
-        gradient.addColorStop(1, 'rgba(52, 152, 219, 0.0)');
+    <section class="main-grid">
+      <div class="card graph-container">
+        <div class="card-header">
+          <h3>Carte Montpellier (parkings + vélos)</h3>
+        </div>
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['06h', '09h', '12h', '15h', '18h', '21h'],
-                datasets: [{
-                    label: 'Taux d\'occupation',
-                    data: [12, 88, 65, 55, 95, 40],
-                    borderColor: '#3498db',
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#3498db',
-                    pointRadius: 5,
-                    fill: true,
-                    tension: 0.4 // Courbe lissée
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false } // On cache la légende pour épurer
-                },
-                scales: {
-                    x: { grid: { display: false } }, // Pas de grille verticale
-                    y: { border: { display: false }, grid: { color: '#f0f0f0' } } // Grille horizontale subtile
-                }
-            }
-        });
-    </script>
+        <!-- CARTE -->
+        <div class="map-wrapper">
+          <iframe
+            src="carte.html"
+            title="Carte interactive"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
+
+        <div style="margin-top:12px; font-size:0.9rem; color:#636e72;">
+          Astuce : tu peux ouvrir la carte en plein écran via le menu à gauche.
+        </div>
+      </div>
+
+      <div class="card info-container">
+        <div class="card-header">
+          <h3>Lecture rapide</h3>
+        </div>
+
+        <div class="alert-item">
+          <span class="time">Conseil</span>
+          <p><strong>Pour voir les infos :</strong> clique un point sur la carte → le popup affiche les données + courbes (journalier + global).</p>
+        </div>
+
+        <div class="alert-item">
+          <span class="time">Lien</span>
+          <p>Carte plein écran : <strong><a href="carte.html">carte.html</a></strong></p>
+        </div>
+
+        <div class="heatmap-mini">
+          <h4>Matrice d'impact (placeholder)</h4>
+          <div class="matrix-viz">
+            <div class="box red"></div><div class="box red"></div><div class="box green"></div>
+            <div class="box orange"></div><div class="box green"></div><div class="box green"></div>
+          </div>
+          <p><small>On pourra la remplacer par une vraie corrélation voiture↔vélo.</small></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
 </body>
-
 </html>

@@ -12,7 +12,12 @@ FICHIER_JSONL_VOITURE = os.path.join(DOSSIER, "brut_voitures.jsonl")
 FICHIER_JSONL_VELO = os.path.join(DOSSIER, "brut_velos.jsonl")
 
 DOSSIER_IMAGES = os.path.join(DOSSIER, "images")
-FICHIER_CARTE = os.path.join(DOSSIER, "carte.html")
+
+# IMPORTANT : on met la carte A LA RACINE DU REPO (GitHub Pages en / root)
+FICHIER_CARTE = "carte.html"
+
+# IMPORTANT : chemin des images vu DEPUIS LA RACINE (carte.html est au root)
+CHEMIN_IMAGES_HTML = "donnees/images"
 
 
 # ============================================================
@@ -57,11 +62,10 @@ def safe_get(entite, *cles):
 
 
 # ============================================================
-# NORMALISATION DES DONNEES (on transforme JSON brut -> tableau)
+# NORMALISATION DES DONNEES (JSON brut -> DataFrame)
 # ============================================================
 
 def snapshots_voiture_to_df(snapshots):
-    # On veut une table : timestamp, nom, libres, total, taux, lat, lon
     rows = []
     for snap in snapshots:
         ts = snap.get("timestamp")
@@ -77,19 +81,21 @@ def snapshots_voiture_to_df(snapshots):
             nom = safe_get(p, "name", "value")
             libres = safe_get(p, "availableSpotNumber", "value")
             total = safe_get(p, "totalSpotNumber", "value")
-
             lat, lon = extraire_lat_lon(p)
 
             if nom is None or libres is None or total is None:
                 continue
+
             try:
                 libres = float(libres)
                 total = float(total)
             except Exception:
                 continue
+
             if total <= 0:
                 continue
 
+            # lat/lon peuvent être None -> on garde quand même pour les graphes (mais pas la carte)
             taux = (total - libres) / total
 
             rows.append({
@@ -112,7 +118,6 @@ def snapshots_voiture_to_df(snapshots):
 
 
 def snapshots_velo_to_df(snapshots):
-    # Table : timestamp, nom, velos, bornes_libres, total, taux_places, lat, lon
     rows = []
     for snap in snapshots:
         ts = snap.get("timestamp")
@@ -125,7 +130,6 @@ def snapshots_velo_to_df(snapshots):
             velos = safe_get(s, "availableBikeNumber", "value")
             bornes = safe_get(s, "freeSlotNumber", "value")
             total = safe_get(s, "totalSlotNumber", "value")
-
             lat, lon = extraire_lat_lon(s)
 
             if nom is None or velos is None or bornes is None or total is None:
@@ -168,7 +172,6 @@ def snapshots_velo_to_df(snapshots):
 # ============================================================
 
 def nettoyer_nom_fichier(nom):
-    # Pour faire un nom de fichier propre
     nom = nom.replace("/", "_")
     nom = nom.replace("\\", "_")
     nom = nom.replace(":", "_")
@@ -180,20 +183,17 @@ def nettoyer_nom_fichier(nom):
 
 
 def generer_graphe_journalier(df, colonne, nom_objet, prefix):
-    # Journalier = uniquement aujourd'hui (date la plus récente du dataset)
     if len(df) == 0:
         return None
 
     df2 = df[df["nom"] == nom_objet].copy()
     df2 = df2.dropna(subset=["timestamp", colonne])
-
     if len(df2) == 0:
         return None
 
     jour_max = df2["timestamp"].dt.date.max()
     df2 = df2[df2["timestamp"].dt.date == jour_max].copy()
     df2 = df2.sort_values("timestamp")
-
     if len(df2) == 0:
         return None
 
@@ -215,14 +215,12 @@ def generer_graphe_journalier(df, colonne, nom_objet, prefix):
 
 
 def generer_graphe_global(df, colonne, nom_objet, prefix):
-    # Global = toute la période
     if len(df) == 0:
         return None
 
     df2 = df[df["nom"] == nom_objet].copy()
     df2 = df2.dropna(subset=["timestamp", colonne])
     df2 = df2.sort_values("timestamp")
-
     if len(df2) == 0:
         return None
 
@@ -248,7 +246,6 @@ def generer_graphe_global(df, colonne, nom_objet, prefix):
 # ============================================================
 
 def popup_parking(nom, libres, total, taux, img_j, img_g):
-    # On construit un HTML propre et lisible dans Folium
     html = f"""
     <div style="width: 320px;">
       <h4 style="margin:0;">🚗 {nom}</h4>
@@ -259,9 +256,9 @@ def popup_parking(nom, libres, total, taux, img_j, img_g):
     """
 
     if img_j is not None:
-        html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="images/{img_j}" width="300">'
+        html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_j}" width="300">'
     if img_g is not None:
-        html += f'<hr style="margin:6px 0;"><b>Courbe global</b><br><img src="images/{img_g}" width="300">'
+        html += f'<hr style="margin:6px 0;"><b>Courbe global</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_g}" width="300">'
 
     html += "</div>"
     return html
@@ -279,9 +276,9 @@ def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g):
     """
 
     if img_j is not None:
-        html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="images/{img_j}" width="300">'
+        html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_j}" width="300">'
     if img_g is not None:
-        html += f'<hr style="margin:6px 0;"><b>Courbe global</b><br><img src="images/{img_g}" width="300">'
+        html += f'<hr style="margin:6px 0;"><b>Courbe global</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_g}" width="300">'
 
     html += "</div>"
     return html
@@ -308,12 +305,16 @@ def main():
     # Centre carte = moyenne des points connus
     latitudes = []
     longitudes = []
+
     if len(df_voiture) > 0:
-        latitudes += list(df_voiture["lat"].dropna().values)
-        longitudes += list(df_voiture["lon"].dropna().values)
+        df_vp = df_voiture.dropna(subset=["lat", "lon"])
+        latitudes += list(df_vp["lat"].values)
+        longitudes += list(df_vp["lon"].values)
+
     if len(df_velo) > 0:
-        latitudes += list(df_velo["lat"].dropna().values)
-        longitudes += list(df_velo["lon"].dropna().values)
+        df_vs = df_velo.dropna(subset=["lat", "lon"])
+        latitudes += list(df_vs["lat"].values)
+        longitudes += list(df_vs["lon"].values)
 
     if len(latitudes) == 0:
         print("Pas de coordonnées GPS exploitables.")
@@ -333,7 +334,6 @@ def main():
     if len(df_voiture) > 0:
         df_voiture_ok = df_voiture.dropna(subset=["lat", "lon"]).copy()
         df_voiture_ok = df_voiture_ok.sort_values("timestamp")
-        # Dernière mesure par parking
         dernier = df_voiture_ok.groupby("nom").tail(1)
 
         for _, row in dernier.iterrows():
@@ -385,7 +385,6 @@ def main():
 
     cluster_voiture.add_to(carte)
     cluster_velo.add_to(carte)
-
     folium.LayerControl().add_to(carte)
 
     carte.save(FICHIER_CARTE)

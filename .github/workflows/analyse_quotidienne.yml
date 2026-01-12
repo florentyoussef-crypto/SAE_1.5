@@ -2,7 +2,6 @@ name: analyse-quotidienne
 
 on:
   # Analyse automatique une fois par jour
-  # 02:15 UTC ≈ 03:15 heure française (hiver)
   schedule:
     - cron: "15 2 * * *"
   workflow_dispatch:
@@ -10,14 +9,21 @@ on:
 permissions:
   contents: write
 
+# ✅ Empêche que 2 workflows "écriture main" tournent en même temps
+concurrency:
+  group: write-main
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Récupération du dépôt
+      # 1) Récupération du dépôt (fetch-depth 0 obligatoire pour pull/rebase)
       - name: Recuperation du depot
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 2) Installation de Python
       - name: Installation de Python
@@ -41,23 +47,19 @@ jobs:
           echo "=== CONTENU DU DOSSIER donnees/ ==="
           ls -la donnees || true
 
-      # 5) Sauvegarde des résultats (graphes + images + carte.html au root)
+      # 5) Sauvegarde des résultats
       - name: Sauvegarder les resultats
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          # On ajoute les fichiers générés
+          # ✅ On se remet à jour avec main AVANT de commit
+          git fetch origin main
+          git rebase origin/main
+
           git add donnees/ carte.html
 
-          # Commit si besoin
           git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte"
 
-          # IMPORTANT : si l'autre workflow a push avant -> on rebase
-          git pull --rebase
-
-          # Au cas où le rebase a changé des fichiers générés
-          git add donnees/ carte.html
-
-          # Push final
+          # ✅ Push après rebase
           git push

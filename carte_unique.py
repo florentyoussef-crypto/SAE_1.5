@@ -2,6 +2,7 @@ import os
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+import urllib.parse
 
 import folium
 from folium.plugins import MarkerCluster
@@ -11,11 +12,9 @@ FICHIER_JSONL_VOITURE = os.path.join(DOSSIER, "brut_voitures.jsonl")
 FICHIER_JSONL_VELO = os.path.join(DOSSIER, "brut_velos.jsonl")
 
 DOSSIER_IMAGES = os.path.join(DOSSIER, "images")
+DOSSIER_SERIES = os.path.join(DOSSIER, "series")
 
-# IMPORTANT : carte AU ROOT pour GitHub Pages (folder = / root)
 FICHIER_CARTE = "carte.html"
-
-# IMPORTANT : chemin des images VU DEPUIS la racine (carte.html est au root)
 CHEMIN_IMAGES_HTML = "donnees/images"
 
 
@@ -40,7 +39,6 @@ def lire_jsonl(chemin):
 
 
 def extraire_lat_lon(entite):
-    # location.value.coordinates = [lon, lat]
     try:
         coords = entite["location"]["value"]["coordinates"]
         if isinstance(coords, list) and len(coords) >= 2:
@@ -61,7 +59,7 @@ def safe_get(entite, *cles):
 
 
 # ============================================================
-# NORMALISATION DES DONNEES (JSON brut -> DataFrame)
+# NORMALISATION
 # ============================================================
 
 def snapshots_voiture_to_df(snapshots):
@@ -166,7 +164,7 @@ def snapshots_velo_to_df(snapshots):
 
 
 # ============================================================
-# GRAPHIQUES
+# GRAPHIQUES PNG (inchangé)
 # ============================================================
 
 def nettoyer_nom_fichier(nom):
@@ -235,10 +233,42 @@ def generer_graphe_global(df, colonne, nom_objet, prefix):
 
 
 # ============================================================
+# SERIES JSON pour graphique interactif
+# ============================================================
+
+def ecrire_serie_json(df, nom_objet, colonne, prefix):
+    df2 = df[df["nom"] == nom_objet].copy()
+    df2 = df2.dropna(subset=["timestamp", colonne]).sort_values("timestamp")
+    if len(df2) == 0:
+        return None
+
+    nom_f = nettoyer_nom_fichier(nom_objet)
+    fichier = f"{prefix}_{nom_f}.json"
+    chemin = os.path.join(DOSSIER_SERIES, fichier)
+
+    data = []
+    for _, r in df2.iterrows():
+        data.append({
+            "timestamp": r["timestamp"].isoformat(),
+            "value": float(r[colonne])
+        })
+
+    with open(chemin, "w", encoding="utf-8") as f:
+        json.dump({
+            "name": nom_objet,
+            "column": colonne,
+            "points": data
+        }, f, ensure_ascii=False)
+
+    return fichier
+
+
+# ============================================================
 # POPUPS HTML
 # ============================================================
 
-def popup_parking(nom, libres, total, taux, img_j, img_g):
+def popup_parking(nom, libres, total, taux, img_j, img_g, serie_json):
+    nom_enc = urllib.parse.quote(nom)
     html = f"""
     <div style="width: 320px;">
       <h4 style="margin:0;">🚗 {nom}</h4>
@@ -246,6 +276,8 @@ def popup_parking(nom, libres, total, taux, img_j, img_g):
       <b>Places libres :</b> {int(libres)}<br>
       <b>Capacité totale :</b> {int(total)}<br>
       <b>Taux occupation :</b> {taux:.2%}<br>
+      <hr style="margin:6px 0;">
+      <a href="detail.html?type=parking&name={nom_enc}" target="_blank">📈 Graphique interactif</a>
     """
     if img_j is not None:
         html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_j}" width="300">'
@@ -255,7 +287,8 @@ def popup_parking(nom, libres, total, taux, img_j, img_g):
     return html
 
 
-def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g):
+def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g, serie_json):
+    nom_enc = urllib.parse.quote(nom)
     html = f"""
     <div style="width: 320px;">
       <h4 style="margin:0;">🚲 {nom}</h4>
@@ -264,6 +297,8 @@ def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g):
       <b>Bornes libres :</b> {int(bornes_libres)}<br>
       <b>Total bornes :</b> {int(total)}<br>
       <b>Taux occupation places :</b> {taux_places:.2%}<br>
+      <hr style="margin:6px 0;">
+      <a href="detail.html?type=velo&name={nom_enc}" target="_blank">📈 Graphique interactif</a>
     """
     if img_j is not None:
         html += f'<hr style="margin:6px 0;"><b>Courbe journalier</b><br><img src="{CHEMIN_IMAGES_HTML}/{img_j}" width="300">'
@@ -280,6 +315,7 @@ def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g):
 def main():
     os.makedirs(DOSSIER, exist_ok=True)
     os.makedirs(DOSSIER_IMAGES, exist_ok=True)
+    os.makedirs(DOSSIER_SERIES, exist_ok=True)
 
     snaps_voiture = lire_jsonl(FICHIER_JSONL_VOITURE)
     snaps_velo = lire_jsonl(FICHIER_JSONL_VELO)
@@ -291,7 +327,20 @@ def main():
         print("Aucune donnée snapshot trouvée (JSONL).")
         return
 
-    # Centre carte = moyenne des points (voiture + vélo)
+    # Dernière mise à jour (pour index.html)
+    last_ts = None
+    if len(df_voiture) > 0:
+        last_ts = df_voiture["timestamp"].max()
+    if len(df_velo) > 0:
+        v = df_velo["timestamp"].max()
+        if last_ts is None or v > last_ts:
+            last_ts = v
+
+    if last_ts is not None:
+        with open(os.path.join(DOSSIER, "last_update.json"), "w", encoding="utf-8") as f:
+            json.dump({"last_update": last_ts.isoformat()}, f, ensure_ascii=False)
+
+    # Centre carte
     latitudes = []
     longitudes = []
 
@@ -312,14 +361,13 @@ def main():
     centre_lat = sum(latitudes) / len(latitudes)
     centre_lon = sum(longitudes) / len(longitudes)
 
-    # IMPORTANT : tiles bien compatibles GitHub Pages
     carte = folium.Map(location=[centre_lat, centre_lon], zoom_start=13, tiles="OpenStreetMap")
 
     cluster_voiture = MarkerCluster(name="🚗 Parkings voiture")
     cluster_velo = MarkerCluster(name="🚲 Stations vélo")
 
     # -------------------------
-    # Points voiture : dernier état connu par parking
+    # Voiture
     # -------------------------
     if len(df_voiture) > 0:
         df_voiture_ok = df_voiture.dropna(subset=["lat", "lon"]).copy()
@@ -337,7 +385,9 @@ def main():
             img_j = generer_graphe_journalier(df_voiture_ok, "taux", nom, "parking")
             img_g = generer_graphe_global(df_voiture_ok, "taux", nom, "parking")
 
-            pop = popup_parking(nom, libres, total, taux, img_j, img_g)
+            serie_json = ecrire_serie_json(df_voiture_ok, nom, "taux", "parking")
+
+            pop = popup_parking(nom, libres, total, taux, img_j, img_g, serie_json)
 
             folium.Marker(
                 location=[lat, lon],
@@ -346,7 +396,7 @@ def main():
             ).add_to(cluster_voiture)
 
     # -------------------------
-    # Points vélo : dernier état connu par station
+    # Vélo
     # -------------------------
     if len(df_velo) > 0:
         df_velo_ok = df_velo.dropna(subset=["lat", "lon"]).copy()
@@ -365,9 +415,10 @@ def main():
             img_j = generer_graphe_journalier(df_velo_ok, "taux_places", nom, "velo")
             img_g = generer_graphe_global(df_velo_ok, "taux_places", nom, "velo")
 
-            pop = popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g)
+            serie_json = ecrire_serie_json(df_velo_ok, nom, "taux_places", "velo")
 
-            # NOTE: folium n’a pas "orange" en couleur standard -> on met green
+            pop = popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g, serie_json)
+
             folium.Marker(
                 location=[lat, lon],
                 popup=folium.Popup(pop, max_width=420),
@@ -383,6 +434,7 @@ def main():
 
     print("✅ Carte générée :", FICHIER_CARTE)
     print("✅ Images générées dans :", DOSSIER_IMAGES)
+    print("✅ Séries JSON générées dans :", DOSSIER_SERIES)
 
 
 if __name__ == "__main__":

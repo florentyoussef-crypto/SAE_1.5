@@ -19,7 +19,6 @@
     .ok{background:#e0fcf6; color:#00b894;}
   </style>
 
-  <!-- Plotly (CDN) -->
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 </head>
 
@@ -89,7 +88,6 @@
         ptsPill.textContent = "Points : " + n;
         methodPill.textContent = "Méthode : " + m;
 
-        // Couleur pill selon force (simple)
         corrPill.classList.remove("warn","ok");
         if(Math.abs(v) >= 0.5){
           corrPill.classList.add("ok");
@@ -131,26 +129,20 @@
         hovermode: "x"
       };
 
-      const config = {
-        responsive: true,
-        displaylogo: false
-      };
+      const config = { responsive: true, displaylogo: false };
 
       Plotly.newPlot(el, [trace], layout, config);
     }
 
     (async()=>{
-      // Dernière mise à jour
       const upd = await safeFetchJson("donnees/last_update.json");
       document.getElementById("info").textContent = upd?.last_update
         ? ("Dernière mise à jour : " + formatTs(upd.last_update))
         : "Dernière mise à jour : inconnue";
 
-      // Corrélation globale
       const corr = await safeFetchJson("donnees/correlation_global.json");
       setCorrelationUI(corr);
 
-      // Séries interactives
       const sVoiture = await safeFetchJson("donnees/series_global/voiture_ville.json");
       const sVelo = await safeFetchJson("donnees/series_global/velo_moyenne.json");
       const sRelais = await safeFetchJson("donnees/series_global/relais_ok.json");

@@ -1,0 +1,330 @@
+{
+  "parkings": [
+    {
+      "name": "Sablassou",
+      "series": "donnees/series/parking_Sablassou.json"
+    },
+    {
+      "name": "Saint Jean Le Sec",
+      "series": "donnees/series/parking_Saint Jean Le Sec.json"
+    },
+    {
+      "name": "Euromedecine",
+      "series": "donnees/series/parking_Euromedecine.json"
+    },
+    {
+      "name": "Occitanie",
+      "series": "donnees/series/parking_Occitanie.json"
+    },
+    {
+      "name": "Polygone",
+      "series": "donnees/series/parking_Polygone.json"
+    },
+    {
+      "name": "Gaumont EST",
+      "series": "donnees/series/parking_Gaumont EST.json"
+    },
+    {
+      "name": "Gaumont OUEST",
+      "series": "donnees/series/parking_Gaumont OUEST.json"
+    },
+    {
+      "name": "Charles de Gaulle",
+      "series": "donnees/series/parking_Charles de Gaulle.json"
+    },
+    {
+      "name": "Sabines",
+      "series": "donnees/series/parking_Sabines.json"
+    },
+    {
+      "name": "Vicarello",
+      "series": "donnees/series/parking_Vicarello.json"
+    },
+    {
+      "name": "Mosson",
+      "series": "donnees/series/parking_Mosson.json"
+    },
+    {
+      "name": "Gambetta",
+      "series": "donnees/series/parking_Gambetta.json"
+    },
+    {
+      "name": "Circe",
+      "series": "donnees/series/parking_Circe.json"
+    },
+    {
+      "name": "Pitot",
+      "series": "donnees/series/parking_Pitot.json"
+    },
+    {
+      "name": "Triangle",
+      "series": "donnees/series/parking_Triangle.json"
+    },
+    {
+      "name": "Gare",
+      "series": "donnees/series/parking_Gare.json"
+    },
+    {
+      "name": "Foch",
+      "series": "donnees/series/parking_Foch.json"
+    },
+    {
+      "name": "Europa",
+      "series": "donnees/series/parking_Europa.json"
+    },
+    {
+      "name": "Corum",
+      "series": "donnees/series/parking_Corum.json"
+    },
+    {
+      "name": "Comedie",
+      "series": "donnees/series/parking_Comedie.json"
+    },
+    {
+      "name": "Antigone",
+      "series": "donnees/series/parking_Antigone.json"
+    },
+    {
+      "name": "Arc de Triomphe",
+      "series": "donnees/series/parking_Arc de Triomphe.json"
+    },
+    {
+      "name": "Garcia Lorca",
+      "series": "donnees/series/parking_Garcia Lorca.json"
+    },
+    {
+      "name": "Gaumont-Circe",
+      "series": "donnees/series/parking_Gaumont-Circe.json"
+    }
+  ],
+  "stations": [
+    {
+      "name": "Jeu de Mail des Abbés",
+      "series": "donnees/series/velo_Jeu de Mail des Abbés.json"
+    },
+    {
+      "name": "Marie Caizergues",
+      "series": "donnees/series/velo_Marie Caizergues.json"
+    },
+    {
+      "name": "Euromédecine",
+      "series": "donnees/series/velo_Euromédecine.json"
+    },
+    {
+      "name": "Aiguelongue",
+      "series": "donnees/series/velo_Aiguelongue.json"
+    },
+    {
+      "name": "Garcia Lorca",
+      "series": "donnees/series/velo_Garcia Lorca.json"
+    },
+    {
+      "name": "FacdesSciences",
+      "series": "donnees/series/velo_FacdesSciences.json"
+    },
+    {
+      "name": "Occitanie",
+      "series": "donnees/series/velo_Occitanie.json"
+    },
+    {
+      "name": "Malbosc",
+      "series": "donnees/series/velo_Malbosc.json"
+    },
+    {
+      "name": "Vert Bois",
+      "series": "donnees/series/velo_Vert Bois.json"
+    },
+    {
+      "name": "Sabines",
+      "series": "donnees/series/velo_Sabines.json"
+    },
+    {
+      "name": "Fac de Lettres",
+      "series": "donnees/series/velo_Fac de Lettres.json"
+    },
+    {
+      "name": "Celleneuve",
+      "series": "donnees/series/velo_Celleneuve.json"
+    },
+    {
+      "name": "Sud De France",
+      "series": "donnees/series/velo_Sud De France.json"
+    },
+    {
+      "name": "Père Soulas",
+      "series": "donnees/series/velo_Père Soulas.json"
+    },
+    {
+      "name": "Place Viala",
+      "series": "donnees/series/velo_Place Viala.json"
+    },
+    {
+      "name": "Hôtel du Département",
+      "series": "donnees/series/velo_Hôtel du Département.json"
+    },
+    {
+      "name": "Tonnelles",
+      "series": "donnees/series/velo_Tonnelles.json"
+    },
+    {
+      "name": "Parvis Jules Ferry - Gare Saint-Roch",
+      "series": "donnees/series/velo_Parvis Jules Ferry - Gare Saint-Roch.json"
+    },
+    {
+      "name": "Pont de Lattes - Gare Saint-Roch",
+      "series": "donnees/series/velo_Pont de Lattes - Gare Saint-Roch.json"
+    },
+    {
+      "name": "Deux Ponts - Gare Saint-Roch",
+      "series": "donnees/series/velo_Deux Ponts - Gare Saint-Roch.json"
+    },
+    {
+      "name": "Providence - Ovalie",
+      "series": "donnees/series/velo_Providence - Ovalie.json"
+    },
+    {
+      "name": "Pérols Etang de l Or",
+      "series": "donnees/series/velo_Pérols Etang de l Or.json"
+    },
+    {
+      "name": "Albert 1er - Cathédrale",
+      "series": "donnees/series/velo_Albert 1er - Cathédrale.json"
+    },
+    {
+      "name": "Saint-Guilhem - Courreau",
+      "series": "donnees/series/velo_Saint-Guilhem - Courreau.json"
+    },
+    {
+      "name": "Prés d Arènes",
+      "series": "donnees/series/velo_Prés d Arènes.json"
+    },
+    {
+      "name": "Jardin de la Lironde",
+      "series": "donnees/series/velo_Jardin de la Lironde.json"
+    },
+    {
+      "name": "Voltaire",
+      "series": "donnees/series/velo_Voltaire.json"
+    },
+    {
+      "name": "Antigone centre",
+      "series": "donnees/series/velo_Antigone centre.json"
+    },
+    {
+      "name": "Richter",
+      "series": "donnees/series/velo_Richter.json"
+    },
+    {
+      "name": "Comedie Baudin",
+      "series": "donnees/series/velo_Comedie Baudin.json"
+    },
+    {
+      "name": "Rue Jules Ferry - Gare Saint-Roch",
+      "series": "donnees/series/velo_Rue Jules Ferry - Gare Saint-Roch.json"
+    },
+    {
+      "name": "Comédie",
+      "series": "donnees/series/velo_Comédie.json"
+    },
+    {
+      "name": "Hôtel de Ville",
+      "series": "donnees/series/velo_Hôtel de Ville.json"
+    },
+    {
+      "name": "Corum",
+      "series": "donnees/series/velo_Corum.json"
+    },
+    {
+      "name": "Place Albert 1er - St Charles",
+      "series": "donnees/series/velo_Place Albert 1er - St Charles.json"
+    },
+    {
+      "name": "Foch",
+      "series": "donnees/series/velo_Foch.json"
+    },
+    {
+      "name": "Halles Castellane",
+      "series": "donnees/series/velo_Halles Castellane.json"
+    },
+    {
+      "name": "Observatoire",
+      "series": "donnees/series/velo_Observatoire.json"
+    },
+    {
+      "name": "Rondelet",
+      "series": "donnees/series/velo_Rondelet.json"
+    },
+    {
+      "name": "Plan Cabanes",
+      "series": "donnees/series/velo_Plan Cabanes.json"
+    },
+    {
+      "name": "Boutonnet",
+      "series": "donnees/series/velo_Boutonnet.json"
+    },
+    {
+      "name": "Charles Flahault",
+      "series": "donnees/series/velo_Charles Flahault.json"
+    },
+    {
+      "name": "Emile Combes",
+      "series": "donnees/series/velo_Emile Combes.json"
+    },
+    {
+      "name": "Les Aubes",
+      "series": "donnees/series/velo_Les Aubes.json"
+    },
+    {
+      "name": "Médiathèque Emile Zola",
+      "series": "donnees/series/velo_Médiathèque Emile Zola.json"
+    },
+    {
+      "name": "Nombre d Or",
+      "series": "donnees/series/velo_Nombre d Or.json"
+    },
+    {
+      "name": "Louis Blanc",
+      "series": "donnees/series/velo_Louis Blanc.json"
+    },
+    {
+      "name": "Gambetta",
+      "series": "donnees/series/velo_Gambetta.json"
+    },
+    {
+      "name": "Port Marianne",
+      "series": "donnees/series/velo_Port Marianne.json"
+    },
+    {
+      "name": "Les Arceaux",
+      "series": "donnees/series/velo_Les Arceaux.json"
+    },
+    {
+      "name": "Cité Mion",
+      "series": "donnees/series/velo_Cité Mion.json"
+    },
+    {
+      "name": "Nouveau Saint-Roch",
+      "series": "donnees/series/velo_Nouveau Saint-Roch.json"
+    },
+    {
+      "name": "Renouvier",
+      "series": "donnees/series/velo_Renouvier.json"
+    },
+    {
+      "name": "Odysseum",
+      "series": "donnees/series/velo_Odysseum.json"
+    },
+    {
+      "name": "Saint-Denis",
+      "series": "donnees/series/velo_Saint-Denis.json"
+    },
+    {
+      "name": "Beaux-Arts",
+      "series": "donnees/series/velo_Beaux-Arts.json"
+    },
+    {
+      "name": "Jean de Beins",
+      "series": "donnees/series/velo_Jean de Beins.json"
+    }
+  ]
+}

@@ -11,10 +11,18 @@
     .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
     h1{margin:0 0 8px 0;}
     .muted{color:#636e72;}
-    img{width:100%; border-radius:16px; border:1px solid #ebedf0;}
     a{color:#3498db; text-decoration:none; font-weight:600;}
+    .chart{width:100%; height:520px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .pill{background:#f0f2f5; color:#636e72; padding:4px 10px; border-radius:999px; font-size:0.85rem; font-weight:600;}
+    .warn{background:#ffeaa7; color:#2d3436;}
+    .ok{background:#e0fcf6; color:#00b894;}
   </style>
+
+  <!-- Plotly (CDN) -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
@@ -22,27 +30,32 @@
         <div>
           <h1>📊 Analyse globale</h1>
           <div class="muted" id="info">Chargement…</div>
+          <div class="row" style="margin-top:8px;">
+            <span class="pill" id="corrPill">Corrélation globale : …</span>
+            <span class="pill" id="ptsPill">Points : …</span>
+            <span class="pill" id="methodPill">Méthode : …</span>
+          </div>
         </div>
         <div><a href="index.html">← Retour</a></div>
       </div>
-      <div style="margin-top:8px;">
-        <strong id="corr">Corrélation globale : …</strong>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Voiture (Ville)</h3>
+      <div id="chartVoiture" class="chart"></div>
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
+        Astuce : zoom avec la souris, double-clic pour reset.
       </div>
     </div>
 
     <div class="card">
-      <h3>Voiture (Ville)</h3>
-      <img src="donnees/images/courbe_voitures_ville.png" alt="courbe voitures ville">
+      <h3 style="margin:0 0 10px 0;">Vélos (moyenne stations)</h3>
+      <div id="chartVelo" class="chart"></div>
     </div>
 
     <div class="card">
-      <h3>Vélos (moyenne stations)</h3>
-      <img src="donnees/images/courbe_velos_moyenne.png" alt="courbe velos moyenne">
-    </div>
-
-    <div class="card">
-      <h3>Relais voiture/vélo</h3>
-      <img src="donnees/images/courbe_relais.png" alt="courbe relais">
+      <h3 style="margin:0 0 10px 0;">Relais voiture/vélo</h3>
+      <div id="chartRelais" class="chart"></div>
     </div>
   </div>
 
@@ -52,22 +65,99 @@
         const r = await fetch(url, {cache:"no-store"});
         if(!r.ok) return null;
         return await r.json();
-      }catch(e){ return null; }
+      }catch(e){
+        return null;
+      }
+    }
+
+    function formatTs(ts){
+      if(!ts) return "";
+      return String(ts).replace("T"," ").replace("+01:00","").replace("+02:00","");
+    }
+
+    function setCorrelationUI(corr){
+      const corrPill = document.getElementById("corrPill");
+      const ptsPill = document.getElementById("ptsPill");
+      const methodPill = document.getElementById("methodPill");
+
+      if(corr && typeof corr.correlation === "number"){
+        const v = corr.correlation;
+        const n = corr.n_points ?? "?";
+        const m = corr.method ?? "pearson";
+
+        corrPill.textContent = "Corrélation globale : " + v.toFixed(3);
+        ptsPill.textContent = "Points : " + n;
+        methodPill.textContent = "Méthode : " + m;
+
+        // Couleur pill selon force (simple)
+        corrPill.classList.remove("warn","ok");
+        if(Math.abs(v) >= 0.5){
+          corrPill.classList.add("ok");
+        }else if(Math.abs(v) >= 0.2){
+          corrPill.classList.add("warn");
+        }
+      }else{
+        corrPill.textContent = "Corrélation globale : N/A";
+        ptsPill.textContent = "Points : ?";
+        methodPill.textContent = "Méthode : ?";
+      }
+    }
+
+    function buildPlot(divId, serie, yLabel){
+      const el = document.getElementById(divId);
+      if(!serie || !Array.isArray(serie.points) || serie.points.length === 0){
+        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée pour afficher la courbe.</div>';
+        return;
+      }
+
+      const x = serie.points.map(p => p.timestamp);
+      const y = serie.points.map(p => p.value);
+
+      const trace = {
+        x: x,
+        y: y,
+        type: "scatter",
+        mode: "lines+markers",
+        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
+      };
+
+      const layout = {
+        title: {text: serie.title || "", x: 0},
+        margin: {l: 55, r: 20, t: 45, b: 50},
+        xaxis: {title: "Temps", type: "date"},
+        yaxis: {title: yLabel, rangemode: "tozero"},
+        paper_bgcolor: "white",
+        plot_bgcolor: "white",
+        hovermode: "x"
+      };
+
+      const config = {
+        responsive: true,
+        displaylogo: false
+      };
+
+      Plotly.newPlot(el, [trace], layout, config);
     }
 
     (async()=>{
+      // Dernière mise à jour
       const upd = await safeFetchJson("donnees/last_update.json");
       document.getElementById("info").textContent = upd?.last_update
-        ? ("Dernière mise à jour : " + upd.last_update.replace("T"," ").replace("+01:00",""))
+        ? ("Dernière mise à jour : " + formatTs(upd.last_update))
         : "Dernière mise à jour : inconnue";
 
+      // Corrélation globale
       const corr = await safeFetchJson("donnees/correlation_global.json");
-      if(corr && typeof corr.correlation === "number"){
-        document.getElementById("corr").textContent =
-          "Corrélation globale : " + corr.correlation.toFixed(3) + " (n=" + (corr.n_points ?? "?") + ")";
-      }else{
-        document.getElementById("corr").textContent = "Corrélation globale : N/A";
-      }
+      setCorrelationUI(corr);
+
+      // Séries interactives
+      const sVoiture = await safeFetchJson("donnees/series_global/voiture_ville.json");
+      const sVelo = await safeFetchJson("donnees/series_global/velo_moyenne.json");
+      const sRelais = await safeFetchJson("donnees/series_global/relais_ok.json");
+
+      buildPlot("chartVoiture", sVoiture, "Taux");
+      buildPlot("chartVelo", sVelo, "Taux occupation places");
+      buildPlot("chartRelais", sRelais, "Proportion OK");
     })();
   </script>
 </body>

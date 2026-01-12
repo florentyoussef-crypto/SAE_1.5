@@ -363,6 +363,30 @@ def main():
 
     carte = folium.Map(location=[centre_lat, centre_lon], zoom_start=13, tiles="OpenStreetMap")
 
+    # ✅ BOUTONS EN HAUT À GAUCHE (Retour + Analyse globale)
+    boutons = """
+    <div style="
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 9999;
+      background: white;
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+      border: 1px solid #ebedf0;
+      font-family: Outfit, sans-serif;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    ">
+      <a href="index.html" style="text-decoration:none;font-weight:700;color:#3498db;">← Retour</a>
+      <span style="color:#dfe6e9;">|</span>
+      <a href="analyse_globale.html" style="text-decoration:none;font-weight:700;color:#2d3436;">📊 Analyse globale</a>
+    </div>
+    """
+    carte.get_root().html.add_child(folium.Element(boutons))
+
     cluster_voiture = MarkerCluster(name="🚗 Parkings voiture")
     cluster_velo = MarkerCluster(name="🚲 Stations vélo")
 

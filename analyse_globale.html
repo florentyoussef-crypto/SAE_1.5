@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analyse globale</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
+    .wrap{max-width:1100px; margin:30px auto; padding:0 16px;}
+    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
+    h1{margin:0 0 8px 0;}
+    .muted{color:#636e72;}
+    img{width:100%; border-radius:16px; border:1px solid #ebedf0;}
+    a{color:#3498db; text-decoration:none; font-weight:600;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <h1>📊 Analyse globale</h1>
+          <div class="muted" id="info">Chargement…</div>
+        </div>
+        <div><a href="index.html">← Retour</a></div>
+      </div>
+      <div style="margin-top:8px;">
+        <strong id="corr">Corrélation globale : …</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Voiture (Ville)</h3>
+      <img src="donnees/images/courbe_voitures_ville.png" alt="courbe voitures ville">
+    </div>
+
+    <div class="card">
+      <h3>Vélos (moyenne stations)</h3>
+      <img src="donnees/images/courbe_velos_moyenne.png" alt="courbe velos moyenne">
+    </div>
+
+    <div class="card">
+      <h3>Relais voiture/vélo</h3>
+      <img src="donnees/images/courbe_relais.png" alt="courbe relais">
+    </div>
+  </div>
+
+  <script>
+    async function safeFetchJson(url){
+      try{
+        const r = await fetch(url, {cache:"no-store"});
+        if(!r.ok) return null;
+        return await r.json();
+      }catch(e){ return null; }
+    }
+
+    (async()=>{
+      const upd = await safeFetchJson("donnees/last_update.json");
+      document.getElementById("info").textContent = upd?.last_update
+        ? ("Dernière mise à jour : " + upd.last_update.replace("T"," ").replace("+01:00",""))
+        : "Dernière mise à jour : inconnue";
+
+      const corr = await safeFetchJson("donnees/correlation_global.json");
+      if(corr && typeof corr.correlation === "number"){
+        document.getElementById("corr").textContent =
+          "Corrélation globale : " + corr.correlation.toFixed(3) + " (n=" + (corr.n_points ?? "?") + ")";
+      }else{
+        document.getElementById("corr").textContent = "Corrélation globale : N/A";
+      }
+    })();
+  </script>
+</body>
+</html>

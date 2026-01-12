@@ -18,7 +18,7 @@
       <a href="index.html" class="active">Vue d'ensemble</a>
       <a href="carte.html">Carte (plein écran)</a>
       <a href="analyse_globale.html">Analyse globale</a>
-      <a href="correlation.html">Corrélation (outil)</a>
+      <a href="correlation.html">Corrélation (parking ↔ station)</a>
     </nav>
 
     <div class="user-profile">
@@ -30,10 +30,8 @@
     <header>
       <div>
         <h1>Observatoire Mobilité</h1>
-        <p class="subtitle">
-          Données actualisées automatiquement (GitHub Actions)
-          <span class="last-update" id="lastUpdate">• Dernière mise à jour : …</span>
-        </p>
+        <p class="subtitle">Données actualisées automatiquement (GitHub Actions)</p>
+        <p class="subtitle" id="lastUpdate">Dernière mise à jour : …</p>
       </div>
       <div class="status-badge">
         <span class="dot"></span> Système Actif
@@ -41,39 +39,33 @@
     </header>
 
     <section class="cards-grid">
-      <!-- KPI Corrélation -->
+      <!-- NOUVEAU : Corrélation -->
       <div class="card kpi">
         <div class="icon-box orange">🔗</div>
         <div class="kpi-info">
           <h3>Corrélation voiture ↔ vélo</h3>
           <p class="number" id="corrValue">…</p>
-          <span class="trend neutral" id="corrLabel">Calcul automatique</span>
-          <div style="margin-top:10px;">
-            <a class="btn-link" href="correlation.html">Ouvrir l’outil (choisir parking + station)</a>
-          </div>
+          <span class="trend neutral" id="corrInfo">n=…</span>
         </div>
       </div>
 
-      <!-- KPI Carte -->
+      <!-- On garde Carte interactive -->
       <div class="card kpi">
         <div class="icon-box purple">🗺️</div>
         <div class="kpi-info">
           <h3>Carte interactive</h3>
           <p class="text-stat">Folium</p>
-          <span class="sub-text">Clique un point → infos + lien graphique interactif</span>
+          <span class="sub-text">Clique un point → infos + graphes</span>
         </div>
       </div>
 
-      <!-- KPI Analyse globale -->
+      <!-- Carte "Analyse globale" -->
       <div class="card kpi">
         <div class="icon-box blue">📊</div>
         <div class="kpi-info">
           <h3>Analyse globale</h3>
-          <p class="text-stat">Dashboard</p>
-          <span class="sub-text">Courbes + indicateurs + résumé</span>
-          <div style="margin-top:10px;">
-            <a class="btn-link" href="analyse_globale.html">Ouvrir</a>
-          </div>
+          <p class="text-stat">Plotly</p>
+          <span class="sub-text">Courbes interactives + corrélation</span>
         </div>
       </div>
     </section>
@@ -95,6 +87,8 @@
 
         <div style="margin-top:12px; font-size:0.9rem; color:#636e72;">
           Astuce : tu peux ouvrir la carte en plein écran via le menu à gauche.
+          <br>
+          Bonus : clique sur “📈 Graphique interactif” dans un popup pour survoler la courbe.
         </div>
       </div>
 
@@ -105,7 +99,7 @@
 
         <div class="alert-item">
           <span class="time">Conseil</span>
-          <p><strong>Pour voir les infos :</strong> clique un point sur la carte → popup + lien “graphique interactif”.</p>
+          <p><strong>Pour voir les infos :</strong> clique un point sur la carte → le popup affiche les données + courbes (journalier + global).</p>
         </div>
 
         <div class="alert-item">
@@ -113,12 +107,14 @@
           <p>Carte plein écran : <strong><a href="carte.html">carte.html</a></strong></p>
         </div>
 
-        <div class="heatmap-mini">
-          <h4>Corrélation (global)</h4>
-          <p style="margin:6px 0 0 0;">
-            Valeur calculée sur les données brutes (snapshots JSONL) : <strong id="corrValue2">…</strong>
-          </p>
-          <p><small>Va dans “Corrélation (outil)” pour choisir un parking + une station.</small></p>
+        <div class="alert-item">
+          <span class="time">Nouveau</span>
+          <p>Analyse globale : <strong><a href="analyse_globale.html">analyse_globale.html</a></strong></p>
+        </div>
+
+        <div class="alert-item">
+          <span class="time">Corrélation</span>
+          <p>Choisir 1 parking + 1 station : <strong><a href="correlation.html">correlation.html</a></strong></p>
         </div>
       </div>
     </section>
@@ -126,51 +122,37 @@
   </main>
 
   <script>
-    async function safeFetchJson(url) {
-      try {
-        const r = await fetch(url, { cache: "no-store" });
-        if (!r.ok) return null;
+    async function safeFetchJson(url){
+      try{
+        const r = await fetch(url, {cache:"no-store"});
+        if(!r.ok) return null;
         return await r.json();
-      } catch (e) {
-        return null;
-      }
+      }catch(e){ return null; }
     }
 
-    function formatTs(ts) {
-      if (!ts) return "…";
-      return ts.replace("T", " ").replace("+01:00", "");
+    function formatTs(ts){
+      if(!ts) return "";
+      return String(ts).replace("T"," ").replace("+01:00","").replace("+02:00","");
     }
 
-    function interpretCorr(c) {
-      if (c === null || c === undefined || Number.isNaN(c)) return {label:"indispo", cls:"neutral"};
-      const a = Math.abs(c);
-      if (a >= 0.70) return {label:"forte", cls:"up"};
-      if (a >= 0.40) return {label:"moyenne", cls:"neutral"};
-      return {label:"faible", cls:"neutral"};
-    }
-
-    (async () => {
+    (async()=>{
+      // Dernière mise à jour
       const upd = await safeFetchJson("donnees/last_update.json");
-      if (upd && upd.last_update) {
-        document.getElementById("lastUpdate").textContent = "• Dernière mise à jour : " + formatTs(upd.last_update);
-      } else {
-        document.getElementById("lastUpdate").textContent = "• Dernière mise à jour : inconnue";
-      }
+      document.getElementById("lastUpdate").textContent = upd?.last_update
+        ? ("Dernière mise à jour : " + formatTs(upd.last_update))
+        : "Dernière mise à jour : inconnue";
 
+      // Corrélation globale
       const corr = await safeFetchJson("donnees/correlation_global.json");
-      if (corr && typeof corr.correlation === "number") {
-        const c = corr.correlation;
-        document.getElementById("corrValue").textContent = c.toFixed(3);
-        document.getElementById("corrValue2").textContent = c.toFixed(3);
+      const corrValue = document.getElementById("corrValue");
+      const corrInfo = document.getElementById("corrInfo");
 
-        const it = interpretCorr(c);
-        const el = document.getElementById("corrLabel");
-        el.textContent = "Corrélation " + it.label + " • n=" + (corr.n_points ?? "?");
-        el.classList.remove("neutral","up");
-        el.classList.add(it.cls);
-      } else {
-        document.getElementById("corrValue").textContent = "N/A";
-        document.getElementById("corrValue2").textContent = "N/A";
+      if(corr && typeof corr.correlation === "number"){
+        corrValue.textContent = corr.correlation.toFixed(3);
+        corrInfo.textContent = "n=" + (corr.n_points ?? "?") + " (" + (corr.method ?? "pearson") + ")";
+      }else{
+        corrValue.textContent = "N/A";
+        corrInfo.textContent = "pas assez de points";
       }
     })();
   </script>

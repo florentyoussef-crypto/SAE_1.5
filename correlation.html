@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Corrélation parking ↔ station</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
+    .wrap{max-width:1100px; margin:30px auto; padding:0 16px;}
+    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5);}
+    h1{margin:0 0 8px 0;}
+    .muted{color:#636e72;}
+    .row{display:flex; gap:12px; flex-wrap:wrap; margin-top:14px;}
+    select,button{padding:10px 12px; border-radius:12px; border:1px solid #ebedf0; font-family:Outfit, sans-serif;}
+    button{background:#eef2f7; font-weight:700; cursor:pointer;}
+    canvas{width:100% !important; height:420px !important; margin-top:14px;}
+    a{color:#3498db; text-decoration:none; font-weight:600;}
+    .kpi{font-size:1.6rem; font-weight:800; margin-top:10px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <h1>🔗 Corrélation parking ↔ station</h1>
+          <div class="muted">Choisis un parking voiture + une station vélo, puis calcule.</div>
+        </div>
+        <div><a href="index.html">← Retour</a></div>
+      </div>
+
+      <div class="row">
+        <select id="parkingSel"></select>
+        <select id="veloSel"></select>
+        <button id="btn">Calculer</button>
+      </div>
+
+      <div class="kpi" id="kpi">Corrélation : …</div>
+      <div class="muted" id="info">n = …</div>
+
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function cleanNameForFile(name){
+      return name.replaceAll("/", "_")
+                 .replaceAll("\\", "_")
+                 .replaceAll(":", "_")
+                 .replaceAll("?", "_")
+                 .replaceAll("*", "_")
+                 .replaceAll('"', "_")
+                 .replaceAll("'", "_");
+    }
+
+    async function fetchJson(url){
+      const r = await fetch(url, {cache:"no-store"});
+      if(!r.ok) throw new Error("fetch failed");
+      return await r.json();
+    }
+
+    function pearson(x, y){
+      const n = x.length;
+      if(n < 3) return null;
+      let sx=0, sy=0;
+      for(let i=0;i<n;i++){ sx+=x[i]; sy+=y[i]; }
+      const mx = sx/n, my = sy/n;
+      let num=0, dx=0, dy=0;
+      for(let i=0;i<n;i++){
+        const a = x[i]-mx, b = y[i]-my;
+        num += a*b;
+        dx += a*a;
+        dy += b*b;
+      }
+      const den = Math.sqrt(dx*dy);
+      if(den === 0) return null;
+      return num/den;
+    }
+
+    // Aligne par timestamp exact (simple) : si tu veux “plus proche 30min”, on pourra améliorer après
+    function alignExact(pointsA, pointsB){
+      const mapB = new Map(pointsB.map(p => [p.timestamp, p.value]));
+      const x=[], y=[], labels=[];
+      for(const p of pointsA){
+        if(mapB.has(p.timestamp)){
+          x.push(p.value);
+          y.push(mapB.get(p.timestamp));
+          labels.push(p.timestamp.replace("T"," ").slice(0,19));
+        }
+      }
+      return {x,y,labels};
+    }
+
+    let chart=null;
+
+    async function main(){
+      // Pour remplir les listes, on lit les fichiers séries présents via une “liste” statique :
+      // => on utilise un JSON index généré par carte_unique (petit hack : on va le créer maintenant)
+      // Si le fichier n'existe pas, tu auras quand même la corrélation globale sur index.html,
+      // mais ici il faut la liste.
+      //
+      // Donc : on va charger donnees/series_index.json
+      let idx;
+      try{
+        idx = await fetchJson("donnees/series_index.json");
+      }catch(e){
+        document.getElementById("info").textContent =
+          "Erreur: donnees/series_index.json introuvable. (Il sera généré par carte_unique.py modifié plus bas si tu le mets.)";
+        return;
+      }
+
+      const parkings = idx.parkings || [];
+      const velos = idx.velos || [];
+
+      const pSel = document.getElementById("parkingSel");
+      const vSel = document.getElementById("veloSel");
+
+      pSel.innerHTML = parkings.map(n => `<option>${n}</option>`).join("");
+      vSel.innerHTML = velos.map(n => `<option>${n}</option>`).join("");
+
+      document.getElementById("btn").addEventListener("click", async () => {
+        const parkingName = pSel.value;
+        const veloName = vSel.value;
+
+        const fP = "donnees/series/parking_" + cleanNameForFile(parkingName) + ".json";
+        const fV = "donnees/series/velo_" + cleanNameForFile(veloName) + ".json";
+
+        let pData, vData;
+        try{
+          pData = await fetchJson(fP);
+          vData = await fetchJson(fV);
+        }catch(e){
+          document.getElementById("kpi").textContent = "Corrélation : N/A";
+          document.getElementById("info").textContent = "Impossible de charger une série.";
+          return;
+        }
+
+        const aligned = alignExact(pData.points, vData.points);
+        const c = pearson(aligned.x, aligned.y);
+
+        document.getElementById("kpi").textContent = "Corrélation : " + (c===null ? "N/A" : c.toFixed(3));
+        document.getElementById("info").textContent = "n = " + aligned.x.length + " (timestamps exacts)";
+
+        if(chart) chart.destroy();
+        const ctx = document.getElementById("chart");
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: aligned.labels,
+            datasets: [
+              { label: "Parking (taux occupation)", data: aligned.x, pointRadius: 1, tension: 0.25 },
+              { label: "Station (taux occupation places)", data: aligned.y, pointRadius: 1, tension: 0.25 }
+            ]
+          },
+          options: {
+            responsive:true,
+            interaction: { mode:"index", intersect:false },
+            scales: { y: { suggestedMin:0, suggestedMax:1 } }
+          }
+        });
+      });
+    }
+
+    main();
+  </script>
+</body>
+</html>

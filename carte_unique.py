@@ -267,7 +267,7 @@ def ecrire_serie_json(df, nom_objet, colonne, prefix):
 # POPUPS HTML
 # ============================================================
 
-def popup_parking(nom, libres, total, taux, img_j, img_g, serie_json):
+def popup_parking(nom, libres, total, taux, img_j, img_g):
     nom_enc = urllib.parse.quote(nom)
     html = f"""
     <div style="width: 320px;">
@@ -287,7 +287,7 @@ def popup_parking(nom, libres, total, taux, img_j, img_g, serie_json):
     return html
 
 
-def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g, serie_json):
+def popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g):
     nom_enc = urllib.parse.quote(nom)
     html = f"""
     <div style="width: 320px;">
@@ -327,7 +327,7 @@ def main():
         print("Aucune donnée snapshot trouvée (JSONL).")
         return
 
-    # Dernière mise à jour (pour index.html)
+    # Dernière mise à jour (pour index.html / analyse_globale.html)
     last_ts = None
     if len(df_voiture) > 0:
         last_ts = df_voiture["timestamp"].max()
@@ -366,6 +366,12 @@ def main():
     cluster_voiture = MarkerCluster(name="🚗 Parkings voiture")
     cluster_velo = MarkerCluster(name="🚲 Stations vélo")
 
+    # Catalogue pour detail.html / correlation.html
+    catalog = {
+        "parkings": [],
+        "stations": []
+    }
+
     # -------------------------
     # Voiture
     # -------------------------
@@ -385,9 +391,14 @@ def main():
             img_j = generer_graphe_journalier(df_voiture_ok, "taux", nom, "parking")
             img_g = generer_graphe_global(df_voiture_ok, "taux", nom, "parking")
 
-            serie_json = ecrire_serie_json(df_voiture_ok, nom, "taux", "parking")
+            serie_file = ecrire_serie_json(df_voiture_ok, nom, "taux", "parking")
+            if serie_file:
+                catalog["parkings"].append({
+                    "name": nom,
+                    "series": f"donnees/series/{serie_file}"
+                })
 
-            pop = popup_parking(nom, libres, total, taux, img_j, img_g, serie_json)
+            pop = popup_parking(nom, libres, total, taux, img_j, img_g)
 
             folium.Marker(
                 location=[lat, lon],
@@ -415,9 +426,14 @@ def main():
             img_j = generer_graphe_journalier(df_velo_ok, "taux_places", nom, "velo")
             img_g = generer_graphe_global(df_velo_ok, "taux_places", nom, "velo")
 
-            serie_json = ecrire_serie_json(df_velo_ok, nom, "taux_places", "velo")
+            serie_file = ecrire_serie_json(df_velo_ok, nom, "taux_places", "velo")
+            if serie_file:
+                catalog["stations"].append({
+                    "name": nom,
+                    "series": f"donnees/series/{serie_file}"
+                })
 
-            pop = popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g, serie_json)
+            pop = popup_velo(nom, velos, bornes_libres, total, taux_places, img_j, img_g)
 
             folium.Marker(
                 location=[lat, lon],
@@ -425,23 +441,10 @@ def main():
                 icon=folium.Icon(color="green", icon="bicycle", prefix="fa")
             ).add_to(cluster_velo)
 
-    # ============================================================
-    # INDEX POUR correlation.html (liste parkings + stations)
-    # ============================================================
-    parkings_noms = []
-    velos_noms = []
+    # Sauvegarde catalogue
+    with open(os.path.join(DOSSIER, "catalog.json"), "w", encoding="utf-8") as f:
+        json.dump(catalog, f, ensure_ascii=False, indent=2)
 
-    if len(df_voiture) > 0:
-        parkings_noms = sorted(list(df_voiture["nom"].dropna().unique()))
-    if len(df_velo) > 0:
-        velos_noms = sorted(list(df_velo["nom"].dropna().unique()))
-
-    with open(os.path.join(DOSSIER, "series_index.json"), "w", encoding="utf-8") as f:
-        json.dump({"parkings": parkings_noms, "velos": velos_noms}, f, ensure_ascii=False)
-
-    # ============================================================
-    # FIN CARTE
-    # ============================================================
     cluster_voiture.add_to(carte)
     cluster_velo.add_to(carte)
 
@@ -452,7 +455,7 @@ def main():
     print("✅ Carte générée :", FICHIER_CARTE)
     print("✅ Images générées dans :", DOSSIER_IMAGES)
     print("✅ Séries JSON générées dans :", DOSSIER_SERIES)
-    print("✅ Index séries généré :", os.path.join(DOSSIER, "series_index.json"))
+    print("✅ Catalogue JSON généré :", os.path.join(DOSSIER, "catalog.json"))
 
 
 if __name__ == "__main__":

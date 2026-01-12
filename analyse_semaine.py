@@ -9,6 +9,9 @@ DOSSIER_IMAGES = os.path.join(DOSSIER_DONNEES, "images")
 FICHIER_JSONL_VOITURE = os.path.join(DOSSIER_DONNEES, "brut_voitures.jsonl")
 FICHIER_JSONL_VELO = os.path.join(DOSSIER_DONNEES, "brut_velos.jsonl")
 
+# NOUVEAU : séries pour courbes interactives (Plotly)
+DOSSIER_SERIES_GLOBAL = os.path.join(DOSSIER_DONNEES, "series_global")
+
 
 def creer_dossier_si_absent(path):
     if not os.path.isdir(path):
@@ -17,6 +20,9 @@ def creer_dossier_si_absent(path):
 
 def fichiers_journaliers(suffixe):
     fichiers = []
+    if not os.path.isdir(DOSSIER_DONNEES):
+        return fichiers
+
     for nom_fichier in sorted(os.listdir(DOSSIER_DONNEES)):
         if nom_fichier.startswith("jour_") and nom_fichier.endswith(suffixe):
             fichiers.append(os.path.join(DOSSIER_DONNEES, nom_fichier))
@@ -97,7 +103,6 @@ def correlation_globale_depuis_brut():
     snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
     snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
 
-    # Index par timestamp (string) -> valeur
     car_by_ts = {}
     for snap in snaps_v:
         ts = snap.get("timestamp")
@@ -118,7 +123,6 @@ def correlation_globale_depuis_brut():
         if v is not None:
             bike_by_ts[ts] = v
 
-    # On aligne sur les timestamps communs EXACTS (simple et robuste)
     common = sorted(set(car_by_ts.keys()) & set(bike_by_ts.keys()))
     if len(common) < 5:
         out = {"correlation": None, "n_points": len(common)}
@@ -134,6 +138,36 @@ def correlation_globale_depuis_brut():
 
     with open(os.path.join(DOSSIER_DONNEES, "correlation_global.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False)
+
+
+# ============================================================
+# NOUVEAU : écrire séries JSON pour Plotly (courbes interactives)
+# ============================================================
+
+def ecrire_serie_json(chemin, titre, x_col, y_col, df):
+    df2 = df.dropna(subset=[x_col, y_col]).copy()
+    if len(df2) == 0:
+        return False
+
+    df2 = df2.sort_values(x_col)
+
+    points = []
+    for _, r in df2.iterrows():
+        ts = r[x_col]
+        if hasattr(ts, "isoformat"):
+            ts = ts.isoformat()
+        else:
+            ts = str(ts)
+
+        points.append({
+            "timestamp": ts,
+            "value": float(r[y_col])
+        })
+
+    with open(chemin, "w", encoding="utf-8") as f:
+        json.dump({"title": titre, "points": points}, f, ensure_ascii=False)
+
+    return True
 
 
 def analyser_voitures():
@@ -164,6 +198,15 @@ def analyser_voitures():
         plt.tight_layout()
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_voitures_ville.png"))
         plt.close()
+
+        # NOUVEAU : JSON interactif
+        ecrire_serie_json(
+            os.path.join(DOSSIER_SERIES_GLOBAL, "voiture_ville.json"),
+            "Taux d'occupation voiture - VILLE (global)",
+            "timestamp",
+            "taux_occupation",
+            df_ville
+        )
 
     df_p = df[df["type"] == "PARKING"].dropna(subset=["taux_occupation", "timestamp"]).copy()
     if len(df_p) > 0:
@@ -209,6 +252,15 @@ def analyser_velos():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_velos_moyenne.png"))
         plt.close()
 
+        # NOUVEAU : JSON interactif
+        ecrire_serie_json(
+            os.path.join(DOSSIER_SERIES_GLOBAL, "velo_moyenne.json"),
+            "Occupation vélos - moyenne stations (global)",
+            "timestamp",
+            "taux_occupation_places",
+            moy_par_temps
+        )
+
 
 def analyser_relais():
     fichiers = fichiers_journaliers("_relais1.csv")
@@ -239,17 +291,29 @@ def analyser_relais():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_relais.png"))
         plt.close()
 
+        # NOUVEAU : JSON interactif
+        ecrire_serie_json(
+            os.path.join(DOSSIER_SERIES_GLOBAL, "relais_ok.json"),
+            "Relais voiture/vélo - proportion OK (global)",
+            "timestamp",
+            "relais_ok",
+            df_resume
+        )
+
 
 def main():
     creer_dossier_si_absent(DOSSIER_IMAGES)
+    creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
+
     analyser_voitures()
     analyser_velos()
     analyser_relais()
 
-    # NOUVEAU : corrélation globale depuis données brutes jsonl
+    # Corrélation globale depuis données brutes jsonl
     correlation_globale_depuis_brut()
 
     print("Images générées dans :", DOSSIER_IMAGES)
+    print("Séries interactives générées dans :", DOSSIER_SERIES_GLOBAL)
 
 
 if __name__ == "__main__":

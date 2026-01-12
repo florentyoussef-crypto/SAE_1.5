@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Détail - Graphique interactif</title>
+  <title>Détail</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
   <style>
     body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
     .wrap{max-width:1100px; margin:30px auto; padding:0 16px;}
-    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5);}
-    h1{margin:0 0 8px 0;}
-    .muted{color:#636e72;}
-    canvas{width:100% !important; height:420px !important;}
+    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
     a{color:#3498db; text-decoration:none; font-weight:600;}
+    .muted{color:#636e72;}
+    .chart{width:100%; height:620px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden;}
   </style>
 </head>
 <body>
@@ -23,93 +23,97 @@
           <h1 id="title">Détail</h1>
           <div class="muted" id="subtitle">Chargement…</div>
         </div>
-        <div>
-          <a href="index.html">← Retour</a>
-        </div>
+        <div><a href="carte.html">← Retour carte</a></div>
       </div>
+    </div>
 
-      <div style="margin-top:14px;">
-        <canvas id="chart"></canvas>
-      </div>
+    <div class="card">
+      <div id="chart" class="chart"></div>
+      <div class="muted" style="margin-top:10px;">Astuce : zoom souris, survole pour voir les valeurs.</div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    function getParam(name){
-      const u = new URL(window.location.href);
-      return u.searchParams.get(name);
+    function qs(name){
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
     }
 
-    function cleanNameForFile(name){
-      // même règle que python : remplace chars gênants par _
-      return name.replaceAll("/", "_")
-                 .replaceAll("\\", "_")
-                 .replaceAll(":", "_")
-                 .replaceAll("?", "_")
-                 .replaceAll("*", "_")
-                 .replaceAll('"', "_")
-                 .replaceAll("'", "_");
-    }
-
-    async function main(){
-      const type = getParam("type"); // parking / velo
-      const name = decodeURIComponent(getParam("name") || "");
-
-      if(!type || !name){
-        document.getElementById("title").textContent = "Paramètres manquants";
-        document.getElementById("subtitle").textContent = "Il manque type ou name.";
-        return;
-      }
-
-      const prefix = (type === "parking") ? "parking" : "velo";
-      const file = prefix + "_" + cleanNameForFile(name) + ".json";
-      const url = "donnees/series/" + file;
-
-      document.getElementById("title").textContent = (type === "parking" ? "🚗 " : "🚲 ") + name;
-      document.getElementById("subtitle").textContent = "Source : " + url;
-
-      let data;
+    async function safeFetchJson(url){
       try{
         const r = await fetch(url, {cache:"no-store"});
-        if(!r.ok) throw new Error("fetch failed");
-        data = await r.json();
-      }catch(e){
-        document.getElementById("subtitle").textContent = "Impossible de charger : " + url;
+        if(!r.ok) return null;
+        return await r.json();
+      }catch(e){ return null; }
+    }
+
+    function buildPlot(serie, yLabel){
+      const el = document.getElementById("chart");
+      if(!serie || !Array.isArray(serie.points) || serie.points.length === 0){
+        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée pour afficher la courbe.</div>';
+        return;
+      }
+      const x = serie.points.map(p => p.timestamp);
+      const y = serie.points.map(p => p.value);
+
+      const trace = {
+        x, y,
+        type: "scatter",
+        mode: "lines+markers",
+        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
+      };
+
+      const layout = {
+        margin: {l: 60, r: 20, t: 30, b: 60},
+        xaxis: {title: "Temps", type: "date"},
+        yaxis: {title: yLabel, rangemode: "tozero"},
+        paper_bgcolor: "white",
+        plot_bgcolor: "white",
+        hovermode: "x"
+      };
+
+      Plotly.newPlot(el, [trace], layout, {responsive:true, displaylogo:false});
+    }
+
+    (async()=>{
+      const type = qs("type"); // parking | velo
+      const name = qs("name");
+
+      const title = document.getElementById("title");
+      const subtitle = document.getElementById("subtitle");
+
+      if(!type || !name){
+        title.textContent = "Paramètres manquants";
+        subtitle.textContent = "Il manque type ou name dans l’URL.";
         return;
       }
 
-      const labels = data.points.map(p => p.timestamp.replace("T"," ").slice(0,19));
-      const values = data.points.map(p => p.value);
+      title.textContent = (type === "parking" ? "🚗 Parking : " : "🚲 Station : ") + name;
 
-      const ctx = document.getElementById("chart");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [{
-            label: data.column,
-            data: values,
-            pointRadius: 2,
-            tension: 0.25
-          }]
-        },
-        options: {
-          responsive: true,
-          interaction: { mode: "index", intersect: false },
-          plugins: {
-            tooltip: { enabled: true },
-            legend: { display: true }
-          },
-          scales: {
-            x: { ticks: { maxRotation: 45, minRotation: 45 } },
-            y: { suggestedMin: 0, suggestedMax: 1 }
-          }
-        }
-      });
-    }
+      const catalog = await safeFetchJson("donnees/catalog.json");
+      if(!catalog){
+        subtitle.textContent = "catalog.json introuvable (généré par carte_unique.py)";
+        return;
+      }
 
-    main();
+      let item = null;
+      if(type === "parking"){
+        item = (catalog.parkings || []).find(x => x.name === name);
+      }else{
+        item = (catalog.stations || []).find(x => x.name === name);
+      }
+
+      if(!item || !item.series){
+        subtitle.textContent = "Série introuvable pour ce point.";
+        return;
+      }
+
+      subtitle.textContent = "Fichier : " + item.series;
+
+      const serie = await safeFetchJson(item.series);
+      const yLabel = (type === "parking") ? "Taux occupation" : "Taux occupation places";
+      buildPlot(serie, yLabel);
+    })();
   </script>
 </body>
 </html>

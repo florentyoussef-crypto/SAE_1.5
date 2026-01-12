@@ -1,9 +1,13 @@
 import os
+import json
 import pandas as pd
 import matplotlib.pyplot as plt
 
 DOSSIER_DONNEES = "donnees"
 DOSSIER_IMAGES = os.path.join(DOSSIER_DONNEES, "images")
+
+FICHIER_JSONL_VOITURE = os.path.join(DOSSIER_DONNEES, "brut_voitures.jsonl")
+FICHIER_JSONL_VELO = os.path.join(DOSSIER_DONNEES, "brut_velos.jsonl")
 
 
 def creer_dossier_si_absent(path):
@@ -17,6 +21,119 @@ def fichiers_journaliers(suffixe):
         if nom_fichier.startswith("jour_") and nom_fichier.endswith(suffixe):
             fichiers.append(os.path.join(DOSSIER_DONNEES, nom_fichier))
     return fichiers
+
+
+def safe_get(entite, *cles):
+    cur = entite
+    for c in cles:
+        if isinstance(cur, dict) and c in cur:
+            cur = cur[c]
+        else:
+            return None
+    return cur
+
+
+def lire_jsonl(chemin):
+    lignes = []
+    if not os.path.exists(chemin):
+        return lignes
+    with open(chemin, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                try:
+                    lignes.append(json.loads(line))
+                except Exception:
+                    pass
+    return lignes
+
+
+def calculer_taux_ville_voiture(donnees_parking):
+    somme_total = 0.0
+    somme_libres = 0.0
+    for p in donnees_parking:
+        if safe_get(p, "status", "value") != "Open":
+            continue
+        libres = safe_get(p, "availableSpotNumber", "value")
+        total = safe_get(p, "totalSpotNumber", "value")
+        if libres is None or total is None:
+            continue
+        try:
+            libres = float(libres)
+            total = float(total)
+        except Exception:
+            continue
+        if total <= 0:
+            continue
+        somme_total += total
+        somme_libres += libres
+    if somme_total <= 0:
+        return None
+    return (somme_total - somme_libres) / somme_total
+
+
+def calculer_moyenne_taux_places_velo(donnees_stations):
+    vals = []
+    for s in donnees_stations:
+        bornes = safe_get(s, "freeSlotNumber", "value")
+        total = safe_get(s, "totalSlotNumber", "value")
+        if bornes is None or total is None:
+            continue
+        try:
+            bornes = float(bornes)
+            total = float(total)
+        except Exception:
+            continue
+        if total <= 0:
+            continue
+        taux_places = (total - bornes) / total
+        vals.append(taux_places)
+    if len(vals) == 0:
+        return None
+    return sum(vals) / len(vals)
+
+
+def correlation_globale_depuis_brut():
+    snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
+    snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
+
+    # Index par timestamp (string) -> valeur
+    car_by_ts = {}
+    for snap in snaps_v:
+        ts = snap.get("timestamp")
+        donnees = snap.get("donnees", [])
+        if not ts or not isinstance(donnees, list):
+            continue
+        v = calculer_taux_ville_voiture(donnees)
+        if v is not None:
+            car_by_ts[ts] = v
+
+    bike_by_ts = {}
+    for snap in snaps_b:
+        ts = snap.get("timestamp")
+        donnees = snap.get("donnees", [])
+        if not ts or not isinstance(donnees, list):
+            continue
+        v = calculer_moyenne_taux_places_velo(donnees)
+        if v is not None:
+            bike_by_ts[ts] = v
+
+    # On aligne sur les timestamps communs EXACTS (simple et robuste)
+    common = sorted(set(car_by_ts.keys()) & set(bike_by_ts.keys()))
+    if len(common) < 5:
+        out = {"correlation": None, "n_points": len(common)}
+        with open(os.path.join(DOSSIER_DONNEES, "correlation_global.json"), "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False)
+        return
+
+    x = [car_by_ts[t] for t in common]
+    y = [bike_by_ts[t] for t in common]
+
+    s = pd.Series(x).corr(pd.Series(y))  # Pearson
+    out = {"correlation": float(s), "n_points": len(common), "method": "pearson", "aligned": "exact_timestamp"}
+
+    with open(os.path.join(DOSSIER_DONNEES, "correlation_global.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False)
 
 
 def analyser_voitures():
@@ -128,6 +245,10 @@ def main():
     analyser_voitures()
     analyser_velos()
     analyser_relais()
+
+    # NOUVEAU : corrélation globale depuis données brutes jsonl
+    correlation_globale_depuis_brut()
+
     print("Images générées dans :", DOSSIER_IMAGES)
 
 

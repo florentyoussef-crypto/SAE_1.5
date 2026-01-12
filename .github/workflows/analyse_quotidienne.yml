@@ -47,8 +47,17 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          # IMPORTANT : on ajoute aussi la carte au root
+          # On ajoute les fichiers générés
           git add donnees/ carte.html
 
+          # Commit si besoin
           git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte"
+
+          # IMPORTANT : si l'autre workflow a push avant -> on rebase
+          git pull --rebase
+
+          # Au cas où le rebase a changé des fichiers générés
+          git add donnees/ carte.html
+
+          # Push final
           git push

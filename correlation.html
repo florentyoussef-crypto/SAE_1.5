@@ -8,15 +8,14 @@
   <style>
     body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
     .wrap{max-width:1100px; margin:30px auto; padding:0 16px;}
-    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5);}
-    h1{margin:0 0 8px 0;}
-    .muted{color:#636e72;}
-    .row{display:flex; gap:12px; flex-wrap:wrap; margin-top:14px;}
-    select,button{padding:10px 12px; border-radius:12px; border:1px solid #ebedf0; font-family:Outfit, sans-serif;}
-    button{background:#eef2f7; font-weight:700; cursor:pointer;}
-    canvas{width:100% !important; height:420px !important; margin-top:14px;}
+    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
     a{color:#3498db; text-decoration:none; font-weight:600;}
-    .kpi{font-size:1.6rem; font-weight:800; margin-top:10px;}
+    .muted{color:#636e72;}
+    select, button{font-family:Outfit, sans-serif; padding:10px 12px; border-radius:12px; border:1px solid #ebedf0;}
+    button{background:#3498db; color:white; font-weight:700; cursor:pointer;}
+    button:disabled{opacity:0.6; cursor:not-allowed;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .pill{background:#f0f2f5; color:#636e72; padding:4px 10px; border-radius:999px; font-size:0.85rem; font-weight:600;}
   </style>
 </head>
 <body>
@@ -25,40 +24,35 @@
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
         <div>
           <h1>🔗 Corrélation parking ↔ station</h1>
-          <div class="muted">Choisis un parking voiture + une station vélo, puis calcule.</div>
+          <div class="muted">Choisis un parking + une station (corrélation Pearson sur timestamps communs).</div>
         </div>
         <div><a href="index.html">← Retour</a></div>
       </div>
+    </div>
 
+    <div class="card">
       <div class="row">
-        <select id="parkingSel"></select>
-        <select id="veloSel"></select>
-        <button id="btn">Calculer</button>
+        <select id="selParking"></select>
+        <select id="selStation"></select>
+        <button id="btn" disabled>Calculer</button>
       </div>
-
-      <div class="kpi" id="kpi">Corrélation : …</div>
-      <div class="muted" id="info">n = …</div>
-
-      <canvas id="chart"></canvas>
+      <div style="margin-top:12px;" class="row">
+        <span class="pill" id="res">Résultat : …</span>
+        <span class="pill" id="npts">Points : …</span>
+      </div>
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
+        Note : on aligne uniquement les timestamps EXACTS (comme ta corrélation globale).
+      </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    function cleanNameForFile(name){
-      return name.replaceAll("/", "_")
-                 .replaceAll("\\", "_")
-                 .replaceAll(":", "_")
-                 .replaceAll("?", "_")
-                 .replaceAll("*", "_")
-                 .replaceAll('"', "_")
-                 .replaceAll("'", "_");
-    }
-
-    async function fetchJson(url){
-      const r = await fetch(url, {cache:"no-store"});
-      if(!r.ok) throw new Error("fetch failed");
-      return await r.json();
+    async function safeFetchJson(url){
+      try{
+        const r = await fetch(url, {cache:"no-store"});
+        if(!r.ok) return null;
+        return await r.json();
+      }catch(e){ return null; }
     }
 
     function pearson(x, y){
@@ -66,104 +60,91 @@
       if(n < 3) return null;
       let sx=0, sy=0;
       for(let i=0;i<n;i++){ sx+=x[i]; sy+=y[i]; }
-      const mx = sx/n, my = sy/n;
+      const mx=sx/n, my=sy/n;
       let num=0, dx=0, dy=0;
       for(let i=0;i<n;i++){
-        const a = x[i]-mx, b = y[i]-my;
+        const a=x[i]-mx, b=y[i]-my;
         num += a*b;
         dx += a*a;
         dy += b*b;
       }
-      const den = Math.sqrt(dx*dy);
-      if(den === 0) return null;
-      return num/den;
+      if(dx<=0 || dy<=0) return null;
+      return num / Math.sqrt(dx*dy);
     }
 
-    // Aligne par timestamp exact (simple) : si tu veux “plus proche 30min”, on pourra améliorer après
-    function alignExact(pointsA, pointsB){
-      const mapB = new Map(pointsB.map(p => [p.timestamp, p.value]));
-      const x=[], y=[], labels=[];
-      for(const p of pointsA){
-        if(mapB.has(p.timestamp)){
-          x.push(p.value);
-          y.push(mapB.get(p.timestamp));
-          labels.push(p.timestamp.replace("T"," ").slice(0,19));
-        }
+    function fillSelect(sel, arr, placeholder){
+      sel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = placeholder;
+      sel.appendChild(opt0);
+
+      for(const it of arr){
+        const opt = document.createElement("option");
+        opt.value = it.series;
+        opt.textContent = it.name;
+        sel.appendChild(opt);
       }
-      return {x,y,labels};
     }
 
-    let chart=null;
-
-    async function main(){
-      // Pour remplir les listes, on lit les fichiers séries présents via une “liste” statique :
-      // => on utilise un JSON index généré par carte_unique (petit hack : on va le créer maintenant)
-      // Si le fichier n'existe pas, tu auras quand même la corrélation globale sur index.html,
-      // mais ici il faut la liste.
-      //
-      // Donc : on va charger donnees/series_index.json
-      let idx;
-      try{
-        idx = await fetchJson("donnees/series_index.json");
-      }catch(e){
-        document.getElementById("info").textContent =
-          "Erreur: donnees/series_index.json introuvable. (Il sera généré par carte_unique.py modifié plus bas si tu le mets.)";
+    (async()=>{
+      const catalog = await safeFetchJson("donnees/catalog.json");
+      if(!catalog){
+        document.getElementById("res").textContent = "Résultat : catalog.json introuvable";
         return;
       }
 
-      const parkings = idx.parkings || [];
-      const velos = idx.velos || [];
+      const parkings = (catalog.parkings || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+      const stations = (catalog.stations || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
 
-      const pSel = document.getElementById("parkingSel");
-      const vSel = document.getElementById("veloSel");
+      const selP = document.getElementById("selParking");
+      const selS = document.getElementById("selStation");
+      const btn = document.getElementById("btn");
 
-      pSel.innerHTML = parkings.map(n => `<option>${n}</option>`).join("");
-      vSel.innerHTML = velos.map(n => `<option>${n}</option>`).join("");
+      fillSelect(selP, parkings, "Choisir un parking");
+      fillSelect(selS, stations, "Choisir une station");
 
-      document.getElementById("btn").addEventListener("click", async () => {
-        const parkingName = pSel.value;
-        const veloName = vSel.value;
+      function updateBtn(){
+        btn.disabled = !(selP.value && selS.value);
+      }
 
-        const fP = "donnees/series/parking_" + cleanNameForFile(parkingName) + ".json";
-        const fV = "donnees/series/velo_" + cleanNameForFile(veloName) + ".json";
+      selP.addEventListener("change", updateBtn);
+      selS.addEventListener("change", updateBtn);
 
-        let pData, vData;
-        try{
-          pData = await fetchJson(fP);
-          vData = await fetchJson(fV);
-        }catch(e){
-          document.getElementById("kpi").textContent = "Corrélation : N/A";
-          document.getElementById("info").textContent = "Impossible de charger une série.";
+      btn.addEventListener("click", async()=>{
+        document.getElementById("res").textContent = "Résultat : calcul…";
+        document.getElementById("npts").textContent = "Points : …";
+
+        const sp = await safeFetchJson(selP.value);
+        const ss = await safeFetchJson(selS.value);
+
+        if(!sp || !ss || !sp.points || !ss.points){
+          document.getElementById("res").textContent = "Résultat : erreur de lecture séries";
           return;
         }
 
-        const aligned = alignExact(pData.points, vData.points);
-        const c = pearson(aligned.x, aligned.y);
+        const mapP = new Map(sp.points.map(p => [p.timestamp, p.value]));
+        const mapS = new Map(ss.points.map(p => [p.timestamp, p.value]));
 
-        document.getElementById("kpi").textContent = "Corrélation : " + (c===null ? "N/A" : c.toFixed(3));
-        document.getElementById("info").textContent = "n = " + aligned.x.length + " (timestamps exacts)";
+        const common = [];
+        for(const k of mapP.keys()){
+          if(mapS.has(k)) common.push(k);
+        }
+        common.sort();
 
-        if(chart) chart.destroy();
-        const ctx = document.getElementById("chart");
-        chart = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: aligned.labels,
-            datasets: [
-              { label: "Parking (taux occupation)", data: aligned.x, pointRadius: 1, tension: 0.25 },
-              { label: "Station (taux occupation places)", data: aligned.y, pointRadius: 1, tension: 0.25 }
-            ]
-          },
-          options: {
-            responsive:true,
-            interaction: { mode:"index", intersect:false },
-            scales: { y: { suggestedMin:0, suggestedMax:1 } }
-          }
-        });
+        const x = common.map(t => mapP.get(t));
+        const y = common.map(t => mapS.get(t));
+
+        const r = pearson(x, y);
+
+        document.getElementById("npts").textContent = "Points : " + common.length;
+        document.getElementById("res").textContent = (r === null)
+          ? "Résultat : N/A"
+          : ("Résultat : " + r.toFixed(3));
       });
-    }
 
-    main();
+      updateBtn();
+    })();
   </script>
 </body>
 </html>

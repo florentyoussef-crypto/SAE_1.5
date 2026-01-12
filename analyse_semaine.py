@@ -9,7 +9,6 @@ DOSSIER_IMAGES = os.path.join(DOSSIER_DONNEES, "images")
 FICHIER_JSONL_VOITURE = os.path.join(DOSSIER_DONNEES, "brut_voitures.jsonl")
 FICHIER_JSONL_VELO = os.path.join(DOSSIER_DONNEES, "brut_velos.jsonl")
 
-# NOUVEAU : séries pour courbes interactives (Plotly)
 DOSSIER_SERIES_GLOBAL = os.path.join(DOSSIER_DONNEES, "series_global")
 
 
@@ -22,7 +21,6 @@ def fichiers_journaliers(suffixe):
     fichiers = []
     if not os.path.isdir(DOSSIER_DONNEES):
         return fichiers
-
     for nom_fichier in sorted(os.listdir(DOSSIER_DONNEES)):
         if nom_fichier.startswith("jour_") and nom_fichier.endswith(suffixe):
             fichiers.append(os.path.join(DOSSIER_DONNEES, nom_fichier))
@@ -99,6 +97,124 @@ def calculer_moyenne_taux_places_velo(donnees_stations):
     return sum(vals) / len(vals)
 
 
+def ecrire_serie_global_json(nom_fichier, title, column, points):
+    # points = [{"timestamp": "...", "value": 0.123}, ...]
+    out = {
+        "title": title,
+        "column": column,
+        "points": points
+    }
+    with open(os.path.join(DOSSIER_SERIES_GLOBAL, nom_fichier), "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False)
+
+
+def generer_series_global_depuis_brut():
+    creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
+
+    snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
+    snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
+
+    # --- Série voiture ville ---
+    points_voiture = []
+    for snap in snaps_v:
+        ts = snap.get("timestamp")
+        donnees = snap.get("donnees", [])
+        if not ts or not isinstance(donnees, list):
+            continue
+        v = calculer_taux_ville_voiture(donnees)
+        if v is None:
+            continue
+        points_voiture.append({"timestamp": ts, "value": float(v)})
+
+    # --- Série vélo moyenne stations ---
+    points_velo = []
+    for snap in snaps_b:
+        ts = snap.get("timestamp")
+        donnees = snap.get("donnees", [])
+        if not ts or not isinstance(donnees, list):
+            continue
+        v = calculer_moyenne_taux_places_velo(donnees)
+        if v is None:
+            continue
+        points_velo.append({"timestamp": ts, "value": float(v)})
+
+    # Trier par temps (au cas où)
+    def sort_points(pts):
+        try:
+            return sorted(pts, key=lambda p: p["timestamp"])
+        except Exception:
+            return pts
+
+    points_voiture = sort_points(points_voiture)
+    points_velo = sort_points(points_velo)
+
+    ecrire_serie_global_json(
+        "voiture_ville.json",
+        "Taux d'occupation voiture - VILLE (global)",
+        "taux",
+        points_voiture
+    )
+
+    ecrire_serie_global_json(
+        "velo_moyenne.json",
+        "Occupation vélos - moyenne stations (global)",
+        "taux_occupation_places",
+        points_velo
+    )
+
+
+def generer_serie_relais_depuis_csv():
+    creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
+
+    fichiers = fichiers_journaliers("_relais1.csv")
+    if len(fichiers) == 0:
+        # Crée quand même un fichier vide pour éviter erreur côté HTML
+        ecrire_serie_global_json(
+            "relais_ok.json",
+            "Relais voiture/vélo - proportion OK (global)",
+            "proportion_ok",
+            []
+        )
+        return
+
+    dfs = []
+    for chemin in fichiers:
+        try:
+            df = pd.read_csv(chemin)
+            dfs.append(df)
+        except Exception:
+            pass
+
+    if len(dfs) == 0:
+        ecrire_serie_global_json(
+            "relais_ok.json",
+            "Relais voiture/vélo - proportion OK (global)",
+            "proportion_ok",
+            []
+        )
+        return
+
+    df = pd.concat(dfs, ignore_index=True)
+
+    df["relais_ok"] = pd.to_numeric(df.get("relais_ok"), errors="coerce")
+    df["timestamp"] = pd.to_datetime(df.get("timestamp"), errors="coerce")
+
+    df_resume = df[df.get("parking") == "RESUME"].dropna(subset=["relais_ok", "timestamp"]).sort_values("timestamp")
+    points = []
+    for _, r in df_resume.iterrows():
+        points.append({
+            "timestamp": r["timestamp"].isoformat(),
+            "value": float(r["relais_ok"])
+        })
+
+    ecrire_serie_global_json(
+        "relais_ok.json",
+        "Relais voiture/vélo - proportion OK (global)",
+        "proportion_ok",
+        points
+    )
+
+
 def correlation_globale_depuis_brut():
     snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
     snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
@@ -140,36 +256,6 @@ def correlation_globale_depuis_brut():
         json.dump(out, f, ensure_ascii=False)
 
 
-# ============================================================
-# NOUVEAU : écrire séries JSON pour Plotly (courbes interactives)
-# ============================================================
-
-def ecrire_serie_json(chemin, titre, x_col, y_col, df):
-    df2 = df.dropna(subset=[x_col, y_col]).copy()
-    if len(df2) == 0:
-        return False
-
-    df2 = df2.sort_values(x_col)
-
-    points = []
-    for _, r in df2.iterrows():
-        ts = r[x_col]
-        if hasattr(ts, "isoformat"):
-            ts = ts.isoformat()
-        else:
-            ts = str(ts)
-
-        points.append({
-            "timestamp": ts,
-            "value": float(r[y_col])
-        })
-
-    with open(chemin, "w", encoding="utf-8") as f:
-        json.dump({"title": titre, "points": points}, f, ensure_ascii=False)
-
-    return True
-
-
 def analyser_voitures():
     fichiers = fichiers_journaliers("_voitures.csv")
     if len(fichiers) == 0:
@@ -198,15 +284,6 @@ def analyser_voitures():
         plt.tight_layout()
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_voitures_ville.png"))
         plt.close()
-
-        # NOUVEAU : JSON interactif
-        ecrire_serie_json(
-            os.path.join(DOSSIER_SERIES_GLOBAL, "voiture_ville.json"),
-            "Taux d'occupation voiture - VILLE (global)",
-            "timestamp",
-            "taux_occupation",
-            df_ville
-        )
 
     df_p = df[df["type"] == "PARKING"].dropna(subset=["taux_occupation", "timestamp"]).copy()
     if len(df_p) > 0:
@@ -252,15 +329,6 @@ def analyser_velos():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_velos_moyenne.png"))
         plt.close()
 
-        # NOUVEAU : JSON interactif
-        ecrire_serie_json(
-            os.path.join(DOSSIER_SERIES_GLOBAL, "velo_moyenne.json"),
-            "Occupation vélos - moyenne stations (global)",
-            "timestamp",
-            "taux_occupation_places",
-            moy_par_temps
-        )
-
 
 def analyser_relais():
     fichiers = fichiers_journaliers("_relais1.csv")
@@ -291,15 +359,6 @@ def analyser_relais():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_relais.png"))
         plt.close()
 
-        # NOUVEAU : JSON interactif
-        ecrire_serie_json(
-            os.path.join(DOSSIER_SERIES_GLOBAL, "relais_ok.json"),
-            "Relais voiture/vélo - proportion OK (global)",
-            "timestamp",
-            "relais_ok",
-            df_resume
-        )
-
 
 def main():
     creer_dossier_si_absent(DOSSIER_IMAGES)
@@ -309,11 +368,15 @@ def main():
     analyser_velos()
     analyser_relais()
 
-    # Corrélation globale depuis données brutes jsonl
+    # Corrélation globale depuis brut jsonl
     correlation_globale_depuis_brut()
 
+    # NOUVEAU : séries interactives pour analyse_globale.html
+    generer_series_global_depuis_brut()
+    generer_serie_relais_depuis_csv()
+
     print("Images générées dans :", DOSSIER_IMAGES)
-    print("Séries interactives générées dans :", DOSSIER_SERIES_GLOBAL)
+    print("Séries globales générées dans :", DOSSIER_SERIES_GLOBAL)
 
 
 if __name__ == "__main__":

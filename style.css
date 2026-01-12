@@ -6,6 +6,7 @@
     --blue-accent: #3498db;
     --purple-accent: #6c5ce7;
     --green-accent: #00b894;
+    --orange-accent: #f39c12;
     --sidebar-width: 260px;
     --shadow-card: 0 10px 20px rgba(0,0,0,0.05);
 }
@@ -78,12 +79,6 @@ header {
 h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .subtitle { color: var(--text-light); margin-top: 5px; font-size: 0.9rem; }
 
-.last-update {
-  margin-left: 10px;
-  font-weight: 500;
-  color: var(--text-light);
-}
-
 .status-badge {
     background: var(--white);
     padding: 0.5rem 1rem;
@@ -124,7 +119,7 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .icon-box.blue { background: #e3f2fd; color: var(--blue-accent); }
 .icon-box.green { background: #e0fcf6; color: var(--green-accent); }
 .icon-box.purple { background: #f3e5f5; color: var(--purple-accent); }
-.icon-box.orange { background: #fff3e0; color: #e67e22; }
+.icon-box.orange { background: #fff3e0; color: var(--orange-accent); }
 
 .kpi-info h3 { margin: 0; font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
 .kpi-info .number { margin: 5px 0; font-size: 2rem; font-weight: 700; color: var(--text-main); }
@@ -133,18 +128,6 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .trend { font-size: 0.8rem; font-weight: 500; display: inline-block; padding: 2px 8px; border-radius: 6px; }
 .trend.up { background: #e0fcf6; color: var(--green-accent); }
 .trend.neutral { background: #f0f2f5; color: var(--text-light); }
-
-/* petit bouton lien */
-.btn-link{
-  display:inline-block;
-  text-decoration:none;
-  padding:8px 12px;
-  border-radius:12px;
-  background:#eef2f7;
-  color: var(--blue-accent);
-  font-weight:600;
-  font-size:0.85rem;
-}
 
 /* --- GRAPHS & INFO --- */
 .main-grid {
@@ -155,7 +138,6 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 
 .card-header h3 { margin: 0 0 1.5rem 0; font-size: 1.1rem; }
 
-/* Alertes */
 .alert-item {
     border-left: 3px solid var(--blue-accent);
     padding-left: 1rem;
@@ -172,6 +154,7 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
   overflow: hidden;
   border: 1px solid #ebedf0;
 }
+
 .map-wrapper iframe {
   width: 100%;
   height: 100%;

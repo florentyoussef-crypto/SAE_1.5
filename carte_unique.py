@@ -363,13 +363,13 @@ def main():
 
     carte = folium.Map(location=[centre_lat, centre_lon], zoom_start=13, tiles="OpenStreetMap")
 
-    # ✅ BOUTONS EN HAUT À GAUCHE (Retour + Analyse globale)
+    # ✅ BOUTONS EN HAUT À GAUCHE (sous le zoom)
     boutons = """
     <div style="
       position: fixed;
-      top: 15px;
+      top: 70px;        /* ← DÉCALAGE SOUS LE ZOOM */
       left: 15px;
-      z-index: 9999;
+      z-index: 99999;
       background: white;
       padding: 10px 12px;
       border-radius: 12px;

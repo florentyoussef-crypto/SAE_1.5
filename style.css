@@ -1,5 +1,5 @@
 :root {
-    --bg-body: #f3f6fd;       /* Gris bleuté très clair (moderne) */
+    --bg-body: #f3f6fd;
     --text-main: #2d3436;
     --text-light: #636e72;
     --white: #ffffff;
@@ -7,20 +7,20 @@
     --purple-accent: #6c5ce7;
     --green-accent: #00b894;
     --sidebar-width: 260px;
-    --shadow-card: 0 10px 20px rgba(0,0,0,0.05); /* Ombre douce */
+    --shadow-card: 0 10px 20px rgba(0,0,0,0.05);
 }
 
 body {
-    font-family: 'Outfit', sans-serif; /* Police géométrique moderne */
+    font-family: 'Outfit', sans-serif;
     background-color: var(--bg-body);
     margin: 0;
     display: flex;
     color: var(--text-main);
     height: 100vh;
-    overflow: hidden; /* Empêche le scroll global */
+    overflow: hidden;
 }
 
-/* --- SIDEBAR (Menu Gauche) --- */
+/* --- SIDEBAR --- */
 .sidebar {
     width: var(--sidebar-width);
     background: var(--white);
@@ -65,7 +65,7 @@ nav a.active, nav a:hover {
 .content {
     flex: 1;
     padding: 2rem 3rem;
-    overflow-y: auto; /* Scroll uniquement sur le contenu */
+    overflow-y: auto;
 }
 
 header {
@@ -77,6 +77,12 @@ header {
 
 h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .subtitle { color: var(--text-light); margin-top: 5px; font-size: 0.9rem; }
+
+.last-update {
+  margin-left: 10px;
+  font-weight: 500;
+  color: var(--text-light);
+}
 
 .status-badge {
     background: var(--white);
@@ -101,7 +107,7 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 
 .card {
     background: var(--white);
-    border-radius: 20px; /* Coins très arrondis (tendance) */
+    border-radius: 20px;
     padding: 1.5rem;
     box-shadow: var(--shadow-card);
     border: 1px solid rgba(255,255,255,0.5);
@@ -118,6 +124,7 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .icon-box.blue { background: #e3f2fd; color: var(--blue-accent); }
 .icon-box.green { background: #e0fcf6; color: var(--green-accent); }
 .icon-box.purple { background: #f3e5f5; color: var(--purple-accent); }
+.icon-box.orange { background: #fff3e0; color: #e67e22; }
 
 .kpi-info h3 { margin: 0; font-size: 0.9rem; color: var(--text-light); font-weight: 500; }
 .kpi-info .number { margin: 5px 0; font-size: 2rem; font-weight: 700; color: var(--text-main); }
@@ -126,6 +133,18 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .trend { font-size: 0.8rem; font-weight: 500; display: inline-block; padding: 2px 8px; border-radius: 6px; }
 .trend.up { background: #e0fcf6; color: var(--green-accent); }
 .trend.neutral { background: #f0f2f5; color: var(--text-light); }
+
+/* petit bouton lien */
+.btn-link{
+  display:inline-block;
+  text-decoration:none;
+  padding:8px 12px;
+  border-radius:12px;
+  background:#eef2f7;
+  color: var(--blue-accent);
+  font-weight:600;
+  font-size:0.85rem;
+}
 
 /* --- GRAPHS & INFO --- */
 .main-grid {
@@ -136,12 +155,7 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 
 .card-header h3 { margin: 0 0 1.5rem 0; font-size: 1.1rem; }
 
-.chart-wrapper {
-    height: 300px;
-    width: 100%;
-}
-
-/* Alertes & Heatmap */
+/* Alertes */
 .alert-item {
     border-left: 3px solid var(--blue-accent);
     padding-left: 1rem;
@@ -150,21 +164,7 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 .alert-item .time { font-size: 0.75rem; color: var(--text-light); font-weight: 700; text-transform: uppercase; }
 .alert-item p { margin: 4px 0 0 0; font-size: 0.9rem; line-height: 1.4; }
 
-.matrix-viz {
-    display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; width: 100px;
-}
-.box { width: 20px; height: 20px; border-radius: 4px; }
-.box.red { background: #ff7675; }
-.box.orange { background: #ffeaa7; }
-.box.green { background: #55efc4; }
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .cards-grid { grid-template-columns: 1fr; }
-    .main-grid { grid-template-columns: 1fr; }
-    .sidebar { display: none; } /* On cache la sidebar sur mobile pour simplifier */
-    .content { padding: 1rem; }
-}
+/* Carte iframe */
 .map-wrapper {
   height: 420px;
   width: 100%;
@@ -172,9 +172,16 @@ h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
   overflow: hidden;
   border: 1px solid #ebedf0;
 }
-
 .map-wrapper iframe {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .main-grid { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .content { padding: 1rem; }
 }

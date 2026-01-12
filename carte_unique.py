@@ -425,6 +425,23 @@ def main():
                 icon=folium.Icon(color="green", icon="bicycle", prefix="fa")
             ).add_to(cluster_velo)
 
+    # ============================================================
+    # INDEX POUR correlation.html (liste parkings + stations)
+    # ============================================================
+    parkings_noms = []
+    velos_noms = []
+
+    if len(df_voiture) > 0:
+        parkings_noms = sorted(list(df_voiture["nom"].dropna().unique()))
+    if len(df_velo) > 0:
+        velos_noms = sorted(list(df_velo["nom"].dropna().unique()))
+
+    with open(os.path.join(DOSSIER, "series_index.json"), "w", encoding="utf-8") as f:
+        json.dump({"parkings": parkings_noms, "velos": velos_noms}, f, ensure_ascii=False)
+
+    # ============================================================
+    # FIN CARTE
+    # ============================================================
     cluster_voiture.add_to(carte)
     cluster_velo.add_to(carte)
 
@@ -435,6 +452,7 @@ def main():
     print("✅ Carte générée :", FICHIER_CARTE)
     print("✅ Images générées dans :", DOSSIER_IMAGES)
     print("✅ Séries JSON générées dans :", DOSSIER_SERIES)
+    print("✅ Index séries généré :", os.path.join(DOSSIER, "series_index.json"))
 
 
 if __name__ == "__main__":

@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Corrélation parking ↔ station</title>
+  <title>Corrélation voiture ↔ vélo</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
-
-  <!-- Plotly (CDN) -->
-  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 
   <style>
     body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
@@ -15,13 +12,12 @@
     .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
     a{color:#3498db; text-decoration:none; font-weight:600;}
     .muted{color:#636e72;}
-    select, button{font-family:Outfit, sans-serif; padding:10px 12px; border-radius:12px; border:1px solid #ebedf0;}
-    button{background:#3498db; color:white; font-weight:700; cursor:pointer;}
-    button:disabled{opacity:0.6; cursor:not-allowed;}
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-    .pill{background:#f0f2f5; color:#636e72; padding:4px 10px; border-radius:999px; font-size:0.85rem; font-weight:600;}
-    .chart{width:100%; height:520px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden; background:white;}
+    .pill{background:#f0f2f5; color:#636e72; padding:6px 12px; border-radius:999px; font-size:0.9rem; font-weight:700; display:inline-block;}
+    .chart{width:100%; height:520px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden;}
   </style>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 </head>
 
 <body>
@@ -29,38 +25,24 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
         <div>
-          <h1 style="margin:0;">🔗 Corrélation parking ↔ station</h1>
-          <div class="muted" style="margin-top:6px;">Choisis un parking + une station (corrélation Pearson sur timestamps communs).</div>
+          <h1 style="margin:0;">🔗 Corrélation voiture ↔ vélo</h1>
+          <div class="muted" style="margin-top:6px;">
+            Corrélation Pearson calculée sur timestamps communs (fenêtre glissante).
+          </div>
+          <div style="margin-top:10px;">
+            <span class="pill" id="info">Chargement…</span>
+          </div>
         </div>
         <div><a href="index.html">← Retour</a></div>
       </div>
     </div>
 
     <div class="card">
-      <div class="row">
-        <select id="selParking"></select>
-        <select id="selStation"></select>
-        <button id="btn" disabled>Calculer</button>
-      </div>
-
-      <div style="margin-top:12px;" class="row">
-        <span class="pill" id="res">Résultat : …</span>
-        <span class="pill" id="npts">Points : …</span>
-      </div>
-
+      <h3 style="margin:0 0 10px 0;">Courbe de corrélation (interactive)</h3>
+      <div id="chartCorr" class="chart"></div>
       <div class="muted" style="margin-top:10px; font-size:0.9rem;">
-        Note : on aligne uniquement les timestamps EXACTS (comme ta corrélation globale).
+        Astuce : survole pour voir les valeurs, zoom avec la souris, double-clic pour reset.
       </div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 10px 0;">📈 Courbes (interactif)</h3>
-      <div id="chartLines" class="chart"></div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 10px 0;">🎯 Nuage de points (parking vs station)</h3>
-      <div id="chartScatter" class="chart"></div>
     </div>
   </div>
 
@@ -73,172 +55,54 @@
       }catch(e){ return null; }
     }
 
-    function pearson(x, y){
-      const n = x.length;
-      if(n < 3) return null;
-      let sx=0, sy=0;
-      for(let i=0;i<n;i++){ sx+=x[i]; sy+=y[i]; }
-      const mx=sx/n, my=sy/n;
-      let num=0, dx=0, dy=0;
-      for(let i=0;i<n;i++){
-        const a=x[i]-mx, b=y[i]-my;
-        num += a*b;
-        dx += a*a;
-        dy += b*b;
-      }
-      if(dx<=0 || dy<=0) return null;
-      return num / Math.sqrt(dx*dy);
-    }
+    function buildPlot(divId, serie){
+      const el = document.getElementById(divId);
 
-    function fillSelect(sel, arr, placeholder){
-      sel.innerHTML = "";
-      const opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = placeholder;
-      sel.appendChild(opt0);
-
-      for(const it of arr){
-        const opt = document.createElement("option");
-        opt.value = it.series;
-        opt.textContent = it.name;
-        sel.appendChild(opt);
-      }
-    }
-
-    function plotLines(parkingName, stationName, timestamps, x, y){
-      const el = document.getElementById("chartLines");
-
-      if(timestamps.length === 0){
-        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée commune pour afficher les courbes.</div>';
+      if(!serie || !Array.isArray(serie.points) || serie.points.length === 0){
+        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée pour afficher la courbe.</div>';
         return;
       }
 
-      const traceP = {
-        x: timestamps,
-        y: x,
-        type: "scatter",
-        mode: "lines+markers",
-        name: "🚗 " + parkingName,
-        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
-      };
-
-      const traceS = {
-        x: timestamps,
-        y: y,
-        type: "scatter",
-        mode: "lines+markers",
-        name: "🚲 " + stationName,
-        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
-      };
-
-      const layout = {
-        margin: {l: 60, r: 20, t: 10, b: 55},
-        xaxis: {title: "Temps", type: "date"},
-        yaxis: {title: "Valeur (taux)", rangemode: "tozero"},
-        hovermode: "x",
-        paper_bgcolor: "white",
-        plot_bgcolor: "white",
-        legend: {orientation: "h"}
-      };
-
-      Plotly.newPlot(el, [traceP, traceS], layout, {responsive:true, displaylogo:false});
-    }
-
-    function plotScatter(parkingName, stationName, x, y, r){
-      const el = document.getElementById("chartScatter");
-
-      if(x.length === 0){
-        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée commune pour afficher le nuage de points.</div>';
-        return;
-      }
+      const x = serie.points.map(p => p.timestamp);
+      const y = serie.points.map(p => p.value);
 
       const trace = {
         x: x,
         y: y,
         type: "scatter",
-        mode: "markers",
-        name: "points",
-        hovertemplate: "Parking: <b>%{x:.3f}</b><br>Station: <b>%{y:.3f}</b><extra></extra>"
+        mode: "lines+markers",
+        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
       };
 
       const layout = {
-        margin: {l: 70, r: 20, t: 30, b: 60},
-        xaxis: {title: "🚗 " + parkingName + " (taux)", rangemode: "tozero"},
-        yaxis: {title: "🚲 " + stationName + " (taux)", rangemode: "tozero"},
+        title: {text: serie.name || "Corrélation voiture ↔ vélo", x: 0},
+        margin: {l: 60, r: 20, t: 50, b: 55},
+        xaxis: {title: "Temps", type: "date"},
+        yaxis: {title: "Corrélation (Pearson)", range: [-1, 1]},
+        hovermode: "x",
         paper_bgcolor: "white",
-        plot_bgcolor: "white",
-        title: {text: (r===null ? "Corrélation : N/A" : ("Corrélation (Pearson) : " + r.toFixed(3))), x: 0}
+        plot_bgcolor: "white"
       };
 
-      Plotly.newPlot(el, [trace], layout, {responsive:true, displaylogo:false});
+      Plotly.newPlot(el, [trace], layout, {
+        responsive: true,
+        displaylogo: false
+      });
     }
 
     (async()=>{
-      const catalog = await safeFetchJson("donnees/catalog.json");
-      if(!catalog){
-        document.getElementById("res").textContent = "Résultat : catalog.json introuvable";
-        return;
+      // Optionnel: afficher une info globale
+      const corr = await safeFetchJson("donnees/correlation_global.json");
+      if(corr && typeof corr.correlation === "number"){
+        document.getElementById("info").textContent =
+          "Corrélation globale : " + corr.correlation.toFixed(3) + " (n=" + (corr.n_points ?? "?") + ")";
+      }else{
+        document.getElementById("info").textContent = "Corrélation globale : N/A";
       }
 
-      const parkings = (catalog.parkings || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
-      const stations = (catalog.stations || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
-
-      const selP = document.getElementById("selParking");
-      const selS = document.getElementById("selStation");
-      const btn = document.getElementById("btn");
-
-      fillSelect(selP, parkings, "Choisir un parking");
-      fillSelect(selS, stations, "Choisir une station");
-
-      function updateBtn(){
-        btn.disabled = !(selP.value && selS.value);
-      }
-
-      selP.addEventListener("change", updateBtn);
-      selS.addEventListener("change", updateBtn);
-
-      btn.addEventListener("click", async()=>{
-        document.getElementById("res").textContent = "Résultat : calcul…";
-        document.getElementById("npts").textContent = "Points : …";
-
-        const parkingSeriesUrl = selP.value;
-        const stationSeriesUrl = selS.value;
-
-        const parkingName = selP.options[selP.selectedIndex].textContent;
-        const stationName = selS.options[selS.selectedIndex].textContent;
-
-        const sp = await safeFetchJson(parkingSeriesUrl);
-        const ss = await safeFetchJson(stationSeriesUrl);
-
-        if(!sp || !ss || !Array.isArray(sp.points) || !Array.isArray(ss.points)){
-          document.getElementById("res").textContent = "Résultat : erreur de lecture séries";
-          return;
-        }
-
-        const mapP = new Map(sp.points.map(p => [p.timestamp, p.value]));
-        const mapS = new Map(ss.points.map(p => [p.timestamp, p.value]));
-
-        const common = [];
-        for(const k of mapP.keys()){
-          if(mapS.has(k)) common.push(k);
-        }
-        common.sort();
-
-        const x = common.map(t => mapP.get(t));
-        const y = common.map(t => mapS.get(t));
-
-        const r = pearson(x, y);
-
-        document.getElementById("npts").textContent = "Points : " + common.length;
-        document.getElementById("res").textContent = (r === null)
-          ? "Résultat : N/A"
-          : ("Résultat : " + r.toFixed(3));
-
-        plotLines(parkingName, stationName, common, x, y);
-        plotScatter(parkingName, stationName, x, y, r);
-      });
-
-      updateBtn();
+      // La courbe (fichier généré par analyse_semaine.py)
+      const serie = await safeFetchJson("donnees/series_global/corr_voiture_velo.json");
+      buildPlot("chartCorr", serie);
     })();
   </script>
 </body>

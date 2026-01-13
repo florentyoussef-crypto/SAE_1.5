@@ -138,6 +138,95 @@ def correlation_globale_depuis_brut():
         json.dump(out, f, ensure_ascii=False)
 
 
+def correlation_glissante_depuis_brut(window=12):
+    """
+    Génère donnees/series_global/corr_voiture_velo.json
+    Corrélation Pearson glissante sur timestamps EXACTS communs.
+    """
+    snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
+    snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
+
+    car_by_ts = {}
+    for snap in snaps_v:
+        ts = snap.get("timestamp")
+        donnees = snap.get("donnees", [])
+        if not ts or not isinstance(donnees, list):
+            continue
+        v = calculer_taux_ville_voiture(donnees)
+        if v is not None:
+            car_by_ts[ts] = v
+
+    bike_by_ts = {}
+    for snap in snaps_b:
+        ts = snap.get("timestamp")
+        donnees = snap.get("donnees", [])
+        if not ts or not isinstance(donnees, list):
+            continue
+        v = calculer_moyenne_taux_places_velo(donnees)
+        if v is not None:
+            bike_by_ts[ts] = v
+
+    common = sorted(set(car_by_ts.keys()) & set(bike_by_ts.keys()))
+    out_path = os.path.join(DOSSIER_SERIES_GLOBAL, "corr_voiture_velo.json")
+
+    if len(common) < max(5, window):
+        # pas assez de points
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "name": "Corrélation voiture ↔ vélo (glissante)",
+                "title": "Corrélation voiture ↔ vélo (glissante)",
+                "window": int(window),
+                "n_points": int(len(common)),
+                "aligned": "exact_timestamp",
+                "method": "pearson",
+                "points": []
+            }, f, ensure_ascii=False)
+        return
+
+    # DataFrame aligné
+    df = pd.DataFrame({
+        "timestamp": pd.to_datetime(common, errors="coerce"),
+        "car": [car_by_ts[t] for t in common],
+        "bike": [bike_by_ts[t] for t in common],
+    }).dropna(subset=["timestamp", "car", "bike"]).sort_values("timestamp")
+
+    if len(df) < max(5, window):
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "name": "Corrélation voiture ↔ vélo (glissante)",
+                "title": "Corrélation voiture ↔ vélo (glissante)",
+                "window": int(window),
+                "n_points": int(len(df)),
+                "aligned": "exact_timestamp",
+                "method": "pearson",
+                "points": []
+            }, f, ensure_ascii=False)
+        return
+
+    # corr glissante
+    corr_roll = df["car"].rolling(window).corr(df["bike"])
+
+    points = []
+    for ts, val in zip(df["timestamp"], corr_roll):
+        if pd.isna(ts) or pd.isna(val):
+            continue
+        points.append({
+            "timestamp": pd.to_datetime(ts).isoformat(),
+            "value": float(val)
+        })
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump({
+            "name": "Corrélation voiture ↔ vélo (glissante)",
+            "title": "Corrélation voiture ↔ vélo (glissante)",
+            "window": int(window),
+            "n_points": int(len(df)),
+            "aligned": "exact_timestamp",
+            "method": "pearson",
+            "points": points
+        }, f, ensure_ascii=False)
+
+
 def ecrire_serie_global(nom_fichier, title, x_ts, y_vals):
     creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
     points = []
@@ -173,7 +262,6 @@ def analyser_voitures():
 
     df_ville = df[df["type"] == "VILLE"].dropna(subset=["taux_occupation", "timestamp"]).sort_values("timestamp")
     if len(df_ville) > 0:
-        # PNG
         plt.figure()
         plt.plot(df_ville["taux_occupation"].values)
         plt.title("Taux d'occupation voiture - VILLE (global)")
@@ -184,7 +272,6 @@ def analyser_voitures():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_voitures_ville.png"))
         plt.close()
 
-        # JSON (Plotly)
         ecrire_serie_global(
             "voiture_ville.json",
             "Taux d'occupation voiture - VILLE (global)",
@@ -226,7 +313,6 @@ def analyser_velos():
         moy_par_temps = df_s.groupby("timestamp")["taux_occupation_places"].mean().reset_index()
         moy_par_temps = moy_par_temps.sort_values("timestamp")
 
-        # PNG
         plt.figure()
         plt.plot(moy_par_temps["taux_occupation_places"].values)
         plt.title("Occupation vélos - moyenne stations (global)")
@@ -237,7 +323,6 @@ def analyser_velos():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_velos_moyenne.png"))
         plt.close()
 
-        # JSON (Plotly)
         ecrire_serie_global(
             "velo_moyenne.json",
             "Occupation vélos - moyenne stations (global)",
@@ -265,7 +350,6 @@ def analyser_relais():
 
     df_resume = df[df["parking"] == "RESUME"].dropna(subset=["relais_ok", "timestamp"]).sort_values("timestamp")
     if len(df_resume) > 0:
-        # PNG
         plt.figure()
         plt.plot(df_resume["relais_ok"].values)
         plt.title("Relais voiture/vélo - proportion OK (global)")
@@ -276,7 +360,6 @@ def analyser_relais():
         plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_relais.png"))
         plt.close()
 
-        # JSON (Plotly)
         ecrire_serie_global(
             "relais_ok.json",
             "Relais voiture/vélo - proportion OK (global)",
@@ -293,7 +376,11 @@ def main():
     analyser_velos()
     analyser_relais()
 
+    # corrélation globale
     correlation_globale_depuis_brut()
+
+    # ✅ corrélation glissante (fichier pour correlation.html)
+    correlation_glissante_depuis_brut(window=12)
 
     print("Images générées dans :", DOSSIER_IMAGES)
     print("Séries globales JSON générées dans :", DOSSIER_SERIES_GLOBAL)

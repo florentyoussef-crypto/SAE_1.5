@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Corrélation parking ↔ station</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <!-- Plotly (CDN) -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
   <style>
     body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
     .wrap{max-width:1100px; margin:30px auto; padding:0 16px;}
@@ -16,15 +20,17 @@
     button:disabled{opacity:0.6; cursor:not-allowed;}
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
     .pill{background:#f0f2f5; color:#636e72; padding:4px 10px; border-radius:999px; font-size:0.85rem; font-weight:600;}
+    .chart{width:100%; height:520px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden; background:white;}
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
         <div>
-          <h1>🔗 Corrélation parking ↔ station</h1>
-          <div class="muted">Choisis un parking + une station (corrélation Pearson sur timestamps communs).</div>
+          <h1 style="margin:0;">🔗 Corrélation parking ↔ station</h1>
+          <div class="muted" style="margin-top:6px;">Choisis un parking + une station (corrélation Pearson sur timestamps communs).</div>
         </div>
         <div><a href="index.html">← Retour</a></div>
       </div>
@@ -36,20 +42,32 @@
         <select id="selStation"></select>
         <button id="btn" disabled>Calculer</button>
       </div>
+
       <div style="margin-top:12px;" class="row">
         <span class="pill" id="res">Résultat : …</span>
         <span class="pill" id="npts">Points : …</span>
       </div>
+
       <div class="muted" style="margin-top:10px; font-size:0.9rem;">
         Note : on aligne uniquement les timestamps EXACTS (comme ta corrélation globale).
       </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">📈 Courbes (interactif)</h3>
+      <div id="chartLines" class="chart"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">🎯 Nuage de points (parking vs station)</h3>
+      <div id="chartScatter" class="chart"></div>
     </div>
   </div>
 
   <script>
     async function safeFetchJson(url){
       try{
-        const r = await fetch(encodeURI(url), {cache:"no-store"});
+        const r = await fetch(url, {cache:"no-store"});
         if(!r.ok) return null;
         return await r.json();
       }catch(e){ return null; }
@@ -81,10 +99,78 @@
 
       for(const it of arr){
         const opt = document.createElement("option");
-        opt.value = it.series; // chemin vers le json de la série
+        opt.value = it.series;
         opt.textContent = it.name;
         sel.appendChild(opt);
       }
+    }
+
+    function plotLines(parkingName, stationName, timestamps, x, y){
+      const el = document.getElementById("chartLines");
+
+      if(timestamps.length === 0){
+        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée commune pour afficher les courbes.</div>';
+        return;
+      }
+
+      const traceP = {
+        x: timestamps,
+        y: x,
+        type: "scatter",
+        mode: "lines+markers",
+        name: "🚗 " + parkingName,
+        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
+      };
+
+      const traceS = {
+        x: timestamps,
+        y: y,
+        type: "scatter",
+        mode: "lines+markers",
+        name: "🚲 " + stationName,
+        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
+      };
+
+      const layout = {
+        margin: {l: 60, r: 20, t: 10, b: 55},
+        xaxis: {title: "Temps", type: "date"},
+        yaxis: {title: "Valeur (taux)", rangemode: "tozero"},
+        hovermode: "x",
+        paper_bgcolor: "white",
+        plot_bgcolor: "white",
+        legend: {orientation: "h"}
+      };
+
+      Plotly.newPlot(el, [traceP, traceS], layout, {responsive:true, displaylogo:false});
+    }
+
+    function plotScatter(parkingName, stationName, x, y, r){
+      const el = document.getElementById("chartScatter");
+
+      if(x.length === 0){
+        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée commune pour afficher le nuage de points.</div>';
+        return;
+      }
+
+      const trace = {
+        x: x,
+        y: y,
+        type: "scatter",
+        mode: "markers",
+        name: "points",
+        hovertemplate: "Parking: <b>%{x:.3f}</b><br>Station: <b>%{y:.3f}</b><extra></extra>"
+      };
+
+      const layout = {
+        margin: {l: 70, r: 20, t: 30, b: 60},
+        xaxis: {title: "🚗 " + parkingName + " (taux)", rangemode: "tozero"},
+        yaxis: {title: "🚲 " + stationName + " (taux)", rangemode: "tozero"},
+        paper_bgcolor: "white",
+        plot_bgcolor: "white",
+        title: {text: (r===null ? "Corrélation : N/A" : ("Corrélation (Pearson) : " + r.toFixed(3))), x: 0}
+      };
+
+      Plotly.newPlot(el, [trace], layout, {responsive:true, displaylogo:false});
     }
 
     (async()=>{
@@ -115,11 +201,17 @@
         document.getElementById("res").textContent = "Résultat : calcul…";
         document.getElementById("npts").textContent = "Points : …";
 
-        const sp = await safeFetchJson(selP.value);
-        const ss = await safeFetchJson(selS.value);
+        const parkingSeriesUrl = selP.value;
+        const stationSeriesUrl = selS.value;
 
-        if(!sp || !ss || !sp.points || !ss.points){
-          document.getElementById("res").textContent = "Résultat : erreur de lecture séries (URL/404)";
+        const parkingName = selP.options[selP.selectedIndex].textContent;
+        const stationName = selS.options[selS.selectedIndex].textContent;
+
+        const sp = await safeFetchJson(parkingSeriesUrl);
+        const ss = await safeFetchJson(stationSeriesUrl);
+
+        if(!sp || !ss || !Array.isArray(sp.points) || !Array.isArray(ss.points)){
+          document.getElementById("res").textContent = "Résultat : erreur de lecture séries";
           return;
         }
 
@@ -141,6 +233,9 @@
         document.getElementById("res").textContent = (r === null)
           ? "Résultat : N/A"
           : ("Résultat : " + r.toFixed(3));
+
+        plotLines(parkingName, stationName, common, x, y);
+        plotScatter(parkingName, stationName, x, y, r);
       });
 
       updateBtn();

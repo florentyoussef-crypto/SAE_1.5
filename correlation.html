@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Corrélation voiture ↔ vélo</title>
+  <title>Corrélation parking ↔ station</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
 
   <style>
@@ -12,6 +12,10 @@
     .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
     a{color:#3498db; text-decoration:none; font-weight:600;}
     .muted{color:#636e72;}
+    select, button, input{font-family:Outfit, sans-serif; padding:10px 12px; border-radius:12px; border:1px solid #ebedf0;}
+    button{background:#3498db; color:white; font-weight:700; cursor:pointer;}
+    button:disabled{opacity:0.6; cursor:not-allowed;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
     .pill{background:#f0f2f5; color:#636e72; padding:6px 12px; border-radius:999px; font-size:0.9rem; font-weight:700; display:inline-block;}
     .chart{width:100%; height:520px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden;}
   </style>
@@ -25,15 +29,36 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
         <div>
-          <h1 style="margin:0;">🔗 Corrélation voiture ↔ vélo</h1>
+          <h1 style="margin:0;">🔗 Corrélation parking ↔ station</h1>
           <div class="muted" style="margin-top:6px;">
-            Corrélation Pearson calculée sur timestamps communs (fenêtre glissante).
-          </div>
-          <div style="margin-top:10px;">
-            <span class="pill" id="info">Chargement…</span>
+            Corrélation Pearson calculée sur timestamps EXACTS communs (glissante).
           </div>
         </div>
         <div><a href="index.html">← Retour</a></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <select id="selParking"></select>
+        <select id="selStation"></select>
+
+        <label class="muted" style="display:flex; align-items:center; gap:8px;">
+          Fenêtre
+          <input id="win" type="number" min="3" step="1" value="12" style="width:90px;">
+        </label>
+
+        <button id="btn" disabled>Calculer</button>
+      </div>
+
+      <div style="margin-top:12px;" class="row">
+        <span class="pill" id="resGlobal">Corrélation globale : …</span>
+        <span class="pill" id="npts">Points : …</span>
+        <span class="pill" id="resWin">Fenêtre : …</span>
+      </div>
+
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
+        Note : on aligne uniquement les timestamps EXACTS (comme ta corrélation globale).
       </div>
     </div>
 
@@ -49,34 +74,78 @@
   <script>
     async function safeFetchJson(url){
       try{
-        const r = await fetch(url, {cache:"no-store"});
+        const r = await fetch(encodeURI(url), {cache:"no-store"});
         if(!r.ok) return null;
         return await r.json();
       }catch(e){ return null; }
     }
 
-    function buildPlot(divId, serie){
-      const el = document.getElementById(divId);
+    function pearson(x, y){
+      const n = x.length;
+      if(n < 3) return null;
+      let sx=0, sy=0;
+      for(let i=0;i<n;i++){ sx+=x[i]; sy+=y[i]; }
+      const mx=sx/n, my=sy/n;
+      let num=0, dx=0, dy=0;
+      for(let i=0;i<n;i++){
+        const a=x[i]-mx, b=y[i]-my;
+        num += a*b;
+        dx += a*a;
+        dy += b*b;
+      }
+      if(dx<=0 || dy<=0) return null;
+      return num / Math.sqrt(dx*dy);
+    }
 
-      if(!serie || !Array.isArray(serie.points) || serie.points.length === 0){
+    function rollingCorrelation(timestamps, x, y, window){
+      const pts = [];
+      for(let i=window-1; i<x.length; i++){
+        const xs = x.slice(i-window+1, i+1);
+        const ys = y.slice(i-window+1, i+1);
+        const r = pearson(xs, ys);
+        if(r !== null){
+          pts.push({ timestamp: timestamps[i], value: r });
+        }
+      }
+      return pts;
+    }
+
+    function fillSelect(sel, arr, placeholder){
+      sel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = placeholder;
+      sel.appendChild(opt0);
+
+      for(const it of arr){
+        const opt = document.createElement("option");
+        opt.value = it.series;      // chemin json
+        opt.textContent = it.name;  // nom affiché
+        sel.appendChild(opt);
+      }
+    }
+
+    function plotOneCurve(points, title){
+      const el = document.getElementById("chartCorr");
+
+      if(!points || points.length === 0){
         el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée pour afficher la courbe.</div>';
         return;
       }
 
-      const x = serie.points.map(p => p.timestamp);
-      const y = serie.points.map(p => p.value);
+      const x = points.map(p => p.timestamp);
+      const y = points.map(p => p.value);
 
       const trace = {
-        x: x,
-        y: y,
+        x, y,
         type: "scatter",
         mode: "lines+markers",
         hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
       };
 
       const layout = {
-        title: {text: serie.name || "Corrélation voiture ↔ vélo", x: 0},
-        margin: {l: 60, r: 20, t: 50, b: 55},
+        title: {text: title, x: 0},
+        margin: {l: 70, r: 20, t: 55, b: 55},
         xaxis: {title: "Temps", type: "date"},
         yaxis: {title: "Corrélation (Pearson)", range: [-1, 1]},
         hovermode: "x",
@@ -84,25 +153,86 @@
         plot_bgcolor: "white"
       };
 
-      Plotly.newPlot(el, [trace], layout, {
-        responsive: true,
-        displaylogo: false
-      });
+      Plotly.newPlot(el, [trace], layout, {responsive:true, displaylogo:false});
     }
 
     (async()=>{
-      // Optionnel: afficher une info globale
-      const corr = await safeFetchJson("donnees/correlation_global.json");
-      if(corr && typeof corr.correlation === "number"){
-        document.getElementById("info").textContent =
-          "Corrélation globale : " + corr.correlation.toFixed(3) + " (n=" + (corr.n_points ?? "?") + ")";
-      }else{
-        document.getElementById("info").textContent = "Corrélation globale : N/A";
+      const catalog = await safeFetchJson("donnees/catalog.json");
+      if(!catalog){
+        document.getElementById("resGlobal").textContent = "Corrélation globale : catalog.json introuvable";
+        return;
       }
 
-      // La courbe (fichier généré par analyse_semaine.py)
-      const serie = await safeFetchJson("donnees/series_global/corr_voiture_velo.json");
-      buildPlot("chartCorr", serie);
+      const parkings = (catalog.parkings || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+      const stations = (catalog.stations || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+
+      const selP = document.getElementById("selParking");
+      const selS = document.getElementById("selStation");
+      const btn  = document.getElementById("btn");
+      const winI = document.getElementById("win");
+
+      fillSelect(selP, parkings, "Choisir un parking");
+      fillSelect(selS, stations, "Choisir une station");
+
+      function updateBtn(){
+        const w = parseInt(winI.value || "0", 10);
+        btn.disabled = !(selP.value && selS.value && w >= 3);
+      }
+
+      selP.addEventListener("change", updateBtn);
+      selS.addEventListener("change", updateBtn);
+      winI.addEventListener("input", updateBtn);
+
+      btn.addEventListener("click", async()=>{
+        document.getElementById("resGlobal").textContent = "Corrélation globale : calcul…";
+        document.getElementById("npts").textContent = "Points : …";
+        document.getElementById("resWin").textContent = "Fenêtre : …";
+        document.getElementById("chartCorr").innerHTML = "";
+
+        const w = Math.max(3, parseInt(winI.value || "12", 10));
+
+        const sp = await safeFetchJson(selP.value);
+        const ss = await safeFetchJson(selS.value);
+
+        if(!sp || !ss || !Array.isArray(sp.points) || !Array.isArray(ss.points)){
+          document.getElementById("resGlobal").textContent = "Corrélation globale : erreur lecture séries";
+          return;
+        }
+
+        // Map timestamp -> value
+        const mapP = new Map(sp.points.map(p => [p.timestamp, p.value]));
+        const mapS = new Map(ss.points.map(p => [p.timestamp, p.value]));
+
+        // timestamps communs exacts
+        const common = [];
+        for(const k of mapP.keys()){
+          if(mapS.has(k)) common.push(k);
+        }
+        common.sort();
+
+        const x = common.map(t => mapP.get(t));
+        const y = common.map(t => mapS.get(t));
+
+        const rGlobal = pearson(x, y);
+
+        document.getElementById("npts").textContent = "Points : " + common.length;
+        document.getElementById("resWin").textContent = "Fenêtre : " + w;
+
+        document.getElementById("resGlobal").textContent =
+          (rGlobal === null) ? "Corrélation globale : N/A" : ("Corrélation globale : " + rGlobal.toFixed(3));
+
+        // Courbe glissante (UNE SEULE courbe)
+        const pts = rollingCorrelation(common, x, y, w);
+
+        // titre avec noms
+        const pName = (selP.options[selP.selectedIndex]?.textContent || "Parking");
+        const sName = (selS.options[selS.selectedIndex]?.textContent || "Station");
+        const title = `Corrélation glissante : ${pName} ↔ ${sName}`;
+
+        plotOneCurve(pts, title);
+      });
+
+      updateBtn();
     })();
   </script>
 </body>

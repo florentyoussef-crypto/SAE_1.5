@@ -4,12 +4,21 @@ import math
 
 DOSSIER = "donnees"
 CATALOG = os.path.join(DOSSIER, "catalog.json")
+
+FICHIER_JSONL_VOITURE = os.path.join(DOSSIER, "brut_voitures.jsonl")
+FICHIER_JSONL_VELO = os.path.join(DOSSIER, "brut_velos.jsonl")
+
 OUT_JSON = os.path.join(DOSSIER, "relais_pertinents.json")
 
-# Réglages (tu peux ajuster)
+# Réglages
 MAX_DISTANCE_M = 800          # distance max parking↔station
 MIN_POINTS = 12               # minimum de points communs
 TOP_N = 30                    # nombre de couples gardés
+
+
+# ============================================================
+# OUTILS
+# ============================================================
 
 def lire_json(path):
     if not os.path.exists(path):
@@ -17,8 +26,40 @@ def lire_json(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
+def lire_jsonl(path):
+    out = []
+    if not os.path.exists(path):
+        return out
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                out.append(json.loads(line))
+            except Exception:
+                pass
+    return out
+
+def safe_get(entite, *cles):
+    cur = entite
+    for c in cles:
+        if isinstance(cur, dict) and c in cur:
+            cur = cur[c]
+        else:
+            return None
+    return cur
+
+def extraire_lat_lon(entite):
+    try:
+        coords = entite["location"]["value"]["coordinates"]
+        if isinstance(coords, list) and len(coords) >= 2:
+            return float(coords[1]), float(coords[0])
+    except Exception:
+        return None, None
+    return None, None
+
 def haversine_m(lat1, lon1, lat2, lon2):
-    # Distance en mètres
     R = 6371000.0
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
@@ -53,10 +94,9 @@ def charger_points_series(series_path):
     data = lire_json(series_path)
     if not data or "points" not in data:
         return None
-    # points = [{"timestamp": "...", "value": ...}, ...]
-    pts = data["points"]
+
     m = {}
-    for p in pts:
+    for p in data["points"]:
         ts = p.get("timestamp")
         v = p.get("value")
         if ts is None or v is None:
@@ -66,6 +106,52 @@ def charger_points_series(series_path):
         except Exception:
             pass
     return m
+
+
+# ============================================================
+# COORDONNÉES (fallback via brut_*.jsonl)
+# ============================================================
+
+def coords_parkings_depuis_brut():
+    snaps = lire_jsonl(FICHIER_JSONL_VOITURE)
+    coords = {}
+    for snap in snaps:
+        donnees = snap.get("donnees", [])
+        if not isinstance(donnees, list):
+            continue
+        for p in donnees:
+            if safe_get(p, "status", "value") != "Open":
+                continue
+            nom = safe_get(p, "name", "value")
+            if not nom:
+                continue
+            lat, lon = extraire_lat_lon(p)
+            if lat is None or lon is None:
+                continue
+            coords[str(nom)] = (float(lat), float(lon))
+    return coords
+
+def coords_stations_depuis_brut():
+    snaps = lire_jsonl(FICHIER_JSONL_VELO)
+    coords = {}
+    for snap in snaps:
+        donnees = snap.get("donnees", [])
+        if not isinstance(donnees, list):
+            continue
+        for s in donnees:
+            nom = safe_get(s, "address", "value", "streetAddress")
+            if not nom:
+                continue
+            lat, lon = extraire_lat_lon(s)
+            if lat is None or lon is None:
+                continue
+            coords[str(nom)] = (float(lat), float(lon))
+    return coords
+
+
+# ============================================================
+# MAIN
+# ============================================================
 
 def main():
     os.makedirs(DOSSIER, exist_ok=True)
@@ -82,7 +168,11 @@ def main():
         print("❌ Pas assez d'objets dans catalog.json")
         return
 
-    # Pré-charge toutes les séries (pour éviter de relire 1000 fois)
+    # Fallback coords depuis brut_*.jsonl (car catalog.json n'a pas lat/lon)
+    coordsP = coords_parkings_depuis_brut()
+    coordsS = coords_stations_depuis_brut()
+
+    # Cache séries pour éviter 1000 lectures disque
     series_cache = {}
 
     def get_series_map(item):
@@ -96,24 +186,42 @@ def main():
     candidats = []
 
     for p in parkings:
+        p_name = p.get("name")
+        if not p_name:
+            continue
+
+        # coords depuis catalog OU fallback brut
         plat = p.get("lat")
         plon = p.get("lon")
         if plat is None or plon is None:
+            c = coordsP.get(str(p_name))
+            if not c:
+                continue
+            plat, plon = c
+
+        mp = get_series_map(p)
+        if not mp:
             continue
 
         for s in stations:
+            s_name = s.get("name")
+            if not s_name:
+                continue
+
             slat = s.get("lat")
             slon = s.get("lon")
             if slat is None or slon is None:
-                continue
+                c = coordsS.get(str(s_name))
+                if not c:
+                    continue
+                slat, slon = c
 
             d = haversine_m(float(plat), float(plon), float(slat), float(slon))
             if d > MAX_DISTANCE_M:
                 continue
 
-            mp = get_series_map(p)
             ms = get_series_map(s)
-            if not mp or not ms:
+            if not ms:
                 continue
 
             common = sorted(set(mp.keys()) & set(ms.keys()))
@@ -127,8 +235,8 @@ def main():
                 continue
 
             candidats.append({
-                "parking": p.get("name"),
-                "station": s.get("name"),
+                "parking": str(p_name),
+                "station": str(s_name),
                 "distance_m": float(d),
                 "correlation": float(r),
                 "n_points": int(len(common)),
@@ -156,6 +264,7 @@ def main():
 
     print("✅ relais_pertinents.json généré :", OUT_JSON)
     print("✅ Couples trouvés :", len(candidats), " | gardés :", min(TOP_N, len(candidats)))
+
 
 if __name__ == "__main__":
     main()

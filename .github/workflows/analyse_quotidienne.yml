@@ -2,7 +2,7 @@ name: analyse-quotidienne
 
 on:
   schedule:
-    - cron: "15 2 * * *"
+    - cron: "15 2 * * *"   # 1 fois par jour (02:15 UTC)
   workflow_dispatch:
 
 permissions:
@@ -22,7 +22,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ✅ Rebase AVANT de modifier des fichiers
       - name: Sync avec main
         run: |
           git config user.name "github-actions"
@@ -48,6 +47,6 @@ jobs:
 
       - name: Sauvegarder les resultats
         run: |
-          git add donnees/ carte.html relais_pertinents.html
+          git add donnees/ carte.html relais_pertinents.html donnees/relais_pertinents.json
           git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte + relais"
           git push

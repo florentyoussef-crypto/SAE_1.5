@@ -48,7 +48,7 @@
     <div class="card">
       <div class="row">
         <label class="muted">Filtrage par nom de parking ou de station</label>
-        <input id="q" type="text" placeholder="ex: Comedie" style="flex:1; min-width:220px;">
+        <input id="q" type="text" placeholder="Exemple : Comédie" style="flex:1; min-width:220px;">
       </div>
     </div>
 
@@ -134,7 +134,7 @@
       }
 
       const items = data.items || [];
-      document.getElementById("meta").textContent = "Meilleurs relais parking ↔ station proches.";
+      document.getElementById("meta").textContent = "Couples parking ↔ station présentant les relations les plus significatives.";
       document.getElementById("countPill").textContent = "Couples affichés : " + items.length;
       document.getElementById("rulesPill").textContent =
         "Distance ≤ " + (data.max_distance_m ?? "?") + " m | points ≥ " + (data.min_points ?? "?");

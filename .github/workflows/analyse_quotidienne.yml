@@ -40,13 +40,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas matplotlib folium requests
 
-      - name: Analyse + carte
+      - name: Analyse + carte + relais
         run: |
           python analyse_semaine.py
           python carte_unique.py
+          python generer_relais.py
 
       - name: Sauvegarder les resultats
         run: |
-          git add donnees/ carte.html
-          git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte"
+          git add donnees/ carte.html relais_pertinents.html
+          git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte + relais"
           git push

@@ -1,390 +1,269 @@
-import os
-import json
-import pandas as pd
-import matplotlib.pyplot as plt
-
-DOSSIER_DONNEES = "donnees"
-DOSSIER_IMAGES = os.path.join(DOSSIER_DONNEES, "images")
-
-DOSSIER_SERIES_GLOBAL = os.path.join(DOSSIER_DONNEES, "series_global")
-
-FICHIER_JSONL_VOITURE = os.path.join(DOSSIER_DONNEES, "brut_voitures.jsonl")
-FICHIER_JSONL_VELO = os.path.join(DOSSIER_DONNEES, "brut_velos.jsonl")
-
-
-def creer_dossier_si_absent(path):
-    if not os.path.isdir(path):
-        os.makedirs(path, exist_ok=True)
-
-
-def fichiers_journaliers(suffixe):
-    fichiers = []
-    if not os.path.isdir(DOSSIER_DONNEES):
-        return fichiers
-    for nom_fichier in sorted(os.listdir(DOSSIER_DONNEES)):
-        if nom_fichier.startswith("jour_") and nom_fichier.endswith(suffixe):
-            fichiers.append(os.path.join(DOSSIER_DONNEES, nom_fichier))
-    return fichiers
-
-
-def safe_get(entite, *cles):
-    cur = entite
-    for c in cles:
-        if isinstance(cur, dict) and c in cur:
-            cur = cur[c]
-        else:
-            return None
-    return cur
-
-
-def lire_jsonl(chemin):
-    lignes = []
-    if not os.path.exists(chemin):
-        return lignes
-    with open(chemin, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    lignes.append(json.loads(line))
-                except Exception:
-                    pass
-    return lignes
-
-
-def calculer_taux_ville_voiture(donnees_parking):
-    somme_total = 0.0
-    somme_libres = 0.0
-    for p in donnees_parking:
-        if safe_get(p, "status", "value") != "Open":
-            continue
-        libres = safe_get(p, "availableSpotNumber", "value")
-        total = safe_get(p, "totalSpotNumber", "value")
-        if libres is None or total is None:
-            continue
-        try:
-            libres = float(libres)
-            total = float(total)
-        except Exception:
-            continue
-        if total <= 0:
-            continue
-        somme_total += total
-        somme_libres += libres
-    if somme_total <= 0:
-        return None
-    return (somme_total - somme_libres) / somme_total
-
-
-def calculer_moyenne_taux_places_velo(donnees_stations):
-    vals = []
-    for s in donnees_stations:
-        bornes = safe_get(s, "freeSlotNumber", "value")
-        total = safe_get(s, "totalSlotNumber", "value")
-        if bornes is None or total is None:
-            continue
-        try:
-            bornes = float(bornes)
-            total = float(total)
-        except Exception:
-            continue
-        if total <= 0:
-            continue
-        taux_places = (total - bornes) / total
-        vals.append(taux_places)
-    if len(vals) == 0:
-        return None
-    return sum(vals) / len(vals)
-
-
-def correlation_globale_depuis_brut():
-    snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
-    snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
-
-    car_by_ts = {}
-    for snap in snaps_v:
-        ts = snap.get("timestamp")
-        donnees = snap.get("donnees", [])
-        if not ts or not isinstance(donnees, list):
-            continue
-        v = calculer_taux_ville_voiture(donnees)
-        if v is not None:
-            car_by_ts[ts] = v
-
-    bike_by_ts = {}
-    for snap in snaps_b:
-        ts = snap.get("timestamp")
-        donnees = snap.get("donnees", [])
-        if not ts or not isinstance(donnees, list):
-            continue
-        v = calculer_moyenne_taux_places_velo(donnees)
-        if v is not None:
-            bike_by_ts[ts] = v
-
-    common = sorted(set(car_by_ts.keys()) & set(bike_by_ts.keys()))
-    if len(common) < 5:
-        out = {"correlation": None, "n_points": len(common), "method": "pearson", "aligned": "exact_timestamp"}
-        with open(os.path.join(DOSSIER_DONNEES, "correlation_global.json"), "w", encoding="utf-8") as f:
-            json.dump(out, f, ensure_ascii=False)
-        return
-
-    x = [car_by_ts[t] for t in common]
-    y = [bike_by_ts[t] for t in common]
-
-    s = pd.Series(x).corr(pd.Series(y))
-    out = {"correlation": float(s), "n_points": len(common), "method": "pearson", "aligned": "exact_timestamp"}
-
-    with open(os.path.join(DOSSIER_DONNEES, "correlation_global.json"), "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False)
-
-
-def correlation_glissante_depuis_brut(window=12):
-    """
-    Génère donnees/series_global/corr_voiture_velo.json
-    Corrélation Pearson glissante sur timestamps EXACTS communs.
-    """
-    snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
-    snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
-
-    car_by_ts = {}
-    for snap in snaps_v:
-        ts = snap.get("timestamp")
-        donnees = snap.get("donnees", [])
-        if not ts or not isinstance(donnees, list):
-            continue
-        v = calculer_taux_ville_voiture(donnees)
-        if v is not None:
-            car_by_ts[ts] = v
-
-    bike_by_ts = {}
-    for snap in snaps_b:
-        ts = snap.get("timestamp")
-        donnees = snap.get("donnees", [])
-        if not ts or not isinstance(donnees, list):
-            continue
-        v = calculer_moyenne_taux_places_velo(donnees)
-        if v is not None:
-            bike_by_ts[ts] = v
-
-    common = sorted(set(car_by_ts.keys()) & set(bike_by_ts.keys()))
-    out_path = os.path.join(DOSSIER_SERIES_GLOBAL, "corr_voiture_velo.json")
-
-    if len(common) < max(5, window):
-        # pas assez de points
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "name": "Corrélation voiture ↔ vélo (glissante)",
-                "title": "Corrélation voiture ↔ vélo (glissante)",
-                "window": int(window),
-                "n_points": int(len(common)),
-                "aligned": "exact_timestamp",
-                "method": "pearson",
-                "points": []
-            }, f, ensure_ascii=False)
-        return
-
-    # DataFrame aligné
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(common, errors="coerce"),
-        "car": [car_by_ts[t] for t in common],
-        "bike": [bike_by_ts[t] for t in common],
-    }).dropna(subset=["timestamp", "car", "bike"]).sort_values("timestamp")
-
-    if len(df) < max(5, window):
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "name": "Corrélation voiture ↔ vélo (glissante)",
-                "title": "Corrélation voiture ↔ vélo (glissante)",
-                "window": int(window),
-                "n_points": int(len(df)),
-                "aligned": "exact_timestamp",
-                "method": "pearson",
-                "points": []
-            }, f, ensure_ascii=False)
-        return
-
-    # corr glissante
-    corr_roll = df["car"].rolling(window).corr(df["bike"])
-
-    points = []
-    for ts, val in zip(df["timestamp"], corr_roll):
-        if pd.isna(ts) or pd.isna(val):
-            continue
-        points.append({
-            "timestamp": pd.to_datetime(ts).isoformat(),
-            "value": float(val)
-        })
-
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "name": "Corrélation voiture ↔ vélo (glissante)",
-            "title": "Corrélation voiture ↔ vélo (glissante)",
-            "window": int(window),
-            "n_points": int(len(df)),
-            "aligned": "exact_timestamp",
-            "method": "pearson",
-            "points": points
-        }, f, ensure_ascii=False)
-
-
-def ecrire_serie_global(nom_fichier, title, x_ts, y_vals):
-    creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
-    points = []
-    for t, v in zip(x_ts, y_vals):
-        if pd.isna(t) or pd.isna(v):
-            continue
-        points.append({
-            "timestamp": pd.to_datetime(t).isoformat(),
-            "value": float(v)
-        })
-
-    out = {"title": title, "points": points}
-    with open(os.path.join(DOSSIER_SERIES_GLOBAL, nom_fichier), "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False)
-
-
-def analyser_voitures():
-    fichiers = fichiers_journaliers("_voitures.csv")
-    if len(fichiers) == 0:
-        print("Aucun fichier _voitures.csv trouvé")
-        return
-
-    dfs = []
-    for chemin in fichiers:
-        df = pd.read_csv(chemin)
-        df["fichier"] = os.path.basename(chemin)
-        dfs.append(df)
-
-    df = pd.concat(dfs, ignore_index=True)
-
-    df["taux_occupation"] = pd.to_numeric(df["taux_occupation"], errors="coerce")
-    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
-
-    df_ville = df[df["type"] == "VILLE"].dropna(subset=["taux_occupation", "timestamp"]).sort_values("timestamp")
-    if len(df_ville) > 0:
-        plt.figure()
-        plt.plot(df_ville["taux_occupation"].values)
-        plt.title("Taux d'occupation voiture - VILLE (global)")
-        plt.xlabel("Mesure (ordre chronologique)")
-        plt.ylabel("Taux")
-        plt.ylim(0, 1)
-        plt.tight_layout()
-        plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_voitures_ville.png"))
-        plt.close()
-
-        ecrire_serie_global(
-            "voiture_ville.json",
-            "Taux d'occupation voiture - VILLE (global)",
-            df_ville["timestamp"].tolist(),
-            df_ville["taux_occupation"].tolist()
-        )
-
-    df_p = df[df["type"] == "PARKING"].dropna(subset=["taux_occupation", "timestamp"]).copy()
-    if len(df_p) > 0:
-        df_p["sature"] = df_p["taux_occupation"] >= 0.95
-        sat = df_p[df_p["sature"]].groupby("nom").size().sort_values(ascending=False)
-        print("\nTop 10 parkings souvent saturés (>=95%)")
-        print(sat.head(10))
-
-        moy = df_p.groupby("nom")["taux_occupation"].mean().sort_values(ascending=False)
-        print("\nTop 10 parkings les plus occupés (moyenne)")
-        print(moy.head(10))
-
-
-def analyser_velos():
-    fichiers = fichiers_journaliers("_velos.csv")
-    if len(fichiers) == 0:
-        print("Aucun fichier _velos.csv trouvé")
-        return
-
-    dfs = []
-    for chemin in fichiers:
-        df = pd.read_csv(chemin)
-        df["fichier"] = os.path.basename(chemin)
-        dfs.append(df)
-
-    df = pd.concat(dfs, ignore_index=True)
-
-    df["taux_occupation_places"] = pd.to_numeric(df["taux_occupation_places"], errors="coerce")
-    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
-
-    df_s = df[df["type"] == "STATION"].dropna(subset=["taux_occupation_places", "timestamp"]).copy()
-    if len(df_s) > 0:
-        moy_par_temps = df_s.groupby("timestamp")["taux_occupation_places"].mean().reset_index()
-        moy_par_temps = moy_par_temps.sort_values("timestamp")
-
-        plt.figure()
-        plt.plot(moy_par_temps["taux_occupation_places"].values)
-        plt.title("Occupation vélos - moyenne stations (global)")
-        plt.xlabel("Mesure (ordre chronologique)")
-        plt.ylabel("Taux occupation places")
-        plt.ylim(0, 1)
-        plt.tight_layout()
-        plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_velos_moyenne.png"))
-        plt.close()
-
-        ecrire_serie_global(
-            "velo_moyenne.json",
-            "Occupation vélos - moyenne stations (global)",
-            moy_par_temps["timestamp"].tolist(),
-            moy_par_temps["taux_occupation_places"].tolist()
-        )
-
-
-def analyser_relais():
-    fichiers = fichiers_journaliers("_relais1.csv")
-    if len(fichiers) == 0:
-        print("Aucun fichier _relais1.csv trouvé")
-        return
-
-    dfs = []
-    for chemin in fichiers:
-        df = pd.read_csv(chemin)
-        df["fichier"] = os.path.basename(chemin)
-        dfs.append(df)
-
-    df = pd.concat(dfs, ignore_index=True)
-
-    df["relais_ok"] = pd.to_numeric(df["relais_ok"], errors="coerce")
-    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
-
-    df_resume = df[df["parking"] == "RESUME"].dropna(subset=["relais_ok", "timestamp"]).sort_values("timestamp")
-    if len(df_resume) > 0:
-        plt.figure()
-        plt.plot(df_resume["relais_ok"].values)
-        plt.title("Relais voiture/vélo - proportion OK (global)")
-        plt.xlabel("Mesure (ordre chronologique)")
-        plt.ylabel("Proportion")
-        plt.ylim(0, 1)
-        plt.tight_layout()
-        plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_relais.png"))
-        plt.close()
-
-        ecrire_serie_global(
-            "relais_ok.json",
-            "Relais voiture/vélo - proportion OK (global)",
-            df_resume["timestamp"].tolist(),
-            df_resume["relais_ok"].tolist()
-        )
-
-
-def main():
-    creer_dossier_si_absent(DOSSIER_IMAGES)
-    creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
-
-    analyser_voitures()
-    analyser_velos()
-    analyser_relais()
-
-    # corrélation globale
-    correlation_globale_depuis_brut()
-
-    # ✅ corrélation glissante (fichier pour correlation.html)
-    correlation_glissante_depuis_brut(window=12)
-
-    print("Images générées dans :", DOSSIER_IMAGES)
-    print("Séries globales JSON générées dans :", DOSSIER_SERIES_GLOBAL)
-
-
-if __name__ == "__main__":
-    main()
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Corrélation parking ↔ station</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
+    .wrap{max-width:1100px; margin:30px auto; padding:0 16px;}
+    .card{background:#fff; border-radius:20px; padding:18px; box-shadow:0 10px 20px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.5); margin-bottom:16px;}
+    a{color:#3498db; text-decoration:none; font-weight:600;}
+    .muted{color:#636e72;}
+    select, button, input{font-family:Outfit, sans-serif; padding:10px 12px; border-radius:12px; border:1px solid #ebedf0;}
+    button{background:#3498db; color:white; font-weight:700; cursor:pointer;}
+    button:disabled{opacity:0.6; cursor:not-allowed;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .pill{background:#f0f2f5; color:#636e72; padding:6px 12px; border-radius:999px; font-size:0.9rem; font-weight:700; display:inline-block;}
+    .pill.warn{background:#ffeaa7; color:#2d3436;}
+    .chart{width:100%; height:520px; border-radius:16px; border:1px solid #ebedf0; overflow:hidden;}
+  </style>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <h1 style="margin:0;">🔗 Corrélation parking ↔ station</h1>
+          <div class="muted" style="margin-top:6px;">
+            Corrélation Pearson calculée sur timestamps EXACTS communs (glissante).
+          </div>
+        </div>
+        <div><a href="index.html">← Retour</a></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <select id="selParking"></select>
+        <select id="selStation"></select>
+
+        <label class="muted" style="display:flex; align-items:center; gap:8px;">
+          Fenêtre
+          <input id="win" type="number" min="3" step="1" value="12" style="width:90px;">
+        </label>
+
+        <button id="btn" disabled>Calculer</button>
+      </div>
+
+      <div style="margin-top:12px;" class="row">
+        <span class="pill" id="resGlobal">Corrélation globale : …</span>
+        <span class="pill" id="npts">Points communs : …</span>
+        <span class="pill" id="resWin">Fenêtre : …</span>
+      </div>
+
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
+        Note : on aligne uniquement les timestamps EXACTS (comme ta corrélation globale). Si tes séries n’ont pas les mêmes secondes/timezone, il peut y avoir très peu de points communs.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px 0;">Courbe de corrélation (interactive)</h3>
+      <div id="chartCorr" class="chart"></div>
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
+        Astuce : survole pour voir les valeurs, zoom avec la souris, double-clic pour reset.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function safeFetchJson(url){
+      try{
+        const r = await fetch(encodeURI(url), {cache:"no-store"});
+        if(!r.ok) return null;
+        return await r.json();
+      }catch(e){ return null; }
+    }
+
+    function pearson(x, y){
+      const n = x.length;
+      if(n < 3) return null;
+      let sx=0, sy=0;
+      for(let i=0;i<n;i++){ sx+=x[i]; sy+=y[i]; }
+      const mx=sx/n, my=sy/n;
+      let num=0, dx=0, dy=0;
+      for(let i=0;i<n;i++){
+        const a=x[i]-mx, b=y[i]-my;
+        num += a*b;
+        dx += a*a;
+        dy += b*b;
+      }
+      if(dx<=0 || dy<=0) return null;
+      return num / Math.sqrt(dx*dy);
+    }
+
+    function rollingCorrelation(timestamps, x, y, window){
+      const pts = [];
+      for(let i=window-1; i<x.length; i++){
+        const xs = x.slice(i-window+1, i+1);
+        const ys = y.slice(i-window+1, i+1);
+        const r = pearson(xs, ys);
+        if(r !== null){
+          pts.push({ timestamp: timestamps[i], value: r });
+        }
+      }
+      return pts;
+    }
+
+    function fillSelect(sel, arr, placeholder){
+      sel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = placeholder;
+      sel.appendChild(opt0);
+
+      for(const it of arr){
+        const opt = document.createElement("option");
+        opt.value = it.series;
+        opt.textContent = it.name;
+        sel.appendChild(opt);
+      }
+    }
+
+    function setWarn(el, on){
+      if(on) el.classList.add("warn");
+      else el.classList.remove("warn");
+    }
+
+    function plotOneCurve(points, title){
+      const el = document.getElementById("chartCorr");
+
+      if(!points || points.length === 0){
+        el.innerHTML = '<div style="padding:18px;color:#636e72;">Aucune donnée pour afficher la courbe (pas assez de points communs pour la fenêtre).</div>';
+        return;
+      }
+
+      const x = points.map(p => p.timestamp);
+      const y = points.map(p => p.value);
+
+      const trace = {
+        x, y,
+        type: "scatter",
+        mode: "lines+markers",
+        hovertemplate: "%{x}<br><b>%{y:.3f}</b><extra></extra>"
+      };
+
+      const layout = {
+        title: {text: title, x: 0},
+        margin: {l: 70, r: 20, t: 55, b: 55},
+        xaxis: {title: "Temps", type: "date"},
+        yaxis: {title: "Corrélation (Pearson)", range: [-1, 1]},
+        hovermode: "x",
+        paper_bgcolor: "white",
+        plot_bgcolor: "white"
+      };
+
+      Plotly.newPlot(el, [trace], layout, {responsive:true, displaylogo:false});
+    }
+
+    (async()=>{
+      const catalog = await safeFetchJson("donnees/catalog.json");
+      if(!catalog){
+        document.getElementById("resGlobal").textContent = "Corrélation globale : catalog.json introuvable";
+        return;
+      }
+
+      const parkings = (catalog.parkings || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+      const stations = (catalog.stations || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+
+      const selP = document.getElementById("selParking");
+      const selS = document.getElementById("selStation");
+      const btn  = document.getElementById("btn");
+      const winI = document.getElementById("win");
+
+      fillSelect(selP, parkings, "Choisir un parking");
+      fillSelect(selS, stations, "Choisir une station");
+
+      function updateBtn(){
+        const w = parseInt(winI.value || "0", 10);
+        btn.disabled = !(selP.value && selS.value && w >= 3);
+      }
+
+      selP.addEventListener("change", updateBtn);
+      selS.addEventListener("change", updateBtn);
+      winI.addEventListener("input", updateBtn);
+
+      btn.addEventListener("click", async()=>{
+        const pillGlobal = document.getElementById("resGlobal");
+        const pillNpts   = document.getElementById("npts");
+        const pillWin    = document.getElementById("resWin");
+
+        pillGlobal.textContent = "Corrélation globale : calcul…";
+        pillNpts.textContent   = "Points communs : …";
+        pillWin.textContent    = "Fenêtre : …";
+        setWarn(pillNpts, false);
+        setWarn(pillWin, false);
+
+        document.getElementById("chartCorr").innerHTML = "";
+
+        const sp = await safeFetchJson(selP.value);
+        const ss = await safeFetchJson(selS.value);
+
+        if(!sp || !ss || !Array.isArray(sp.points) || !Array.isArray(ss.points)){
+          pillGlobal.textContent = "Corrélation globale : erreur lecture séries";
+          return;
+        }
+
+        const mapP = new Map(sp.points.map(p => [p.timestamp, p.value]));
+        const mapS = new Map(ss.points.map(p => [p.timestamp, p.value]));
+
+        const common = [];
+        for(const k of mapP.keys()){
+          if(mapS.has(k)) common.push(k);
+        }
+        common.sort();
+
+        pillNpts.textContent = "Points communs : " + common.length;
+
+        if(common.length < 3){
+          setWarn(pillNpts, true);
+          pillGlobal.textContent = "Corrélation globale : N/A";
+          pillWin.textContent = "Fenêtre : N/A";
+          document.getElementById("chartCorr").innerHTML =
+            '<div style="padding:18px;color:#636e72;">Pas assez de timestamps communs exacts (min 3). Essaye un autre couple ou améliore l’alignement des timestamps.</div>';
+          return;
+        }
+
+        const x = common.map(t => mapP.get(t));
+        const y = common.map(t => mapS.get(t));
+
+        const rGlobal = pearson(x, y);
+        pillGlobal.textContent = (rGlobal === null) ? "Corrélation globale : N/A" : ("Corrélation globale : " + rGlobal.toFixed(3));
+
+        // Fenêtre : on la borne automatiquement
+        let w = Math.max(3, parseInt(winI.value || "12", 10));
+        if(w > common.length){
+          w = common.length;
+          winI.value = String(w);
+          setWarn(pillWin, true);
+        }
+        pillWin.textContent = "Fenêtre : " + w;
+
+        // Corrélation glissante
+        const pts = rollingCorrelation(common, x, y, w);
+
+        const pName = (selP.options[selP.selectedIndex]?.textContent || "Parking");
+        const sName = (selS.options[selS.selectedIndex]?.textContent || "Station");
+        const title = `Corrélation glissante : ${pName} ↔ ${sName}`;
+
+        if(pts.length === 0){
+          setWarn(pillNpts, true);
+          document.getElementById("chartCorr").innerHTML =
+            '<div style="padding:18px;color:#636e72;">Aucune valeur de corrélation glissante : fenêtre trop grande ou données insuffisantes.</div>';
+          return;
+        }
+
+        plotOneCurve(pts, title);
+      });
+
+      updateBtn();
+    })();
+  </script>
+</body>
+</html>

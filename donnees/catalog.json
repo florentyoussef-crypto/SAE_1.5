@@ -1,6 +1,10 @@
 {
   "parkings": [
     {
+      "name": "Euromedecine",
+      "series": "donnees/series/parking_Euromedecine.json"
+    },
+    {
       "name": "Sablassou",
       "series": "donnees/series/parking_Sablassou.json"
     },
@@ -9,16 +13,12 @@
       "series": "donnees/series/parking_Saint Jean Le Sec.json"
     },
     {
-      "name": "Euromedecine",
-      "series": "donnees/series/parking_Euromedecine.json"
-    },
-    {
       "name": "Occitanie",
       "series": "donnees/series/parking_Occitanie.json"
     },
     {
-      "name": "Polygone",
-      "series": "donnees/series/parking_Polygone.json"
+      "name": "Sabines",
+      "series": "donnees/series/parking_Sabines.json"
     },
     {
       "name": "Gaumont EST",
@@ -33,8 +33,8 @@
       "series": "donnees/series/parking_Charles de Gaulle.json"
     },
     {
-      "name": "Sabines",
-      "series": "donnees/series/parking_Sabines.json"
+      "name": "Polygone",
+      "series": "donnees/series/parking_Polygone.json"
     },
     {
       "name": "Vicarello",
@@ -45,8 +45,8 @@
       "series": "donnees/series/parking_Mosson.json"
     },
     {
-      "name": "Gare",
-      "series": "donnees/series/parking_Gare.json"
+      "name": "Arc de Triomphe",
+      "series": "donnees/series/parking_Arc de Triomphe.json"
     },
     {
       "name": "Circe",
@@ -59,6 +59,10 @@
     {
       "name": "Triangle",
       "series": "donnees/series/parking_Triangle.json"
+    },
+    {
+      "name": "Gare",
+      "series": "donnees/series/parking_Gare.json"
     },
     {
       "name": "Gambetta",
@@ -83,10 +87,6 @@
     {
       "name": "Antigone",
       "series": "donnees/series/parking_Antigone.json"
-    },
-    {
-      "name": "Arc de Triomphe",
-      "series": "donnees/series/parking_Arc de Triomphe.json"
     },
     {
       "name": "Garcia Lorca",

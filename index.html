@@ -19,6 +19,7 @@
       <a href="carte.html">Carte (plein écran)</a>
       <a href="analyse_globale.html">Analyse globale</a>
       <a href="correlation.html">Corrélation (parking ↔ station)</a>
+      <a href="relais_pertinents.html">🔁 Relais pertinents</a>
     </nav>
 
     <div class="user-profile">
@@ -39,7 +40,7 @@
     </header>
 
     <section class="cards-grid">
-      <!-- NOUVEAU : Corrélation -->
+      <!-- Corrélation -->
       <div class="card kpi">
         <div class="icon-box orange">🔗</div>
         <div class="kpi-info">
@@ -49,7 +50,20 @@
         </div>
       </div>
 
-      <!-- On garde Carte interactive -->
+      <!-- NOUVEAU : Relais pertinents -->
+      <div class="card kpi">
+        <div class="icon-box green">🔁</div>
+        <div class="kpi-info">
+          <h3>Relais pertinents</h3>
+          <p class="number" id="relCount">…</p>
+          <span class="trend neutral" id="relRules">chargement…</span>
+          <div style="margin-top:6px;">
+            <a href="relais_pertinents.html" style="font-weight:700; text-decoration:none;">Voir la liste →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte interactive -->
       <div class="card kpi">
         <div class="icon-box purple">🗺️</div>
         <div class="kpi-info">
@@ -59,7 +73,7 @@
         </div>
       </div>
 
-      <!-- Carte "Analyse globale" -->
+      <!-- Analyse globale -->
       <div class="card kpi">
         <div class="icon-box blue">📊</div>
         <div class="kpi-info">
@@ -116,6 +130,11 @@
           <span class="time">Corrélation</span>
           <p>Choisir 1 parking + 1 station : <strong><a href="correlation.html">correlation.html</a></strong></p>
         </div>
+
+        <div class="alert-item">
+          <span class="time">Relais</span>
+          <p>Meilleurs couples proches : <strong><a href="relais_pertinents.html">relais_pertinents.html</a></strong></p>
+        </div>
       </div>
     </section>
 
@@ -153,6 +172,21 @@
       }else{
         corrValue.textContent = "N/A";
         corrInfo.textContent = "pas assez de points";
+      }
+
+      // Relais pertinents (JSON)
+      const rel = await safeFetchJson("donnees/relais_pertinents.json");
+      const relCount = document.getElementById("relCount");
+      const relRules = document.getElementById("relRules");
+
+      if(rel && Array.isArray(rel.items)){
+        relCount.textContent = String(rel.items.length);
+        const d = rel.max_distance_m ?? "?";
+        const p = rel.min_points ?? "?";
+        relRules.textContent = "dist ≤ " + d + " m | points ≥ " + p;
+      }else{
+        relCount.textContent = "N/A";
+        relRules.textContent = "JSON manquant";
       }
     })();
   </script>

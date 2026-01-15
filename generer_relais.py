@@ -10,10 +10,18 @@ FICHIER_JSONL_VELO = os.path.join(DOSSIER, "brut_velos.jsonl")
 
 OUT_JSON = os.path.join(DOSSIER, "relais_pertinents.json")
 
-# Réglages
-MAX_DISTANCE_M = 800          # distance max parking↔station
-MIN_POINTS = 12               # minimum de points communs
+# ============================================================
+# REGLAGES (tu peux ajuster)
+# ============================================================
+
+MAX_DISTANCE_M = 800          # distance max parking↔station (proximité)
+MIN_POINTS = 12               # minimum de points communs (fiabilité du calcul)
 TOP_N = 30                    # nombre de couples gardés
+
+ONLY_NEGATIVE = True          # True = on garde uniquement les corr < 0 (relais inverse)
+MAX_CORR_FOR_RELAIS = -0.20   # filtre minimal : ex -0.20 = on ignore les corr trop proches de 0
+
+# Si tu veux être plus strict : mets -0.30 ou -0.40
 
 
 # ============================================================
@@ -38,6 +46,7 @@ def lire_jsonl(path):
             try:
                 out.append(json.loads(line))
             except Exception:
+                # si une ligne est cassée, on l'ignore
                 pass
     return out
 
@@ -51,6 +60,7 @@ def safe_get(entite, *cles):
     return cur
 
 def extraire_lat_lon(entite):
+    # Dans les JSON de Montpellier : coordinates = [lon, lat]
     try:
         coords = entite["location"]["value"]["coordinates"]
         if isinstance(coords, list) and len(coords) >= 2:
@@ -60,6 +70,7 @@ def extraire_lat_lon(entite):
     return None, None
 
 def haversine_m(lat1, lon1, lat2, lon2):
+    # distance entre 2 points GPS en mètres
     R = 6371000.0
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
@@ -71,6 +82,7 @@ def haversine_m(lat1, lon1, lat2, lon2):
     return R * c
 
 def pearson(x, y):
+    # Corrélation de Pearson (entre -1 et +1)
     n = len(x)
     if n < 3:
         return None
@@ -109,7 +121,7 @@ def charger_points_series(series_path):
 
 
 # ============================================================
-# COORDONNÉES (fallback via brut_*.jsonl)
+# COORDONNEES (fallback via brut_*.jsonl)
 # ============================================================
 
 def coords_parkings_depuis_brut():
@@ -224,6 +236,7 @@ def main():
             if not ms:
                 continue
 
+            # timestamps communs exacts
             common = sorted(set(mp.keys()) & set(ms.keys()))
             if len(common) < MIN_POINTS:
                 continue
@@ -232,6 +245,15 @@ def main():
             y = [ms[t] for t in common]
             r = pearson(x, y)
             if r is None:
+                continue
+
+            # --- FILTRAGE "RELAIS" ---
+            if ONLY_NEGATIVE and r >= 0:
+                continue
+
+            # On ignore les corr trop faibles (trop proche de 0)
+            # Exemple : -0.05 n'est pas un bon "relais"
+            if r > MAX_CORR_FOR_RELAIS:
                 continue
 
             candidats.append({
@@ -248,14 +270,27 @@ def main():
                 "station_lon": float(slon),
             })
 
-    # Tri : meilleurs d'abord (|corr| DESC), puis distance ASC
-    candidats.sort(key=lambda o: (-abs(o["correlation"]), o["distance_m"]))
+    # ============================================================
+    # TRI "RELAIS REEL"
+    # ============================================================
+    # On veut les corrélations les PLUS NEGATIVES en premier :
+    # -0.95 (très bon relais) avant -0.60 avant -0.25 ...
+    #
+    # Si égalité, on préfère :
+    # - distance plus petite
+    # - puis plus de points (plus fiable)
+    # ============================================================
+
+    candidats.sort(key=lambda o: (o["correlation"], o["distance_m"], -o["n_points"]))
 
     out = {
         "max_distance_m": MAX_DISTANCE_M,
         "min_points": MIN_POINTS,
-        "count_total": len(candidats),
         "top_n": TOP_N,
+        "only_negative": bool(ONLY_NEGATIVE),
+        "min_relais_corr": float(MAX_CORR_FOR_RELAIS),
+        "sort": "correlation ASC (plus négative d'abord), distance ASC, n_points DESC",
+        "count_total": int(len(candidats)),
         "items": candidats[:TOP_N]
     }
 

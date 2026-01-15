@@ -21,8 +21,6 @@ TOP_N = 30                    # nombre de couples gardés
 ONLY_NEGATIVE = True          # True = on garde uniquement les corr < 0 (relais inverse)
 MAX_CORR_FOR_RELAIS = -0.20   # filtre minimal : ex -0.20 = on ignore les corr trop proches de 0
 
-# Si tu veux être plus strict : mets -0.30 ou -0.40
-
 
 # ============================================================
 # OUTILS
@@ -107,6 +105,7 @@ def charger_points_series(series_path):
     if not data or "points" not in data:
         return None
 
+    # On transforme la liste de points en dictionnaire timestamp -> value
     m = {}
     for p in data["points"]:
         ts = p.get("timestamp")
@@ -252,7 +251,6 @@ def main():
                 continue
 
             # On ignore les corr trop faibles (trop proche de 0)
-            # Exemple : -0.05 n'est pas un bon "relais"
             if r > MAX_CORR_FOR_RELAIS:
                 continue
 
@@ -271,17 +269,14 @@ def main():
             })
 
     # ============================================================
-    # TRI "RELAIS REEL"
+    # TRI : DISTANCE PRIORITAIRE
     # ============================================================
-    # On veut les corrélations les PLUS NEGATIVES en premier :
-    # -0.95 (très bon relais) avant -0.60 avant -0.25 ...
-    #
-    # Si égalité, on préfère :
-    # - distance plus petite
-    # - puis plus de points (plus fiable)
+    # 1) distance la plus petite d'abord
+    # 2) si égalité : corrélation la plus négative d'abord (ex: -0.90 avant -0.30)
+    # 3) si égalité : plus de points (plus fiable)
     # ============================================================
 
-    candidats.sort(key=lambda o: (o["correlation"], o["distance_m"], -o["n_points"]))
+    candidats.sort(key=lambda o: (o["distance_m"], o["correlation"], -o["n_points"]))
 
     out = {
         "max_distance_m": MAX_DISTANCE_M,
@@ -289,7 +284,7 @@ def main():
         "top_n": TOP_N,
         "only_negative": bool(ONLY_NEGATIVE),
         "min_relais_corr": float(MAX_CORR_FOR_RELAIS),
-        "sort": "correlation ASC (plus négative d'abord), distance ASC, n_points DESC",
+        "sort": "distance ASC, correlation ASC (plus negative), n_points DESC",
         "count_total": int(len(candidats)),
         "items": candidats[:TOP_N]
     }

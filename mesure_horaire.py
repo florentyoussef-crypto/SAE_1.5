@@ -80,7 +80,7 @@ def extraire_lat_lon(entite):
 def ajouter_snapshot_jsonl(chemin_fichier, timestamp, donnees):
     # On enregistre un "instantané" complet dans un fichier .jsonl
     # Format : 1 ligne = 1 objet JSON
-    # Avantage : on peut append sans casser le fichier
+    # on peut append sans casser le fichier
     ligne = {
         "timestamp": timestamp,
         "donnees": donnees

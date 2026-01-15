@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🔁 Relais pertinents</title>
+  <title>Relais pertinents</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
     body{font-family:Outfit, sans-serif; margin:0; background:#f3f6fd; color:#2d3436;}
@@ -16,13 +16,14 @@
     th{background:#f7f9ff; font-weight:800;}
     tr:last-child td{border-bottom:none;}
     .pill{display:inline-block; padding:6px 10px; border-radius:999px; background:#f0f2f5; font-weight:800; font-size:0.85rem; color:#2d3436;}
-    .good{background:#e0fcf6; color:#00b894;}
-    .warn{background:#ffeaa7; color:#2d3436;}
-    .bad{background:#ffe0e0; color:#d63031;}
+    .good{background:#e0fcf6; color:#00b894;}  /* relais fort (corr très négative) */
+    .warn{background:#ffeaa7; color:#2d3436;}  /* relais moyen */
+    .bad{background:#ffe0e0; color:#d63031;}   /* relais faible / proche de 0 */
     .btn{display:inline-block; padding:8px 12px; border-radius:12px; background:#3498db; color:white; font-weight:800;}
     .btn2{display:inline-block; padding:8px 12px; border-radius:12px; background:#2d3436; color:white; font-weight:800;}
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
     input{font-family:Outfit, sans-serif; padding:10px 12px; border-radius:12px; border:1px solid #ebedf0;}
+    code{background:#f7f9ff; padding:2px 6px; border-radius:8px; border:1px solid #ebedf0;}
   </style>
 </head>
 <body>
@@ -36,6 +37,7 @@
           <div class="row" style="margin-top:10px;">
             <span class="pill" id="countPill">Couples : …</span>
             <span class="pill" id="rulesPill">Règles : …</span>
+            <span class="pill" id="sortPill">Tri : …</span>
           </div>
         </div>
         <div class="row">
@@ -49,6 +51,9 @@
       <div class="row">
         <label class="muted">Filtrage par nom de parking ou de station</label>
         <input id="q" type="text" placeholder="Exemple : Comédie" style="flex:1; min-width:220px;">
+      </div>
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
+        Interprétation : un <b>relais</b> correspond à une <b>corrélation négative</b> (quand le parking se remplit, la station a tendance à se vider, ou inversement).
       </div>
     </div>
 
@@ -68,8 +73,9 @@
           <tr><td colspan="6" class="muted">Chargement…</td></tr>
         </tbody>
       </table>
-      <div class="muted" style="margin-top:10px; font-size:0.9rem;">
-        Tri : meilleurs d’abord (|corrélation|), puis distance.
+
+      <div class="muted" style="margin-top:10px; font-size:0.9rem;" id="footerInfo">
+        —
       </div>
     </div>
 
@@ -84,10 +90,12 @@
       }catch(e){ return null; }
     }
 
+    // Ici on veut valoriser un "relais" => corrélation négative
+    // Plus c'est proche de -1, plus c'est "bon"
     function corrPillClass(r){
-      const a = Math.abs(r);
-      if(a >= 0.6) return "pill good";
-      if(a >= 0.3) return "pill warn";
+      if(typeof r !== "number") return "pill bad";
+      if(r <= -0.60) return "pill good";
+      if(r <= -0.30) return "pill warn";
       return "pill bad";
     }
 
@@ -113,12 +121,14 @@
 
       filtered.forEach((it, idx) => {
         const tr = document.createElement("tr");
+        const corr = (typeof it.correlation === "number") ? it.correlation : null;
+
         tr.innerHTML = `
           <td>${idx+1}</td>
           <td><b>${it.parking || "?"}</b></td>
           <td>${it.station || "?"}</td>
           <td>${fmtM(it.distance_m || 0)}</td>
-          <td><span class="${corrPillClass(it.correlation)}">${(it.correlation ?? 0).toFixed(3)}</span></td>
+          <td><span class="${corrPillClass(corr)}">${(corr === null ? "N/A" : corr.toFixed(3))}</span></td>
           <td>${it.n_points ?? "?"}</td>
         `;
         tbody.appendChild(tr);
@@ -128,16 +138,32 @@
     (async()=>{
       const data = await safeFetchJson("donnees/relais_pertinents.json");
       if(!data){
-        document.getElementById("meta").textContent = "❌ donnees/relais_pertinents.json introuvable";
-        document.getElementById("tbody").innerHTML = '<tr><td colspan="6" class="muted">Lance generer_relais.py dans ton workflow.</td></tr>';
+        document.getElementById("meta").textContent = "❌ Le fichier donnees/relais_pertinents.json est introuvable.";
+        document.getElementById("tbody").innerHTML =
+          '<tr><td colspan="6" class="muted">Vérifier que le script <code>generer_relais.py</code> est exécuté et que le workflow commit bien <code>donnees/relais_pertinents.json</code>.</td></tr>';
+        document.getElementById("footerInfo").textContent = "—";
         return;
       }
 
       const items = data.items || [];
-      document.getElementById("meta").textContent = "Couples parking ↔ station présentant les relations les plus significatives.";
+      document.getElementById("meta").textContent =
+        "Liste des couples parking ↔ station proches présentant un comportement de relais (corrélation négative).";
+
       document.getElementById("countPill").textContent = "Couples affichés : " + items.length;
+
+      const dmax = data.max_distance_m ?? "?";
+      const pmin = data.min_points ?? "?";
+      const onlyNeg = (data.only_negative === true) ? "corr < 0" : "toutes corr";
+      const minRel = (typeof data.min_relais_corr === "number") ? data.min_relais_corr.toFixed(2) : "—";
+
       document.getElementById("rulesPill").textContent =
-        "Distance ≤ " + (data.max_distance_m ?? "?") + " m | points ≥ " + (data.min_points ?? "?");
+        "Distance ≤ " + dmax + " m | points ≥ " + pmin + " | filtre : " + onlyNeg + " | seuil : " + minRel;
+
+      document.getElementById("sortPill").textContent =
+        "Tri : " + (data.sort || "corrélation la plus négative, puis distance, puis points");
+
+      document.getElementById("footerInfo").textContent =
+        "Tri : corrélation la plus négative d’abord (relais), puis distance, puis nombre de points (fiabilité).";
 
       const q = document.getElementById("q");
       q.addEventListener("input", () => render(items, q.value));

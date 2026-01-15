@@ -19,7 +19,6 @@
     .good{background:#e0fcf6; color:#00b894;}  /* relais fort (corr très négative) */
     .warn{background:#ffeaa7; color:#2d3436;}  /* relais moyen */
     .bad{background:#ffe0e0; color:#d63031;}   /* relais faible / proche de 0 */
-    .btn{display:inline-block; padding:8px 12px; border-radius:12px; background:#3498db; color:white; font-weight:800;}
     .btn2{display:inline-block; padding:8px 12px; border-radius:12px; background:#2d3436; color:white; font-weight:800;}
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
     input{font-family:Outfit, sans-serif; padding:10px 12px; border-radius:12px; border:1px solid #ebedf0;}
@@ -53,7 +52,8 @@
         <input id="q" type="text" placeholder="Exemple : Comédie" style="flex:1; min-width:220px;">
       </div>
       <div class="muted" style="margin-top:10px; font-size:0.9rem;">
-        Interprétation : un <b>relais</b> correspond à une <b>corrélation négative</b> (quand le parking se remplit, la station a tendance à se vider, ou inversement).
+        Interprétation : un <b>relais</b> est recherché lorsque la <b>corrélation est négative</b>
+        (l’occupation du parking augmente pendant que l’occupation de la station diminue, ou inversement).
       </div>
     </div>
 
@@ -90,8 +90,8 @@
       }catch(e){ return null; }
     }
 
-    // Ici on veut valoriser un "relais" => corrélation négative
-    // Plus c'est proche de -1, plus c'est "bon"
+    // Un "relais" est recherché via corrélation négative :
+    // plus c'est proche de -1, plus la relation inverse est forte.
     function corrPillClass(r){
       if(typeof r !== "number") return "pill bad";
       if(r <= -0.60) return "pill good";
@@ -140,14 +140,15 @@
       if(!data){
         document.getElementById("meta").textContent = "❌ Le fichier donnees/relais_pertinents.json est introuvable.";
         document.getElementById("tbody").innerHTML =
-          '<tr><td colspan="6" class="muted">Vérifier que le script <code>generer_relais.py</code> est exécuté et que le workflow commit bien <code>donnees/relais_pertinents.json</code>.</td></tr>';
+          '<tr><td colspan="6" class="muted">Vérifier que le script <code>generer_relais.py</code> est exécuté et que le workflow enregistre bien <code>donnees/relais_pertinents.json</code>.</td></tr>';
         document.getElementById("footerInfo").textContent = "—";
         return;
       }
 
       const items = data.items || [];
+
       document.getElementById("meta").textContent =
-        "Liste des couples parking ↔ station proches présentant un comportement de relais (corrélation négative).";
+        "Liste de couples parking ↔ station proches présentant un comportement de relais (corrélation négative).";
 
       document.getElementById("countPill").textContent = "Couples affichés : " + items.length;
 
@@ -160,10 +161,10 @@
         "Distance ≤ " + dmax + " m | points ≥ " + pmin + " | filtre : " + onlyNeg + " | seuil : " + minRel;
 
       document.getElementById("sortPill").textContent =
-        "Tri : " + (data.sort || "corrélation la plus négative, puis distance, puis points");
+        "Tri : " + (data.sort || "distance, puis corrélation, puis points");
 
       document.getElementById("footerInfo").textContent =
-        "Tri : corrélation la plus négative d’abord (relais), puis distance, puis nombre de points (fiabilité).";
+        "Tri : distance la plus faible d’abord (couple le plus proche), puis corrélation (plus négative = relais plus marqué), puis nombre de points (fiabilité).";
 
       const q = document.getElementById("q");
       q.addEventListener("input", () => render(items, q.value));

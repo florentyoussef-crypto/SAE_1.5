@@ -44,9 +44,10 @@ jobs:
           python analyse_semaine.py
           python carte_unique.py
           python generer_relais.py
+          python generer_heatmap.py
 
       - name: Sauvegarder les resultats
         run: |
-          git add donnees/ carte.html relais_pertinents.html donnees/relais_pertinents.json
-          git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte + relais"
+          git add donnees/ carte.html relais_pertinents.html donnees/relais_pertinents.json heatmap_correlation.html donnees/heatmap_corr.json
+          git diff --cached --quiet && echo "rien a commit" || git commit -m "analyse quotidienne + carte + relais + heatmap"
           git push

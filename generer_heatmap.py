@@ -80,14 +80,14 @@ def main():
 
     catalog = lire_json(CATALOG)
     if not catalog:
-        print("❌ catalog.json introuvable :", CATALOG)
+        print("catalog.json introuvable :", CATALOG)
         return
 
     parkings = catalog.get("parkings", [])
     stations = catalog.get("stations", [])
 
     if len(parkings) == 0 or len(stations) == 0:
-        print("❌ Pas assez d'objets dans catalog.json")
+        print("Pas assez d'objets dans catalog.json")
         return
 
     # Cache des séries (évite de relire 1000 fois)
@@ -165,7 +165,7 @@ def main():
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 
-    print("✅ heatmap_corr.json généré :", OUT_JSON)
+    print("heatmap_corr.json généré :", OUT_JSON)
     print("   parkings:", len(p_names), "| stations:", len(s_names))
 
 if __name__ == "__main__":

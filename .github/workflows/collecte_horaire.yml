@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ✅ Rebase AVANT de modifier des fichiers
+
       - name: Sync avec main
         run: |
           git config user.name "github-actions"

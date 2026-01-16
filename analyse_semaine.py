@@ -29,6 +29,28 @@ FICHIER_JSONL_VELO = os.path.join(DOSSIER_DONNEES, "brut_velos.jsonl")
 
 
 # ============================================================
+# AJOUT : PARAMETRES POUR EXCLURE LES CAPTEURS "BLOQUES"
+# ============================================================
+
+FICHIER_PARKINGS_EXCLUS = os.path.join(DOSSIER_DONNEES, "parkings_exclus.json")
+# Fichier où l’on enregistre la liste des parkings considérés "buggés" / bloqués.
+
+MIN_POINTS_CAPTEUR = 20
+# Minimum de points (mesures) pour juger qu’un capteur est bloqué (sinon on ne conclut pas).
+
+EPS_STD = 0.001
+# Si l’écart-type du taux est inférieur à EPS_STD, on considère que ça bouge trop peu (suspect).
+
+ROUND_FOR_UNIQUE = 3
+# Pour compter les valeurs "différentes" on arrondit (sinon bruit flottant).
+# Exemple : 0.3000000001 et 0.2999999999 deviennent 0.300
+
+MAX_UNIQUE_VALUES = 2
+# Si un parking a <= MAX_UNIQUE_VALUES valeurs différentes (après arrondi) sur beaucoup de points,
+# c’est typiquement un capteur bloqué (toujours identique ou presque identique).
+
+
+# ============================================================
 # OUTILS "SYSTÈME" (dossiers / fichiers)
 # ============================================================
 
@@ -109,22 +131,122 @@ def lire_jsonl(chemin):
 
 
 # ============================================================
+# AJOUT : DETECTION DES PARKINGS "BLOQUES" (CAPTEUR BUG)
+# ============================================================
+
+def detecter_parkings_bloques_depuis_brut():
+    # Objectif :
+    # - Lire brut_voitures.jsonl (snapshots)
+    # - Reconstituer, pour chaque parking, la série de taux d'occupation
+    # - Détecter ceux qui varient presque jamais (capteur bloqué)
+    # - Retourner un set() de noms de parkings à exclure
+
+    snaps = lire_jsonl(FICHIER_JSONL_VOITURE)
+
+    # Dictionnaire : nom_parking -> liste des taux observés dans le temps
+    series_by_name = {}
+
+    for snap in snaps:
+        donnees = snap.get("donnees", [])
+        if not isinstance(donnees, list):
+            continue
+
+        for p in donnees:
+            if safe_get(p, "status", "value") != "Open":
+                continue
+
+            nom = safe_get(p, "name", "value")
+            libres = safe_get(p, "availableSpotNumber", "value")
+            total = safe_get(p, "totalSpotNumber", "value")
+
+            if nom is None or libres is None or total is None:
+                continue
+
+            try:
+                libres = float(libres)
+                total = float(total)
+            except Exception:
+                continue
+
+            if total <= 0:
+                continue
+
+            taux = (total - libres) / total
+
+            n = str(nom)
+            if n not in series_by_name:
+                series_by_name[n] = []
+            series_by_name[n].append(float(taux))
+
+    exclus = set()
+
+    # On analyse chaque parking séparément
+    for nom, vals in series_by_name.items():
+        if len(vals) < MIN_POINTS_CAPTEUR:
+            # Pas assez de points pour conclure -> on ne l'exclut pas
+            continue
+
+        s = pd.Series(vals)
+
+        # 1) Mesure "bouge-t-il ?" -> écart-type
+        std = float(s.std(ddof=0)) if len(s) > 0 else 999.0
+
+        # 2) Combien de valeurs différentes (après arrondi) ?
+        nunique = int(pd.Series([round(v, ROUND_FOR_UNIQUE) for v in vals]).nunique())
+
+        # Critère de "capteur bloqué"
+        if std <= EPS_STD or nunique <= MAX_UNIQUE_VALUES:
+            exclus.add(nom)
+
+    return exclus
+
+
+def sauvegarder_parkings_exclus(exclus_set):
+    # On écrit un JSON simple, lisible, utile pour ton site/diapo.
+    creer_dossier_si_absent(DOSSIER_DONNEES)
+
+    out = {
+        "rule": {
+            "min_points": int(MIN_POINTS_CAPTEUR),
+            "eps_std": float(EPS_STD),
+            "round_for_unique": int(ROUND_FOR_UNIQUE),
+            "max_unique_values": int(MAX_UNIQUE_VALUES)
+        },
+        "count_excluded": int(len(exclus_set)),
+        "excluded": sorted(list(exclus_set))
+    }
+
+    with open(FICHIER_PARKINGS_EXCLUS, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+
+
+# ============================================================
 # CALCULS : TAUX D'OCCUPATION VOITURE (niveau "ville")
 # ============================================================
 
-def calculer_taux_ville_voiture(donnees_parking):
+def calculer_taux_ville_voiture(donnees_parking, exclude_names=None):
     # Ici, on calcule un taux global pour "la ville" à partir de tous les parkings.
     #
     # Formule pour 1 parking :
     # taux = (total - libres) / total
     #
     # Là, on additionne tous les totals et tous les libres pour faire un taux global.
+
+    # AJOUT : exclude_names est un set() de parkings qu’on ignore (capteurs buggés).
+    if exclude_names is None:
+        exclude_names = set()
+
     somme_total = 0.0
     somme_libres = 0.0
 
     for p in donnees_parking:
         # On ignore les parkings fermés
         if safe_get(p, "status", "value") != "Open":
+            continue
+
+        # AJOUT : on ignore les parkings "exclus"
+        nom = safe_get(p, "name", "value")
+        if nom is not None and str(nom) in exclude_names:
             continue
 
         libres = safe_get(p, "availableSpotNumber", "value")
@@ -195,13 +317,17 @@ def calculer_moyenne_taux_places_velo(donnees_stations):
 # CORRELATION GLOBALE (depuis les fichiers brut_*.jsonl)
 # ============================================================
 
-def correlation_globale_depuis_brut():
+def correlation_globale_depuis_brut(exclude_names=None):
     # Objectif :
     # - Lire tous les snapshots voiture et vélo
     # - Calculer une série "taux voiture ville" et une série "taux vélo moyen"
     # - Aligner uniquement les timestamps EXACTS communs
     # - Calculer la corrélation de Pearson sur ces points
     # - Écrire le résultat dans donnees/correlation_global.json
+
+    # AJOUT : si exclude_names est fourni, on ignore ces parkings dans le taux voiture ville
+    if exclude_names is None:
+        exclude_names = set()
 
     snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
     snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
@@ -214,7 +340,7 @@ def correlation_globale_depuis_brut():
         if not ts or not isinstance(donnees, list):
             continue
 
-        v = calculer_taux_ville_voiture(donnees)
+        v = calculer_taux_ville_voiture(donnees, exclude_names=exclude_names)
         if v is not None:
             car_by_ts[ts] = v
 
@@ -256,11 +382,15 @@ def correlation_globale_depuis_brut():
 # CORRELATION GLISSANTE (rolling) pour afficher une courbe dans le site
 # ============================================================
 
-def correlation_glissante_depuis_brut(window=12):
+def correlation_glissante_depuis_brut(window=12, exclude_names=None):
     """
     Génère donnees/series_global/corr_voiture_velo.json
     Corrélation Pearson glissante sur timestamps EXACTS communs.
     """
+
+    # AJOUT : si exclude_names est fourni, on ignore ces parkings dans le taux voiture ville
+    if exclude_names is None:
+        exclude_names = set()
 
     snaps_v = lire_jsonl(FICHIER_JSONL_VOITURE)
     snaps_b = lire_jsonl(FICHIER_JSONL_VELO)
@@ -271,7 +401,7 @@ def correlation_glissante_depuis_brut(window=12):
         donnees = snap.get("donnees", [])
         if not ts or not isinstance(donnees, list):
             continue
-        v = calculer_taux_ville_voiture(donnees)
+        v = calculer_taux_ville_voiture(donnees, exclude_names=exclude_names)
         if v is not None:
             car_by_ts[ts] = v
 
@@ -381,7 +511,7 @@ def ecrire_serie_global(nom_fichier, title, x_ts, y_vals):
 # ANALYSE VOITURES (depuis les CSV journaliers)
 # ============================================================
 
-def analyser_voitures():
+def analyser_voitures(exclude_names=None):
     # On récupère tous les fichiers journaliers voiture (jour_..._voitures.csv)
     fichiers = fichiers_journaliers("_voitures.csv")
     if len(fichiers) == 0:
@@ -405,8 +535,39 @@ def analyser_voitures():
     # --- Courbe "VILLE" ---
     df_ville = df[df["type"] == "VILLE"].dropna(subset=["taux_occupation", "timestamp"]).sort_values("timestamp")
 
+    # AJOUT : si on a une liste de parkings exclus, on reconstruit une courbe "ville"
+    # à partir des lignes PARKING (plus fiable), en ignorant les capteurs bloqués.
+    df_p_all = df[df["type"] == "PARKING"].dropna(subset=["taux_occupation", "timestamp"]).copy()
+
+    df_ville_calc = None
+    if exclude_names is not None and len(df_p_all) > 0:
+        df_p_ok = df_p_all[~df_p_all["nom"].astype(str).isin(set(exclude_names))].copy()
+        if len(df_p_ok) > 0:
+            # moyenne simple des taux par timestamp (démo claire et stable)
+            df_ville_calc = df_p_ok.groupby("timestamp")["taux_occupation"].mean().reset_index()
+            df_ville_calc = df_ville_calc.sort_values("timestamp")
+
     # Si on a des données, on trace une courbe globale et on la sauvegarde
-    if len(df_ville) > 0:
+    if df_ville_calc is not None and len(df_ville_calc) > 0:
+        plt.figure()
+        plt.plot(df_ville_calc["taux_occupation"].values)
+        plt.title("Taux d'occupation voiture - VILLE (global)")
+        plt.xlabel("Mesure (ordre chronologique)")
+        plt.ylabel("Taux")
+        plt.ylim(0, 1)
+        plt.tight_layout()
+        plt.savefig(os.path.join(DOSSIER_IMAGES, "courbe_voitures_ville.png"))
+        plt.close()
+
+        # On écrit aussi la série en JSON pour le site
+        ecrire_serie_global(
+            "voiture_ville.json",
+            "Taux d'occupation voiture - VILLE (global)",
+            df_ville_calc["timestamp"].tolist(),
+            df_ville_calc["taux_occupation"].tolist()
+        )
+
+    elif len(df_ville) > 0:
         plt.figure()
         plt.plot(df_ville["taux_occupation"].values)
         plt.title("Taux d'occupation voiture - VILLE (global)")
@@ -427,6 +588,11 @@ def analyser_voitures():
 
     # --- Analyse par parking ---
     df_p = df[df["type"] == "PARKING"].dropna(subset=["taux_occupation", "timestamp"]).copy()
+
+    # AJOUT : on retire les parkings exclus des stats "top 10" (sinon ça fausse)
+    if exclude_names is not None and len(df_p) > 0:
+        df_p = df_p[~df_p["nom"].astype(str).isin(set(exclude_names))].copy()
+
     if len(df_p) > 0:
         # Parking saturé = taux >= 0.95
         df_p["sature"] = df_p["taux_occupation"] >= 0.95
@@ -543,20 +709,29 @@ def main():
     creer_dossier_si_absent(DOSSIER_IMAGES)
     creer_dossier_si_absent(DOSSIER_SERIES_GLOBAL)
 
+    # AJOUT : on détecte les parkings "capteur bloqué" et on les enregistre
+    exclus = detecter_parkings_bloques_depuis_brut()
+    sauvegarder_parkings_exclus(exclus)
+
     # Analyses à partir des CSV journaliers
-    analyser_voitures()
+    analyser_voitures(exclude_names=exclus)
     analyser_velos()
     analyser_relais()
 
     # Corrélation globale (fichier correlation_global.json)
-    correlation_globale_depuis_brut()
+    correlation_globale_depuis_brut(exclude_names=exclus)
 
     # Corrélation glissante (fichier corr_voiture_velo.json pour correlation.html)
-    correlation_glissante_depuis_brut(window=12)
+    correlation_glissante_depuis_brut(window=12, exclude_names=exclus)
 
     # résumé console
     print("Images générées dans :", DOSSIER_IMAGES)
     print("Séries globales JSON générées dans :", DOSSIER_SERIES_GLOBAL)
+
+    # AJOUT : petit résumé de l’exclusion (pour comprendre dans les logs)
+    print("Parkings exclus (capteurs bloqués) :", len(exclus))
+    if len(exclus) > 0:
+        print("Exemples :", list(sorted(exclus))[:10])
 
 if __name__ == "__main__":
     main()

@@ -29,11 +29,6 @@
         <div>
           <h1>📊 Analyse globale</h1>
           <div class="muted" id="info">Chargement…</div>
-          <div class="row" style="margin-top:8px;">
-            <span class="pill" id="corrPill">Corrélation globale : …</span>
-            <span class="pill" id="ptsPill">Points : …</span>
-            <span class="pill" id="methodPill">Méthode : …</span>
-          </div>
         </div>
         <div><a href="index.html">← Retour</a></div>
       </div>
@@ -74,33 +69,6 @@
       return String(ts).replace("T"," ").replace("+01:00","").replace("+02:00","");
     }
 
-    function setCorrelationUI(corr){
-      const corrPill = document.getElementById("corrPill");
-      const ptsPill = document.getElementById("ptsPill");
-      const methodPill = document.getElementById("methodPill");
-
-      if(corr && typeof corr.correlation === "number"){
-        const v = corr.correlation;
-        const n = corr.n_points ?? "?";
-        const m = corr.method ?? "pearson";
-
-        corrPill.textContent = "Corrélation globale : " + v.toFixed(3);
-        ptsPill.textContent = "Points : " + n;
-        methodPill.textContent = "Méthode : " + m;
-
-        corrPill.classList.remove("warn","ok");
-        if(Math.abs(v) >= 0.5){
-          corrPill.classList.add("ok");
-        }else if(Math.abs(v) >= 0.2){
-          corrPill.classList.add("warn");
-        }
-      }else{
-        corrPill.textContent = "Corrélation globale : N/A";
-        ptsPill.textContent = "Points : ?";
-        methodPill.textContent = "Méthode : ?";
-      }
-    }
-
     function buildPlot(divId, serie, yLabel){
       const el = document.getElementById(divId);
       if(!serie || !Array.isArray(serie.points) || serie.points.length === 0){
@@ -139,9 +107,6 @@
       document.getElementById("info").textContent = upd?.last_update
         ? ("Dernière mise à jour : " + formatTs(upd.last_update))
         : "Dernière mise à jour : inconnue";
-
-      const corr = await safeFetchJson("donnees/correlation_global.json");
-      setCorrelationUI(corr);
 
       const sVoiture = await safeFetchJson("donnees/series_global/voiture_ville.json");
       const sVelo = await safeFetchJson("donnees/series_global/velo_moyenne.json");

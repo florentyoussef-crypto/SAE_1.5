@@ -41,17 +41,7 @@
     </header>
 
     <section class="cards-grid">
-      <!-- Corrélation -->
-      <div class="card kpi">
-        <div class="icon-box orange">🔗</div>
-        <div class="kpi-info">
-          <h3>Corrélation voiture ↔ vélo</h3>
-          <p class="number" id="corrValue">…</p>
-          <span class="trend neutral" id="corrInfo">n=…</span>
-        </div>
-      </div>
-
-      <!-- NOUVEAU : Relais pertinents -->
+      <!--Relais pertinents -->
       <div class="card kpi">
         <div class="icon-box green">🔁</div>
         <div class="kpi-info">
@@ -80,7 +70,7 @@
         <div class="kpi-info">
           <h3>Analyse globale</h3>
           <p class="text-stat">Plotly</p>
-          <span class="sub-text">Courbes interactives + corrélation</span>
+          <span class="sub-text">Courbes interactives</span>
         </div>
       </div>
     </section>
@@ -162,19 +152,6 @@
         ? ("Dernière mise à jour : " + formatTs(upd.last_update))
         : "Dernière mise à jour : inconnue";
 
-      // Corrélation globale
-      const corr = await safeFetchJson("donnees/correlation_global.json");
-      const corrValue = document.getElementById("corrValue");
-      const corrInfo = document.getElementById("corrInfo");
-
-      if(corr && typeof corr.correlation === "number"){
-        corrValue.textContent = corr.correlation.toFixed(3);
-        corrInfo.textContent = "n=" + (corr.n_points ?? "?") + " (" + (corr.method ?? "pearson") + ")";
-      }else{
-        corrValue.textContent = "N/A";
-        corrInfo.textContent = "pas assez de points";
-      }
-
       // Relais pertinents (JSON)
       const rel = await safeFetchJson("donnees/relais_pertinents.json");
       const relCount = document.getElementById("relCount");
@@ -193,8 +170,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-

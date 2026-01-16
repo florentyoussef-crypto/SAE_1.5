@@ -1,0 +1,17 @@
+{
+  "rule": {
+    "min_points": 20,
+    "eps_std": 0.001,
+    "round_for_unique": 3,
+    "max_unique_values": 2
+  },
+  "count_excluded": 6,
+  "excluded": [
+    "Gaumont EST",
+    "Gaumont OUEST",
+    "Gaumont-Circe",
+    "Pitot",
+    "Polygone",
+    "Triangle"
+  ]
+}

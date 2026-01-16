@@ -52,7 +52,6 @@
       </div>
 
       <div style="margin-top:12px;" class="row">
-        <span class="pill" id="resGlobal">Corrélation globale : …</span>
         <span class="pill" id="npts">Points : …</span>
         <span class="pill" id="resWin">Fenêtre : …</span>
       </div>
@@ -159,7 +158,7 @@
     (async()=>{
       const catalog = await safeFetchJson("donnees/catalog.json");
       if(!catalog){
-        document.getElementById("resGlobal").textContent = "Corrélation globale : catalog.json introuvable";
+        document.getElementById("npts").textContent = "Points : catalog.json introuvable";
         return;
       }
 
@@ -184,7 +183,6 @@
       winI.addEventListener("input", updateBtn);
 
       btn.addEventListener("click", async()=>{
-        document.getElementById("resGlobal").textContent = "Corrélation globale : calcul…";
         document.getElementById("npts").textContent = "Points : …";
         document.getElementById("resWin").textContent = "Fenêtre : …";
         document.getElementById("chartCorr").innerHTML = "";
@@ -195,7 +193,7 @@
         const ss = await safeFetchJson(selS.value);
 
         if(!sp || !ss || !Array.isArray(sp.points) || !Array.isArray(ss.points)){
-          document.getElementById("resGlobal").textContent = "Corrélation globale : erreur lecture séries";
+          document.getElementById("npts").textContent = "Points : erreur lecture séries";
           return;
         }
 
@@ -213,13 +211,8 @@
         const x = common.map(t => mapP.get(t));
         const y = common.map(t => mapS.get(t));
 
-        const rGlobal = pearson(x, y);
-
         document.getElementById("npts").textContent = "Points : " + common.length;
         document.getElementById("resWin").textContent = "Fenêtre : " + w;
-
-        document.getElementById("resGlobal").textContent =
-          (rGlobal === null) ? "Corrélation globale : N/A" : ("Corrélation globale : " + rGlobal.toFixed(3));
 
         // Courbe glissante (UNE SEULE courbe)
         const pts = rollingCorrelation(common, x, y, w);

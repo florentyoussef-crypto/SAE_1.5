@@ -9,7 +9,7 @@ Ce projet a pour objectif l’analyse de données temporelles (horaires et hebdo
 
 ---
 
-## 📌 Contexte du projet
+## Contexte du projet
 
 Dans le cadre de cette SAE, l'objectif est d'exploiter un ensemble de données brutes afin de :
 - **Extraire** des informations pertinentes et traiter les données massives.
@@ -20,7 +20,7 @@ Les résultats sont présentés sous forme de fichiers HTML interactifs (cartes,
 
 ---
 
-## 🚀 Objectifs
+## Objectifs
 
 - [x] Analyser des données temporelles complexes.
 - [x] Mettre en évidence des corrélations statistiques.
@@ -29,7 +29,7 @@ Les résultats sont présentés sous forme de fichiers HTML interactifs (cartes,
 
 ---
 
-## 📂 Structure du dépôt
+## Structure du dépôt
 
 ```text
 SAE_1.5/

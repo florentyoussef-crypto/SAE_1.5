@@ -1,16 +1,16 @@
 {
   "parkings": [
     {
+      "name": "Euromedecine",
+      "series": "donnees/series/parking_Euromedecine.json"
+    },
+    {
       "name": "Sablassou",
       "series": "donnees/series/parking_Sablassou.json"
     },
     {
       "name": "Saint Jean Le Sec",
       "series": "donnees/series/parking_Saint Jean Le Sec.json"
-    },
-    {
-      "name": "Euromedecine",
-      "series": "donnees/series/parking_Euromedecine.json"
     },
     {
       "name": "Occitanie",

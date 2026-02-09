@@ -5,27 +5,14 @@
   "only_negative": true,
   "min_relais_corr": -0.2,
   "sort": "distance ASC, correlation ASC (plus negative), n_points DESC",
-  "count_total": 4,
+  "count_total": 3,
   "items": [
-    {
-      "parking": "Garcia Lorca",
-      "station": "Garcia Lorca",
-      "distance_m": 26.605562012295334,
-      "correlation": -0.20581482161478362,
-      "n_points": 772,
-      "parking_series": "donnees/series/parking_Garcia Lorca.json",
-      "station_series": "donnees/series/velo_Garcia Lorca.json",
-      "parking_lat": 43.59098509,
-      "parking_lon": 3.8907158,
-      "station_lat": 43.590757,
-      "station_lon": 3.890616
-    },
     {
       "parking": "Euromedecine",
       "station": "Euromédecine",
       "distance_m": 42.444503154701806,
-      "correlation": -0.25107101175809904,
-      "n_points": 771,
+      "correlation": -0.25976439051218636,
+      "n_points": 802,
       "parking_series": "donnees/series/parking_Euromedecine.json",
       "station_series": "donnees/series/velo_Euromédecine.json",
       "parking_lat": 43.63895359,
@@ -37,8 +24,8 @@
       "parking": "Foch",
       "station": "Plan Cabanes",
       "distance_m": 704.9635169580815,
-      "correlation": -0.22682984410100226,
-      "n_points": 772,
+      "correlation": -0.20998769264755635,
+      "n_points": 803,
       "parking_series": "donnees/series/parking_Foch.json",
       "station_series": "donnees/series/velo_Plan Cabanes.json",
       "parking_lat": 43.61074912,
@@ -47,17 +34,17 @@
       "station_lon": 3.868389
     },
     {
-      "parking": "Gare",
-      "station": "Voltaire",
-      "distance_m": 785.4999578196927,
-      "correlation": -0.23453805957963636,
-      "n_points": 772,
-      "parking_series": "donnees/series/parking_Gare.json",
-      "station_series": "donnees/series/velo_Voltaire.json",
-      "parking_lat": 43.604024,
-      "parking_lon": 3.87891,
-      "station_lat": 43.603767,
-      "station_lon": 3.888659
+      "parking": "Europa",
+      "station": "Richter",
+      "distance_m": 732.1249492622312,
+      "correlation": -0.2281887238939713,
+      "n_points": 803,
+      "parking_series": "donnees/series/parking_Europa.json",
+      "station_series": "donnees/series/velo_Richter.json",
+      "parking_lat": 43.60784971,
+      "parking_lon": 3.89253074,
+      "station_lat": 43.603424,
+      "station_lon": 3.899263
     }
   ]
 }

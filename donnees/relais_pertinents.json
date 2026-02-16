@@ -5,33 +5,20 @@
   "only_negative": true,
   "min_relais_corr": -0.2,
   "sort": "distance ASC, correlation ASC (plus negative), n_points DESC",
-  "count_total": 2,
+  "count_total": 1,
   "items": [
     {
       "parking": "Garcia Lorca",
       "station": "Garcia Lorca",
       "distance_m": 26.605562012295334,
-      "correlation": -0.2059872019277517,
-      "n_points": 926,
+      "correlation": -0.22308593045612382,
+      "n_points": 957,
       "parking_series": "donnees/series/parking_Garcia Lorca.json",
       "station_series": "donnees/series/velo_Garcia Lorca.json",
       "parking_lat": 43.59098509,
       "parking_lon": 3.8907158,
       "station_lat": 43.590757,
       "station_lon": 3.890616
-    },
-    {
-      "parking": "Euromedecine",
-      "station": "Euromédecine",
-      "distance_m": 42.444503154701806,
-      "correlation": -0.21043940551585458,
-      "n_points": 924,
-      "parking_series": "donnees/series/parking_Euromedecine.json",
-      "station_series": "donnees/series/velo_Euromédecine.json",
-      "parking_lat": 43.63895359,
-      "parking_lon": 3.82772365,
-      "station_lat": 43.639119,
-      "station_lon": 3.828199
     }
   ]
 }

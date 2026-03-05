@@ -99,6 +99,10 @@
   ],
   "stations": [
     {
+      "name": "FacdesSciences",
+      "series": "donnees/series/velo_FacdesSciences.json"
+    },
+    {
       "name": "Jeu de Mail des Abbés",
       "series": "donnees/series/velo_Jeu de Mail des Abbés.json"
     },
@@ -119,8 +123,8 @@
       "series": "donnees/series/velo_Garcia Lorca.json"
     },
     {
-      "name": "FacdesSciences",
-      "series": "donnees/series/velo_FacdesSciences.json"
+      "name": "Fac des Sciences",
+      "series": "donnees/series/velo_Fac des Sciences.json"
     },
     {
       "name": "Occitanie",

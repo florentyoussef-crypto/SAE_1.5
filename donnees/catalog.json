@@ -45,8 +45,8 @@
       "series": "donnees/series/parking_Mosson.json"
     },
     {
-      "name": "Gambetta",
-      "series": "donnees/series/parking_Gambetta.json"
+      "name": "Gare",
+      "series": "donnees/series/parking_Gare.json"
     },
     {
       "name": "Circe",
@@ -61,8 +61,8 @@
       "series": "donnees/series/parking_Triangle.json"
     },
     {
-      "name": "Gare",
-      "series": "donnees/series/parking_Gare.json"
+      "name": "Gambetta",
+      "series": "donnees/series/parking_Gambetta.json"
     },
     {
       "name": "Foch",

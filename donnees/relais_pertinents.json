@@ -5,20 +5,6 @@
   "only_negative": true,
   "min_relais_corr": -0.2,
   "sort": "distance ASC, correlation ASC (plus negative), n_points DESC",
-  "count_total": 1,
-  "items": [
-    {
-      "parking": "Garcia Lorca",
-      "station": "Garcia Lorca",
-      "distance_m": 26.605562012295334,
-      "correlation": -0.20097813707162773,
-      "n_points": 1671,
-      "parking_series": "donnees/series/parking_Garcia Lorca.json",
-      "station_series": "donnees/series/velo_Garcia Lorca.json",
-      "parking_lat": 43.59098509,
-      "parking_lon": 3.8907158,
-      "station_lat": 43.590757,
-      "station_lon": 3.890616
-    }
-  ]
+  "count_total": 0,
+  "items": []
 }

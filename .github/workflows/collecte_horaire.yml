@@ -1,51 +1,51 @@
-name: collecte-30min
+#name: collecte-30min
 
-on:
-  schedule:
-    - cron: "*/30 * * * *"
-  workflow_dispatch:
+#on:
+#  schedule:
+#    - cron: "*/30 * * * *"
+#  workflow_dispatch:
 
-permissions:
-  contents: write
+#permissions:
+#  contents: write
 
-concurrency:
-  group: write-main
-  cancel-in-progress: false
+#concurrency:
+  #group: write-main
+  #cancel-in-progress: false
 
-jobs:
-  run:
-    runs-on: ubuntu-latest
+#jobs:
+  #run:
+   # runs-on: ubuntu-latest
 
-    steps:
-      - name: Recuperation du depot
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  #  steps:
+    #  - name: Recuperation du depot
+      #  uses: actions/checkout@v4
+      #  with:
+       #   fetch-depth: 0
 
 
-      - name: Sync avec main
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git fetch origin main
-          git rebase origin/main
+  #    - name: Sync avec main
+  #      run: |
+      #    git config user.name "github-actions"
+      #    git config user.email "github-actions@github.com"
+         # git fetch origin main
+#          git rebase origin/main
 
-      - name: Installation de Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+  #    - name: Installation de Python
+  #      uses: actions/setup-python@v5
+  #      with:
+   #       python-version: "3.11"
 
-      - name: Installer les dependances
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+ #     - name: Installer les dependances
+#        run: |
+   #       python -m pip install --upgrade pip
+   #       pip install requests
 
-      - name: Lancer la collecte (30 min)
-        run: |
-          python mesure_horaire.py
+  #    - name: Lancer la collecte (30 min)
+  #      run: |
+  #        python mesure_horaire.py
 
-      - name: Sauvegarder les donnees
-        run: |
-          git add donnees/
-          git diff --cached --quiet && echo "rien a commit" || git commit -m "collecte automatique 30 min"
-          git push
+ #     - name: Sauvegarder les donnees
+  #      run: |
+ #         git add donnees/
+#          git diff --cached --quiet && echo "rien a commit" || git commit -m "collecte automatique 30 min"
+#          git push
